@@ -2,6 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import { useRef } from "react";
+import { getDownloadURL, ref, uploadString } from "firebase/storage";
+import { storage } from "./infra/firebase";
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -21,22 +23,49 @@ export default function Home() {
     videoRef.current.srcObject = captureStream;
   };
 
-  const captureScreenshot = () => {
-    if (!videoRef.current || !canvasRef.current) {
-      return;
-    }
+  const captureScreenshot = async () => {
+    try {
+      if (!videoRef.current || !canvasRef.current) {
+        return;
+      }
 
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const context = canvas.getContext("2d");
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      const context = canvas.getContext("2d");
 
-    if (context) {
+      if (!context) {
+        return;
+      }
+
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
       // スクリーンショットをデータURLとして取得
-      const dataUrl = canvas.toDataURL("image/png");
+      const dataUrl = canvas.toDataURL("image/jpg");
+
+      const storageRef = ref(storage, "images/" + Date.now() + ".jpg");
+      const res = await uploadString(storageRef, dataUrl, "data_url");
+
+      const imageUrl = await getDownloadURL(
+        ref(storage, res.metadata.fullPath),
+      );
+
+      const visionApiRes = await fetch("/api", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ imageUrl }),
+      });
+
+      if (!visionApiRes.ok) {
+        throw new Error("API Error");
+      }
+
+      console.log(await visionApiRes.json());
+    } catch (e) {
+      console.error(e);
     }
   };
 
