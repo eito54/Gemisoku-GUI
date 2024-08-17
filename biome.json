@@ -11,7 +11,13 @@
         "all": false
       }
     },
-    "ignore": ["node_modules/**", "dist/**", ".turbo/**", "**/schema.gen.ts",  ".next/**"]
+    "ignore": [
+      "node_modules/**",
+      "dist/**",
+      ".turbo/**",
+      "**/schema.gen.ts",
+      ".next/**"
+    ]
   },
   "formatter": {
     "enabled": true,

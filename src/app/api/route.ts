@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { googleVisionClient } from "../infra/gcp";
 
-
 export async function POST(req: NextRequest) {
   const json = await req.json();
 
