@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@google-cloud/vision':
         specifier: ^4.3.1
-        version: 4.3.1
+        version: 4.3.1(encoding@0.1.13)
       '@radix-ui/react-slot':
         specifier: ^1.1.0
         version: 1.1.0(@types/react@18.3.3)(react@18.3.1)
@@ -32,6 +32,9 @@ importers:
       next:
         specifier: 14.2.5
         version: 14.2.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      obs-websocket-js:
+        specifier: ^5.0.6
+        version: 5.0.6(bufferutil@4.0.8)
       react:
         specifier: ^18
         version: 18.3.1
@@ -53,7 +56,7 @@ importers:
         version: 1.8.3
       '@types/node':
         specifier: ^20
-        version: 20.15.0
+        version: 20.16.0
       '@types/react':
         specifier: ^18
         version: 18.3.3
@@ -476,6 +479,10 @@ packages:
   '@js-sdsl/ordered-map@4.4.2':
     resolution: {integrity: sha512-iUKgm52T8HOE/makSxjqoWhe95ZJA1/G1sYsGev2JDKUSS14KAgg1LHb+Ba+IPow0xflbnSkOsZcO08C7w1gYw==}
 
+  '@msgpack/msgpack@2.8.0':
+    resolution: {integrity: sha512-h9u4u/jiIRKbq25PM+zymTyW6bhTzELvOoUd+AvYriWOAKpLGnIamaET3pnHYoI5iYphAHBI4ayx0MehR+VVPQ==}
+    engines: {node: '>= 10'}
+
   '@next/env@14.2.5':
     resolution: {integrity: sha512-/zZGkrTOsraVfYjGP8uM0p6r0BDT6xWpkjdVbcz66PJVSpwXX3yNiRycxAuDfBKGWBrZBXRuK/YVlkNgxHGwmA==}
 
@@ -613,8 +620,8 @@ packages:
   '@types/long@4.0.2':
     resolution: {integrity: sha512-MqTGEo5bj5t157U6fA/BiDynNkn0YknVdh48CMPkTSpFTVmvao5UQmm7uEF6xBEo7qIMAlY/JSleYaE6VOdpaA==}
 
-  '@types/node@20.15.0':
-    resolution: {integrity: sha512-eQf4OkH6gA9v1W0iEpht/neozCsZKMTK+C4cU6/fv7wtJCCL8LEQ4hie2Ln8ZP/0YYM2xGj7//f8xyqItkJ6QA==}
+  '@types/node@20.16.0':
+    resolution: {integrity: sha512-vDxceJcoZhIVh67S568bm1UGZO0DX0hpplJZxzeXMKwIPLn190ec5RRxQ69BKhX44SUGIxxgMdDY557lGLKprQ==}
 
   '@types/prop-types@15.7.12':
     resolution: {integrity: sha512-5zvhXYtRNRluoE/jAp4GVsSduVUzNWKkOZrCDBWYtE7biZywwdC2AcEzg+cSMLFRfVgeAFqpfNabiPjxFddV1Q==}
@@ -695,6 +702,10 @@ packages:
   buffer-equal-constant-time@1.0.1:
     resolution: {integrity: sha512-zRpUiDwd/xk6ADqPMATG8vc9VPrkck7T07OIx0gnjmJAnHnTVXNQG3vfvWNuiZIkwu9KrKdA1iJKfsfTVxE6NA==}
 
+  bufferutil@4.0.8:
+    resolution: {integrity: sha512-4T53u4PdgsXqKaIctwF8ifXlRTTmEPJ8iEPWFdGZvcf7sbwYo6FKFEX9eNNAnzFZ7EzJAQ3CJeOtCRA4rDp7Pw==}
+    engines: {node: '>=6.14.2'}
+
   busboy@1.6.0:
     resolution: {integrity: sha512-8SFQbg/0hQ9xy3UNTB0YEnsNBbWfhf7RtnzpL7TkBiTBRfrQ9Fxcnz7VJsleJpyp6rVLvXiuORqjlHi5q+PYuA==}
     engines: {node: '>=10.16.0'}
@@ -754,6 +765,9 @@ packages:
     resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}
     engines: {node: '>= 8'}
 
+  crypto-js@4.2.0:
+    resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
+
   cssesc@3.0.0:
     resolution: {integrity: sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==}
     engines: {node: '>=4'}
@@ -804,6 +818,9 @@ packages:
   emoji-regex@9.2.2:
     resolution: {integrity: sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg==}
 
+  encoding@0.1.13:
+    resolution: {integrity: sha512-ETBauow1T35Y/WZMkio9jiM0Z5xjHHmJ4XmjZOq1l/dXz3lr2sRn87nJy20RupqSh1F2m3HHPSp8ShIPQJrJ3A==}
+
   end-of-stream@1.4.4:
     resolution: {integrity: sha512-+uw1inIHVPQoaVuHzRyXd21icM+cnt4CzD5rW+NC1wjOUSTOs+Te7FOv7AhN7vS9x/oIyhLP5PR1H+phQAHu5Q==}
 
@@ -814,6 +831,9 @@ packages:
   event-target-shim@5.0.1:
     resolution: {integrity: sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==}
     engines: {node: '>=6'}
+
+  eventemitter3@5.0.1:
+    resolution: {integrity: sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA==}
 
   extend@3.0.2:
     resolution: {integrity: sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g==}
@@ -910,6 +930,10 @@ packages:
     resolution: {integrity: sha512-1e4Wqeblerz+tMKPIq2EMGiiWW1dIjZOksyHWSUm1rmuvw/how9hBHZ38lAGj5ID4Ik6EdkOw7NmWPy6LAwalw==}
     engines: {node: '>= 14'}
 
+  iconv-lite@0.6.3:
+    resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
+    engines: {node: '>=0.10.0'}
+
   idb@7.1.1:
     resolution: {integrity: sha512-gchesWBzyvGHRO9W8tzUWFDycow5gwjvFKfyV9FF32Y7F50yZMp7mP+T2mJIWFx49zicqyC4uefHM17o6xKIVQ==}
 
@@ -952,6 +976,11 @@ packages:
 
   isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
+
+  isomorphic-ws@5.0.0:
+    resolution: {integrity: sha512-muId7Zzn9ywDsyXgTIafTry2sV3nySZeUDe6YedVd1Hvuuep5AsIlqK+XefWpYTyJG5e503F2xIuT2lcU6rCSw==}
+    peerDependencies:
+      ws: '*'
 
   jackspeak@3.4.3:
     resolution: {integrity: sha512-OGlZQpz2yfahA/Rd1Y8Cd9SIEsqvXkLVoSw/cgwhnhFMDbsQFeZYoJJ7bIZBS9BcamUW96asq/npPWugM+RQBw==}
@@ -1063,6 +1092,10 @@ packages:
       encoding:
         optional: true
 
+  node-gyp-build@4.8.1:
+    resolution: {integrity: sha512-OSs33Z9yWr148JZcbZd5WiAXhh/n9z8TxQcdMhIOlpN9AhWpLfvVFO73+m77bBABQMaY9XSvIa+qk0jlI7Gcaw==}
+    hasBin: true
+
   normalize-path@3.0.0:
     resolution: {integrity: sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==}
     engines: {node: '>=0.10.0'}
@@ -1074,6 +1107,10 @@ packages:
   object-hash@3.0.0:
     resolution: {integrity: sha512-RSn9F68PjH9HqtltsSnqYC1XXoWe9Bju5+213R98cNGttag9q9yAOTzdbsqvIa7aNm5WffBZFpWYr2aWrklWAw==}
     engines: {node: '>= 6'}
+
+  obs-websocket-js@5.0.6:
+    resolution: {integrity: sha512-tHRq8py1XrdlMhSV+N/KTGHqoRIcsBBXbjcA9ex21k128iQ7YXjxzNWs3s9gidP1tEcIyVuJu8FnPgrSBWGm0Q==}
+    engines: {node: '>16.0'}
 
   once@1.4.0:
     resolution: {integrity: sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w==}
@@ -1205,6 +1242,9 @@ packages:
   safe-buffer@5.2.1:
     resolution: {integrity: sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ==}
 
+  safer-buffer@2.1.2:
+    resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
+
   scheduler@0.23.2:
     resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
 
@@ -1327,13 +1367,17 @@ packages:
   tslib@2.6.3:
     resolution: {integrity: sha512-xNvxJEOUiWPGhUuUdQgAJPKOOJfGnIyKySOc09XkKsgdUV/3E2zvwZYdejjmRgPCgcym1juLH3226yA7sEFJKQ==}
 
+  type-fest@3.13.1:
+    resolution: {integrity: sha512-tLq3bSNx+xSpwvAJnzrK0Ep5CLNWjvFTOp71URMaAEWBfRb9nnJiBoUe0tF8bI4ZFO3omgBR6NvnbzVUT3Ly4g==}
+    engines: {node: '>=14.16'}
+
   typescript@5.5.4:
     resolution: {integrity: sha512-Mtq29sKDAEYP7aljRgtPOpTvOfbwRWlS6dPRzwjdE+C0R4brX/GUyhHSecbHMFLNBLcJIPt9nl9yG5TZ1weH+Q==}
     engines: {node: '>=14.17'}
     hasBin: true
 
-  undici-types@6.13.0:
-    resolution: {integrity: sha512-xtFJHudx8S2DSoujjMd1WeWvn7KKWFRESZTMeL1RptAYERu29D6jphMjjY+vn96jvN3kVPDNxU/E13VTaXj6jg==}
+  undici-types@6.19.6:
+    resolution: {integrity: sha512-e/vggGopEfTKSvj4ihnOLTsqhrKRN3LeO6qSN/GxohhuRv8qH9bNQ4B8W7e/vFL+0XTnmHPB4/kegunZGA4Org==}
 
   undici@5.28.4:
     resolution: {integrity: sha512-72RFADWFqKmUb2hmmvNODKL3p9hcB6Gt2DOQMis1SEBaV6a4MH8soBvzg+95CYhCKPFedut2JY9bMfrDl9D23g==}
@@ -1375,6 +1419,18 @@ packages:
 
   wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
+
+  ws@8.18.0:
+    resolution: {integrity: sha512-8VbfWfHLbbwu3+N6OKsOMpBdT4kXPDDB9cJk2bJ6mh9ucxdlnNvH1e+roYkKmN9Nxw2yjz7VzeO9oOz2zJ04Pw==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
 
   y18n@5.0.8:
     resolution: {integrity: sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==}
@@ -1754,10 +1810,10 @@ snapshots:
 
   '@google-cloud/promisify@4.0.0': {}
 
-  '@google-cloud/vision@4.3.1':
+  '@google-cloud/vision@4.3.1(encoding@0.1.13)':
     dependencies:
       '@google-cloud/promisify': 4.0.0
-      google-gax: 4.3.9
+      google-gax: 4.3.9(encoding@0.1.13)
       is: 3.3.0
     transitivePeerDependencies:
       - encoding
@@ -1771,7 +1827,7 @@ snapshots:
   '@grpc/grpc-js@1.9.15':
     dependencies:
       '@grpc/proto-loader': 0.7.13
-      '@types/node': 20.15.0
+      '@types/node': 20.16.0
 
   '@grpc/proto-loader@0.7.13':
     dependencies:
@@ -1883,6 +1939,8 @@ snapshots:
 
   '@js-sdsl/ordered-map@4.4.2': {}
 
+  '@msgpack/msgpack@2.8.0': {}
+
   '@next/env@14.2.5': {}
 
   '@next/swc-darwin-arm64@14.2.5':
@@ -1976,9 +2034,9 @@ snapshots:
 
   '@types/long@4.0.2': {}
 
-  '@types/node@20.15.0':
+  '@types/node@20.16.0':
     dependencies:
-      undici-types: 6.13.0
+      undici-types: 6.19.6
 
   '@types/prop-types@15.7.12': {}
 
@@ -1994,7 +2052,7 @@ snapshots:
   '@types/request@2.48.12':
     dependencies:
       '@types/caseless': 0.12.5
-      '@types/node': 20.15.0
+      '@types/node': 20.16.0
       '@types/tough-cookie': 4.0.5
       form-data: 2.5.1
 
@@ -2054,6 +2112,11 @@ snapshots:
       fill-range: 7.1.1
 
   buffer-equal-constant-time@1.0.1: {}
+
+  bufferutil@4.0.8:
+    dependencies:
+      node-gyp-build: 4.8.1
+    optional: true
 
   busboy@1.6.0:
     dependencies:
@@ -2119,6 +2182,8 @@ snapshots:
       shebang-command: 2.0.0
       which: 2.0.2
 
+  crypto-js@4.2.0: {}
+
   cssesc@3.0.0: {}
 
   csstype@3.1.3: {}
@@ -2154,6 +2219,11 @@ snapshots:
 
   emoji-regex@9.2.2: {}
 
+  encoding@0.1.13:
+    dependencies:
+      iconv-lite: 0.6.3
+    optional: true
+
   end-of-stream@1.4.4:
     dependencies:
       once: 1.4.0
@@ -2161,6 +2231,8 @@ snapshots:
   escalade@3.1.2: {}
 
   event-target-shim@5.0.1: {}
+
+  eventemitter3@5.0.1: {}
 
   extend@3.0.2: {}
 
@@ -2232,20 +2304,20 @@ snapshots:
 
   function-bind@1.1.2: {}
 
-  gaxios@6.7.1:
+  gaxios@6.7.1(encoding@0.1.13):
     dependencies:
       extend: 3.0.2
       https-proxy-agent: 7.0.5
       is-stream: 2.0.1
-      node-fetch: 2.7.0
+      node-fetch: 2.7.0(encoding@0.1.13)
       uuid: 9.0.1
     transitivePeerDependencies:
       - encoding
       - supports-color
 
-  gcp-metadata@6.1.0:
+  gcp-metadata@6.1.0(encoding@0.1.13):
     dependencies:
-      gaxios: 6.7.1
+      gaxios: 6.7.1(encoding@0.1.13)
       json-bigint: 1.0.0
     transitivePeerDependencies:
       - encoding
@@ -2270,31 +2342,31 @@ snapshots:
       package-json-from-dist: 1.0.0
       path-scurry: 1.11.1
 
-  google-auth-library@9.13.0:
+  google-auth-library@9.13.0(encoding@0.1.13):
     dependencies:
       base64-js: 1.5.1
       ecdsa-sig-formatter: 1.0.11
-      gaxios: 6.7.1
-      gcp-metadata: 6.1.0
-      gtoken: 7.1.0
+      gaxios: 6.7.1(encoding@0.1.13)
+      gcp-metadata: 6.1.0(encoding@0.1.13)
+      gtoken: 7.1.0(encoding@0.1.13)
       jws: 4.0.0
     transitivePeerDependencies:
       - encoding
       - supports-color
 
-  google-gax@4.3.9:
+  google-gax@4.3.9(encoding@0.1.13):
     dependencies:
       '@grpc/grpc-js': 1.11.1
       '@grpc/proto-loader': 0.7.13
       '@types/long': 4.0.2
       abort-controller: 3.0.0
       duplexify: 4.1.3
-      google-auth-library: 9.13.0
-      node-fetch: 2.7.0
+      google-auth-library: 9.13.0(encoding@0.1.13)
+      node-fetch: 2.7.0(encoding@0.1.13)
       object-hash: 3.0.0
       proto3-json-serializer: 2.0.2
       protobufjs: 7.3.2
-      retry-request: 7.0.2
+      retry-request: 7.0.2(encoding@0.1.13)
       uuid: 9.0.1
     transitivePeerDependencies:
       - encoding
@@ -2302,9 +2374,9 @@ snapshots:
 
   graceful-fs@4.2.11: {}
 
-  gtoken@7.1.0:
+  gtoken@7.1.0(encoding@0.1.13):
     dependencies:
-      gaxios: 6.7.1
+      gaxios: 6.7.1(encoding@0.1.13)
       jws: 4.0.0
     transitivePeerDependencies:
       - encoding
@@ -2338,6 +2410,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  iconv-lite@0.6.3:
+    dependencies:
+      safer-buffer: 2.1.2
+    optional: true
+
   idb@7.1.1: {}
 
   inherits@2.0.4: {}
@@ -2367,6 +2444,10 @@ snapshots:
   is@3.3.0: {}
 
   isexe@2.0.0: {}
+
+  isomorphic-ws@5.0.0(ws@8.18.0(bufferutil@4.0.8)):
+    dependencies:
+      ws: 8.18.0(bufferutil@4.0.8)
 
   jackspeak@3.4.3:
     dependencies:
@@ -2467,15 +2548,34 @@ snapshots:
       - '@babel/core'
       - babel-plugin-macros
 
-  node-fetch@2.7.0:
+  node-fetch@2.7.0(encoding@0.1.13):
     dependencies:
       whatwg-url: 5.0.0
+    optionalDependencies:
+      encoding: 0.1.13
+
+  node-gyp-build@4.8.1:
+    optional: true
 
   normalize-path@3.0.0: {}
 
   object-assign@4.1.1: {}
 
   object-hash@3.0.0: {}
+
+  obs-websocket-js@5.0.6(bufferutil@4.0.8):
+    dependencies:
+      '@msgpack/msgpack': 2.8.0
+      crypto-js: 4.2.0
+      debug: 4.3.6
+      eventemitter3: 5.0.1
+      isomorphic-ws: 5.0.0(ws@8.18.0(bufferutil@4.0.8))
+      type-fest: 3.13.1
+      ws: 8.18.0(bufferutil@4.0.8)
+    transitivePeerDependencies:
+      - bufferutil
+      - supports-color
+      - utf-8-validate
 
   once@1.4.0:
     dependencies:
@@ -2559,7 +2659,7 @@ snapshots:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
-      '@types/node': 20.15.0
+      '@types/node': 20.16.0
       long: 5.2.3
 
   queue-microtask@1.2.3: {}
@@ -2596,11 +2696,11 @@ snapshots:
       path-parse: 1.0.7
       supports-preserve-symlinks-flag: 1.0.0
 
-  retry-request@7.0.2:
+  retry-request@7.0.2(encoding@0.1.13):
     dependencies:
       '@types/request': 2.48.12
       extend: 3.0.2
-      teeny-request: 9.0.0
+      teeny-request: 9.0.0(encoding@0.1.13)
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -2612,6 +2712,9 @@ snapshots:
       queue-microtask: 1.2.3
 
   safe-buffer@5.2.1: {}
+
+  safer-buffer@2.1.2:
+    optional: true
 
   scheduler@0.23.2:
     dependencies:
@@ -2743,11 +2846,11 @@ snapshots:
     transitivePeerDependencies:
       - ts-node
 
-  teeny-request@9.0.0:
+  teeny-request@9.0.0(encoding@0.1.13):
     dependencies:
       http-proxy-agent: 5.0.0
       https-proxy-agent: 5.0.1
-      node-fetch: 2.7.0
+      node-fetch: 2.7.0(encoding@0.1.13)
       stream-events: 1.0.5
       uuid: 9.0.1
     transitivePeerDependencies:
@@ -2772,9 +2875,11 @@ snapshots:
 
   tslib@2.6.3: {}
 
+  type-fest@3.13.1: {}
+
   typescript@5.5.4: {}
 
-  undici-types@6.13.0: {}
+  undici-types@6.19.6: {}
 
   undici@5.28.4:
     dependencies:
@@ -2816,6 +2921,10 @@ snapshots:
       strip-ansi: 7.1.0
 
   wrappy@1.0.2: {}
+
+  ws@8.18.0(bufferutil@4.0.8):
+    optionalDependencies:
+      bufferutil: 4.0.8
 
   y18n@5.0.8: {}
 
