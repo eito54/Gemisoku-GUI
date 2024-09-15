@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import sharp from "sharp";
 
 export async function POST(req: NextRequest) {
@@ -8,10 +8,10 @@ export async function POST(req: NextRequest) {
 
   const keisukeModel = await sharp(Buffer.from(buffer))
     .extract({
-      width: 1300,
-      height: 1450,
-      left: 1550,
-      top: 200,
+      width: 300,
+      height: 920,
+      left: 1020,
+      top: 80,
     })
     .grayscale()
     .modulate({
