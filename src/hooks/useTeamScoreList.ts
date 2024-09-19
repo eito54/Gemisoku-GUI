@@ -87,7 +87,7 @@ export const useTeamScoreList = () => {
         throw new Error("ChatGPT Error");
       }
 
-      const teamScores = calculateTeamScores(response.raceResults);
+      const teamScores = calculateTeamScores(response.results);
       setTeamScoreList(teamScores);
     } catch (e) {
       console.error(e);

@@ -11,5 +11,5 @@ export type TeamScore = {
 };
 
 export type UploadImageToChatGptResponse = {
-  raceResults: RaceResult[];
+  results: RaceResult[];
 };
