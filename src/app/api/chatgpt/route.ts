@@ -28,7 +28,13 @@ export async function POST(request: NextRequest) {
     });
 
     if (!response.choices[0].message.content) {
-      return new Error("chatGpt Error: No response content");
+      return new Response(
+        JSON.stringify({ message: "chatGpt Error: No response content" }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
     }
 
     const json = JSON.stringify({
