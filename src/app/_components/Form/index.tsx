@@ -61,17 +61,17 @@ export const Form = ({ teamScoreList, setTeamScoreList }: FormProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="flex flex-col gap-2 mb-10">
+    <form onSubmit={handleSubmit(onSubmit)} className="pr-20">
+      <div className="w-fit ml-auto flex flex-col gap-2">
         {fields.map((item, index) => (
           <div
             key={item.id}
-            className="h-16 flex items-center gap-0.5 text-white"
+            className="h-16 flex items-center gap-2 text-white relative"
           >
             <Input
               {...register(`results.${index}.team`)}
               defaultValue={item.team}
-              className="w-24 h-full text-2xl rounded-l-lg text-center bg-primary"
+              className="w-24 h-full text-2xl rounded-l-lg text-center bg-primary [appearance:textfield] [&::-webkit-outer-spin-button] [&::-webkit-inner-spin-button]"
             />
             <Input
               {...register(`results.${index}.score`, {
@@ -79,7 +79,7 @@ export const Form = ({ teamScoreList, setTeamScoreList }: FormProps) => {
               })}
               defaultValue={item.score}
               type="number"
-              className="w-24 h-full text-2xl rounded-r-lg text-center bg-primary"
+              className="w-24 h-full text-2xl rounded-r-lg text-center bg-primary [appearance:textfield] [&::-webkit-outer-spin-button] [&::-webkit-inner-spin-button]"
             />
           </div>
         ))}
