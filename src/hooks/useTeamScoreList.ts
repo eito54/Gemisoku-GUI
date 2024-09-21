@@ -50,28 +50,33 @@ export const useTeamScoreList = () => {
   };
 
   // チームごとの合計点数を計算する関数
-  const calculateTeamScores = (results: RaceResult[]): TeamScore[] => {
-    const updatedTeamScoresMap = {
-      ...teamScoreList.reduce(
-        (accumulator, { team, score }) => {
-          accumulator[team] = score;
-          return accumulator;
-        },
-        {} as Record<string, number>,
-      ),
-    };
+  const calculateTeamScores = (
+    prev: TeamScore[],
+    results: RaceResult[],
+  ): TeamScore[] => {
+    const updatedTeamScoresMap = prev.reduce(
+      (accumulator, { team, score }) => {
+        accumulator[team] = score;
+        return accumulator;
+      },
+      {} as Record<string, number>,
+    );
 
+    // 新しい結果を加算
     for (const { team, rank } of results) {
       const point =
         RACE_POINT_SHEET.find(({ rank: r }) => r === rank)?.point ?? 0;
 
+      // チームがまだ存在しない場合は初期化
       if (!updatedTeamScoresMap[team]) {
         updatedTeamScoresMap[team] = 0;
       }
 
+      // 既存の点数に新しい点数を加算
       updatedTeamScoresMap[team] += point;
     }
 
+    // MapをTeamScore形式の配列に変換して返す
     return Object.entries(updatedTeamScoresMap).map(([team, score]) => ({
       team,
       score,
@@ -93,8 +98,7 @@ export const useTeamScoreList = () => {
         throw new Error("ChatGPT Error");
       }
 
-      const teamScores = calculateTeamScores(response.results);
-      setTeamScoreList(teamScores);
+      setTeamScoreList((prev) => calculateTeamScores(prev, response.results));
     } catch (e) {
       console.error(e);
     }
