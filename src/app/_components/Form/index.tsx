@@ -65,6 +65,16 @@ export const Form = ({ teamScoreList, setTeamScoreList }: FormProps) => {
             <Input
               {...register(`results.${index}.score`, {
                 valueAsNumber: true, // 入力を数値として扱う
+                // scoreが変更された時にteamScoreListを更新
+                onBlur: (e) => {
+                  setTeamScoreList((prev) =>
+                    prev.map((item) =>
+                      item.team === fields[index].team
+                        ? { ...item, score: e.target.valueAsNumber }
+                        : item,
+                    ),
+                  );
+                },
               })}
               defaultValue={item.score}
               type="number"
