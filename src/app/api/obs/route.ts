@@ -5,7 +5,7 @@ export async function POST() {
 
   try {
     await obs.connect(
-      "ws://127.0.0.1:4455",
+      process.env.NEXT_PUBLIC_API_OBS_URL,
       process.env.NEXT_PUBLIC_API_OBS_PASSWORD,
     );
     console.info("Connected to OBS WebSocket");

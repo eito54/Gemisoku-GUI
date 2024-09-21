@@ -26,10 +26,13 @@ export default function Home() {
     const formData = new FormData();
     formData.append("file", blob);
 
-    const response = await fetch("http://127.0.0.1:8000/", {
-      method: "POST",
-      body: formData,
-    });
+    const response = await fetch(
+      process.env.NEXT_PUBLIC_API_BACKEND_URL as string,
+      {
+        method: "POST",
+        body: formData,
+      },
+    );
 
     const result = await response.json();
 
