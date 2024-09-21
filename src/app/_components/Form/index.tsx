@@ -1,5 +1,6 @@
 import { Input } from "@/components/ui/input";
 import type { TeamScore } from "@/types";
+import { Diff } from "lucide-react";
 import { type Dispatch, type SetStateAction, useEffect, useRef } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 
@@ -81,6 +82,12 @@ export const Form = ({ teamScoreList, setTeamScoreList }: FormProps) => {
               type="number"
               className="w-24 h-full text-2xl rounded-r-lg text-center bg-primary [appearance:textfield] [&::-webkit-outer-spin-button] [&::-webkit-inner-spin-button]"
             />
+            {fields.length !== index + 1 && (
+              <p className="flex items-center min-w-12 text-white drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,1)] text-2xl text-center font-bold self-end absolute -right-16 -bottom-5">
+                <Diff />
+                {fields[index].score - fields[index + 1].score}
+              </p>
+            )}
           </div>
         ))}
       </div>
