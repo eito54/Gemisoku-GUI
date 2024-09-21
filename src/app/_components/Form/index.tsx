@@ -14,13 +14,11 @@ type FormValues = {
 };
 
 export const Form = ({ teamScoreList, setTeamScoreList }: FormProps) => {
-  const { register, handleSubmit, control, reset, watch } = useForm<FormValues>(
-    {
-      defaultValues: {
-        results: teamScoreList.sort((a, b) => b.score - a.score),
-      },
+  const { register, handleSubmit, control, reset } = useForm<FormValues>({
+    defaultValues: {
+      results: teamScoreList.sort((a, b) => b.score - a.score),
     },
-  );
+  });
 
   const { fields, remove } = useFieldArray({
     control,
@@ -40,23 +38,6 @@ export const Form = ({ teamScoreList, setTeamScoreList }: FormProps) => {
     isUpdatingFromTeamScoreList.current = false;
   }, [teamScoreList, reset]);
 
-  // フォームの値を監視して、teamScoreListに反映する
-  const watchedFields = watch("results");
-
-  // labelが空になったフィールドを削除
-  useEffect(() => {
-    watchedFields.forEach((field, index) => {
-      if (field.team === "") {
-        remove(index); // labelが空ならフィールドを削除
-      }
-    });
-
-    if (JSON.stringify(watchedFields) !== JSON.stringify(teamScoreList)) {
-      setTeamScoreList(watchedFields);
-      isUpdatingFromTeamScoreList.current = true; // teamScoreList更新由来でのリセットを避ける
-    }
-  }, [watchedFields, teamScoreList, setTeamScoreList, remove]);
-
   const onSubmit = (data: FormValues) => {
     console.info("フォーム送信:", data);
   };
@@ -70,7 +51,14 @@ export const Form = ({ teamScoreList, setTeamScoreList }: FormProps) => {
             className="h-16 flex items-center gap-2 text-white relative"
           >
             <Input
-              {...register(`results.${index}.team`)}
+              {...register(`results.${index}.team`, {
+                onChange: (e) => {
+                  // labelが空ならフィールドを削除
+                  if (e.target.value === "") {
+                    remove(index);
+                  }
+                },
+              })}
               defaultValue={item.team}
               className="w-24 h-full text-2xl rounded-l-lg text-center bg-primary [appearance:textfield] [&::-webkit-outer-spin-button] [&::-webkit-inner-spin-button]"
             />
