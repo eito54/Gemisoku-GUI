@@ -4,10 +4,7 @@ export async function POST() {
   const obs = new OBSWebSocket();
 
   try {
-    await obs.connect(
-      process.env.NEXT_PUBLIC_API_OBS_URL,
-      process.env.NEXT_PUBLIC_API_OBS_PASSWORD,
-    );
+    await obs.connect(process.env.OBS_URL, process.env.OBS_PASSWORD);
     console.info("Connected to OBS WebSocket");
 
     // 現在のプレビューを取得してスクリーンショットを保存
