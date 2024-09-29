@@ -1,10 +1,13 @@
+import type { NextRequest } from "next/server";
 import { OBSWebSocket } from "obs-websocket-js";
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   const obs = new OBSWebSocket();
 
   try {
-    await obs.connect(process.env.OBS_URL, process.env.OBS_PASSWORD);
+    const body = await request.json();
+
+    await obs.connect(`http://${body.localIp}:4455`, process.env.OBS_PASSWORD);
     console.info("Connected to OBS WebSocket");
 
     // 現在のプレビューを取得してスクリーンショットを保存

@@ -10,9 +10,13 @@ export default function Home() {
   const { setTeamScoreList, teamScoreList, getRaceResult } = useTeamScoreList();
 
   const fetchData = useCallback(async () => {
-    const captureScreenshotByObs = async () => {
+    const captureScreenshotByObs = async (localIp: string) => {
       const response = await fetch("/api/obs", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ localIp }),
       });
 
       const data = await response.json();
@@ -20,7 +24,19 @@ export default function Home() {
       return data.screenshot;
     };
 
-    const res = await captureScreenshotByObs();
+    const getLocalIp = async () => {
+      const response = await fetch("/api/localIp", {
+        method: "GET",
+      });
+
+      const data = await response.json();
+
+      return data.address as string;
+    };
+
+    const localIp = await getLocalIp();
+
+    const res = await captureScreenshotByObs(localIp);
     const blob = base64toBlob(res, "image/jpg");
 
     const formData = new FormData();
@@ -38,8 +54,8 @@ export default function Home() {
 
     // 結果に基づき再度fetchDataを呼び出す
     if (result === "fail") {
-      console.info("Fail - 3秒後に再試行");
-      setTimeout(fetchData, 3000);
+      console.info("Fail - 2秒後に再試行");
+      setTimeout(fetchData, 2000);
     } else if (result === "success") {
       console.info("Success - 次回呼び出しは2分後");
       setTimeout(fetchData, 120000);
