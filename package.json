@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit"
   },
   "engines": {
-    "node": "^20.14.0",
+    "node": "^22.10.0",
     "pnpm": "^9.0.0",
     "npm": "use pnpm please!",
     "yarn": "use pnpm please!"
