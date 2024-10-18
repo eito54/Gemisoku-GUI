@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    await obs.connect(`http://${body.localIp}:4455`, process.env.OBS_PASSWORD);
+    await obs.connect(`http://${body.localIp}:4455`, body.password);
     console.info("Connected to OBS WebSocket");
 
     // 現在のプレビューを取得してスクリーンショットを保存

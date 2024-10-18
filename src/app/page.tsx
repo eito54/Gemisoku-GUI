@@ -2,6 +2,7 @@
 
 import { useTeamScoreList } from "@/hooks/useTeamScoreList";
 import { base64toBlob } from "@/lib/blob";
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef } from "react";
 import { Form } from "./_components/Form";
 
@@ -9,14 +10,21 @@ export default function Home() {
   const hasFetched = useRef(false);
   const { setTeamScoreList, teamScoreList, getRaceResult } = useTeamScoreList();
 
+  const searchParams = useSearchParams();
+  const localIp = searchParams.get("localIp");
+  const password = searchParams.get("password");
+
   const fetchData = useCallback(async () => {
-    const captureScreenshotByObs = async (localIp: string) => {
+    const captureScreenshotByObs = async (
+      localIp: string,
+      password: string,
+    ) => {
       const response = await fetch("/api/obs", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ localIp }),
+        body: JSON.stringify({ localIp, password }),
       });
 
       const data = await response.json();
@@ -24,19 +32,12 @@ export default function Home() {
       return data.screenshot;
     };
 
-    const getLocalIp = async () => {
-      const response = await fetch("/api/localIp", {
-        method: "GET",
-      });
+    if (!localIp || !password) {
+      console.error("localIp or password is not found");
+      return;
+    }
 
-      const data = await response.json();
-
-      return data.address as string;
-    };
-
-    const localIp = await getLocalIp();
-
-    const res = await captureScreenshotByObs(localIp);
+    const res = await captureScreenshotByObs(localIp, password);
     const blob = base64toBlob(res, "image/jpg");
 
     const formData = new FormData();
@@ -61,7 +62,7 @@ export default function Home() {
       setTimeout(fetchData, 120000);
       await getRaceResult(blob);
     }
-  }, [getRaceResult]);
+  }, [getRaceResult, localIp, password]);
 
   useEffect(() => {
     if (!hasFetched.current) {
