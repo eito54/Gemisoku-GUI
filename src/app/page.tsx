@@ -3,16 +3,16 @@
 import { useTeamScoreList } from "@/hooks/useTeamScoreList";
 import { base64toBlob } from "@/lib/blob";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef } from "react";
+import { Fragment, Suspense, useCallback, useEffect, useRef } from "react";
 import { Form } from "./_components/Form";
 
 export default function Home() {
   const hasFetched = useRef(false);
   const { setTeamScoreList, teamScoreList, getRaceResult } = useTeamScoreList();
 
-  const searchParams = useSearchParams();
-  const localIp = searchParams.get("localIp");
-  const password = searchParams.get("password");
+  const searchParams = typeof window !== "undefined" ? useSearchParams() : null;
+  const localIp = searchParams?.get("localIp");
+  const password = searchParams?.get("password");
 
   const fetchData = useCallback(async () => {
     const captureScreenshotByObs = async (
@@ -65,15 +65,24 @@ export default function Home() {
   }, [getRaceResult, localIp, password]);
 
   useEffect(() => {
-    if (!hasFetched.current) {
+    if (!hasFetched.current && localIp && password) {
       fetchData(); // 初回呼び出し
       hasFetched.current = true; // 次回以降は実行されない
     }
-  }, [fetchData]);
+  }, [fetchData, localIp, password]);
+
+  if (!localIp || !password) {
+    return <Fragment />
+  }
 
   return (
-    teamScoreList.length > 0 && (
-      <Form teamScoreList={teamScoreList} setTeamScoreList={setTeamScoreList} />
-    )
+    <Suspense fallback={<div>Loading...</div>}>
+      {teamScoreList.length > 0 && (
+        <Form
+          teamScoreList={teamScoreList}
+          setTeamScoreList={setTeamScoreList}
+        />
+      )}
+    </Suspense>
   );
 }

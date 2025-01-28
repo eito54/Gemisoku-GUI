@@ -47,4 +47,4 @@ export const RACE_POINT_SHEET = [
     rank: 12,
     point: 1,
   },
-]
+];
