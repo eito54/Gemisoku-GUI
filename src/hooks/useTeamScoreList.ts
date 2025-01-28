@@ -1,3 +1,4 @@
+import { IMAGE_OPTIONS } from "@/constants/image";
 import { RACE_POINT_SHEET } from "@/constants/mk8dx";
 import { storage } from "@/infra/firebase";
 import type {
@@ -5,6 +6,7 @@ import type {
   TeamScore,
   UploadImageToChatGptResponse,
 } from "@/types";
+import imageCompression from "browser-image-compression";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useState } from "react";
 
@@ -14,8 +16,21 @@ export const useTeamScoreList = () => {
   // 画像をアップロードする
   const uploadImage = async (blob: Blob) => {
     try {
-      const storageRef = ref(storage, `images/${Date.now()}.jpg`);
-      const res = await uploadBytes(storageRef, blob);
+      // BlobをFile形式に変換（ファイル名とtypeが必要）
+      const file = new File([blob], "image.jpg", { type: "image/jpeg" });
+
+      // 画像を圧縮する
+      const compressedFile = await imageCompression(file, IMAGE_OPTIONS);
+
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+
+      const storageRef = ref(
+        storage,
+        `images/${year}${month}/${Date.now()}.jpg`,
+      );
+      const res = await uploadBytes(storageRef, compressedFile);
 
       if (!res || !res.metadata.fullPath) {
         throw new Error("Upload Error");
