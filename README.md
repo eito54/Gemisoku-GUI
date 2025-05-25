@@ -34,6 +34,47 @@
 
 ## セットアップ手順
 
+### 📋 前提条件
+
+このアプリケーションを実行するには、以下のソフトウェアがインストールされている必要があります：
+
+#### 必須環境
+- **Node.js** (v18.17.0以上推奨)
+  - [公式サイト](https://nodejs.org/)からLTS版をダウンロード・インストール
+  - インストール確認: `node --version`
+
+- **pnpm** (v8.0.0以上推奨)
+  - Node.js インストール後、以下のコマンドでインストール:
+  ```bash
+  npm install -g pnpm
+  ```
+  - インストール確認: `pnpm --version`
+
+#### 配信・キャプチャ環境
+- **OBS Studio** (v29.0以上推奨)
+  - [公式サイト](https://obsproject.com/)からダウンロード・インストール
+  - WebSocketプラグインが内蔵されているバージョンを使用
+
+- **マリオカート8デラックス**
+  - Nintendo Switch
+
+#### APIサービス
+- **Google Gemini API**
+  - [Google AI Studio](https://makersuite.google.com/app/apikey)でAPIキーを取得
+
+### 🛠️ 環境構築
+
+#### 1. Node.js と pnpm のインストール
+
+**Windows の場合:**
+```bash
+# Node.js公式サイトからインストーラーをダウンロードして実行
+# https://nodejs.org/
+
+# PowerShellまたはコマンドプロンプトで確認
+node --version
+npm --version
+
 ### 1. 環境構築
 
 ```bash
