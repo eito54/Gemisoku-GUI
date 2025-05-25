@@ -3,7 +3,7 @@
   <h1></h1>
   <p><strong>マリオカート8デラックス レース結果自動取得・分析アプリケーション</strong></p>
   
-  [![GitHub](https://img.shields.io/github/license/username/mk8dx-bot)](LICENSE)
+  [![GitHub](https://img.shields.io/github/license/eito54/Gemisoku)](LICENSE)
   [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
   [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
   [![Gemini](https://img.shields.io/badge/Gemini-AI-orange)](https://ai.google.dev/)
