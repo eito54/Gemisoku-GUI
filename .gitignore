@@ -39,3 +39,17 @@ next-env.d.ts
 
 # OS
 Thumbs.db
+
+# Electron
+dist/
+dist-electron/
+release/
+*.exe
+*.dmg
+*.app
+*.deb
+*.rpm
+
+# GUI specific
+gui/scores.json
+gui/config.json

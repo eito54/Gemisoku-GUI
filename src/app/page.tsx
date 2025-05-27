@@ -15,13 +15,91 @@ const Form = dynamic(() => import("./_components/Form").then(mod => mod.Form), {
 
 // SearchParamsを使用するコンポーネントをSuspenseでラップ
 function HomeContent() {
-  const { setTeamScoreList, teamScoreList, getRaceResult, getOverallTeamScores } = useTeamScoreList(); // getOverallTeamScores を追加
+  const searchParams = useSearchParams();
+  const isOverlayMode = searchParams.get('overlay') === 'true';
+  
+  const { setTeamScoreList, teamScoreList, getRaceResult, getOverallTeamScores, loadScoresFromServer } = useTeamScoreList(); // loadScoresFromServer を追加
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(
     "「レース結果を取得」をクリックして開始してください。"
   );
   const [lastScreenshot, setLastScreenshot] = useState<string | null>(null); // ★ 追加
+  const [lastDataTimestamp, setLastDataTimestamp] = useState<number>(0); // データ更新タイムスタンプ
+
+  // コンポーネント初期化時にサーバーからスコアを読み込む
+  useEffect(() => {
+    const initializeScores = async () => {
+      try {
+        console.log('Initializing scores...');
+        const savedScores = await loadScoresFromServer();
+        console.log('Retrieved savedScores:', savedScores);
+        if (savedScores.length > 0) {
+          console.log('Setting team score list with:', savedScores);
+          setTeamScoreList(currentScores => {
+            const currentHash = JSON.stringify(currentScores.map(s => ({team: s.team, score: s.score})).sort());
+            const newHash = JSON.stringify(savedScores.map(s => ({team: s.team, score: s.score})).sort());
+            
+            if (currentHash !== newHash) {
+              console.log('Initial data hash differs, updating teamScoreList');
+              return savedScores;
+            }
+            
+            console.log('Initial data hash same, keeping current');
+            return currentScores;
+          });
+        } else {
+          console.log('No saved scores found, keeping empty list');
+        }
+      } catch (error) {
+        console.error('Failed to load scores from server:', error);
+      }
+    };
+
+    initializeScores();
+  }, []); // 依存配列を空にして初期化時のみ実行
+
+  // オーバーレイモードの場合、定期的にサーバーからスコアを更新
+  useEffect(() => {
+    if (isOverlayMode) {
+      console.log('Setting up overlay mode with periodic updates');
+      const interval = setInterval(async () => {
+        try {
+          const savedScores = await loadScoresFromServer();
+          
+          // 現在のデータと新しいデータのハッシュ比較
+          setTeamScoreList(currentScores => {
+            const currentData = currentScores.map(s => ({team: s.team, score: s.score})).sort((a, b) => a.team.localeCompare(b.team));
+            const newData = savedScores.map(s => ({team: s.team, score: s.score})).sort((a, b) => a.team.localeCompare(b.team));
+            
+            const currentHash = JSON.stringify(currentData);
+            const newHash = JSON.stringify(newData);
+            
+            if (currentHash !== newHash) {
+              // データ変更時のみログ出力
+              console.log('Data updated');
+              return savedScores;
+            }
+            
+            // データ未変更時はログ出力なし
+            return currentScores;
+          });
+        } catch (error) {
+          console.error('Failed to refresh scores from server:', error);
+        }
+      }, 2000); // 2秒ごとに更新
+
+      return () => {
+        console.log('Cleaning up overlay periodic updates');
+        clearInterval(interval);
+      };
+    }
+  }, [isOverlayMode]); // 関数の依存を削除してオーバーレイモードの変更時のみ実行
+
+  // teamScoreListの変更を監視
+  useEffect(() => {
+    console.log('teamScoreList updated:', JSON.stringify(teamScoreList, null, 2));
+  }, [teamScoreList]);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -128,10 +206,13 @@ function HomeContent() {
   } else {
     // 初期状態も非表示
     mainContent = null;
-  }return (
+  }
+
+  return (
     <div className="flex flex-col items-center w-full">
-      {/* ボタンのみを表示するバー - 背景を完全透過 */}
-      <div className="fixed top-4 right-4 z-50 flex items-center space-x-2"> {/* space-x-2 を追加してボタン間にスペースを設ける */}
+      {/* ボタンのみを表示するバー - オーバーレイモードでは完全に非表示 */}
+      {!isOverlayMode && (
+        <div className="fixed top-4 right-4 z-50 flex items-center space-x-2">
         <button
           onClick={handleFetchClick}
           disabled={isLoading}
@@ -142,12 +223,12 @@ function HomeContent() {
                     disabled:text-slate-300 disabled:cursor-not-allowed
                     flex items-center justify-center min-w-[180px]"
         >
-          {isLoading && statusMessage?.includes("レース結果") ? ( // statusMessageでどちらの処理中か判別
+          {isLoading && statusMessage?.includes("レース結果") ? (
             <div className="flex flex-col items-center">
               <div className="h-6 w-6 rounded-full border-3 border-white border-t-transparent animate-spin mb-1"></div>
               <span className="text-sm">{statusMessage}</span>
             </div>
-          ) : error && statusMessage?.includes("レース結果") ? ( // statusMessageでどちらのエラーか判別
+          ) : error && statusMessage?.includes("レース結果") ? (
             <div className="flex flex-col items-center">
               <span className="text-red-300 font-bold">エラー発生</span>
               <span className="text-xs text-red-200/80 max-w-[170px] truncate">{error}</span>
@@ -156,7 +237,6 @@ function HomeContent() {
             <span className="font-bold">レース結果を取得</span>
           )}
         </button>
-        {/* 新しいボタン: チーム合計点を取得 */}
         <button
           onClick={handleFetchOverallScoresClick}
           disabled={isLoading}
@@ -167,12 +247,12 @@ function HomeContent() {
                     disabled:text-slate-300 disabled:cursor-not-allowed
                     flex items-center justify-center min-w-[180px]"
         >
-          {isLoading && statusMessage?.includes("チーム合計") ? ( // statusMessageでどちらの処理中か判別
+          {isLoading && statusMessage?.includes("チーム合計") ? (
             <div className="flex flex-col items-center">
               <div className="h-6 w-6 rounded-full border-3 border-white border-t-transparent animate-spin mb-1"></div>
               <span className="text-sm">{statusMessage}</span>
             </div>
-          ) : error && statusMessage?.includes("チーム合計") ? ( // statusMessageでどちらのエラーか判別
+          ) : error && statusMessage?.includes("チーム合計") ? (
             <div className="flex flex-col items-center">
               <span className="text-red-300 font-bold">エラー発生</span>
               <span className="text-xs text-red-200/80 max-w-[170px] truncate">{error}</span>
@@ -181,8 +261,10 @@ function HomeContent() {
             <span className="font-bold">チーム合計点を取得</span>
           )}
         </button>
-      </div>
-        {/* メインコンテンツ - 完全透過 */}
+        </div>
+      )}
+      
+      {/* メインコンテンツ - 完全透過 */}
       <div className="w-full mx-auto mt-8"> {/* pt-4 から mt-8 に変更してトップマージンを増加 */}
         {teamScoreList.length > 0 ? (
           <div className="bg-transparent">

@@ -29,6 +29,48 @@ const normalizeInitialChar = (char: string): string => {
 export const useTeamScoreList = () => {
   const [teamScoreList, setTeamScoreList] = useState<TeamScore[]>([]);
 
+  // スコアをサーバーに保存する関数
+  const saveScoresToServer = async (scores: TeamScore[]): Promise<void> => {
+    try {
+      const response = await fetch('/api/scores', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(scores),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to save scores: ${response.statusText}`);
+      }
+      
+      console.log('Scores saved to server successfully');
+    } catch (error) {
+      console.error('Error saving scores to server:', error);
+    }
+  };
+
+  // サーバーからスコアを取得する関数
+  const loadScoresFromServer = async (): Promise<TeamScore[]> => {
+    try {
+      console.log('Loading scores from server...');
+      const response = await fetch('/api/scores');
+      
+      if (!response.ok) {
+        throw new Error(`Failed to load scores: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log('Loaded data from server:', JSON.stringify(data, null, 2));
+      const scores = data.scores || [];
+      console.log('Returning scores:', JSON.stringify(scores, null, 2));
+      return scores;
+    } catch (error) {
+      console.error('Error loading scores from server:', error);
+      return [];
+    }
+  };
+
   // Gemini APIに画像をアップロードして、文字起こしをしてもらう
   // この関数の戻り値の型注釈は UploadImageToGeminiResponse (Union Type) で正しい
   const uploadImageToGemini = async (
@@ -126,7 +168,7 @@ export const useTeamScoreList = () => {
         setTeamScoreList((prev) => {
           const newScores = calculateTeamScores(prev, currentRaceResults);
           // 各チームの addedScore を今回のレースの点数のみにする
-          return newScores.map(teamScore => {
+          const updatedScores = newScores.map(teamScore => {
             const raceResultForTeam = currentRaceResults.find(r => r.team === teamScore.team);
             const currentRacePoint = raceResultForTeam ? (RACE_POINT_SHEET.find(({ rank: r }) => r === raceResultForTeam.rank)?.point ?? 0) : 0;
             return {
@@ -134,6 +176,11 @@ export const useTeamScoreList = () => {
               addedScore: currentRacePoint,
             };
           });
+          
+          // サーバーに保存（非同期で実行）
+          saveScoresToServer(updatedScores);
+          
+          return updatedScores;
         });
       } else {
         // 予期しない応答形式の場合
@@ -191,6 +238,9 @@ export const useTeamScoreList = () => {
           }),
         );
         setTeamScoreList(newTeamScores);
+        
+        // サーバーに保存（非同期で実行）
+        saveScoresToServer(newTeamScores);
 
       } else {
         throw new Error("Invalid or unexpected response structure from Gemini API for overall scores.");
@@ -201,5 +251,5 @@ export const useTeamScoreList = () => {
     }
   };
 
-  return { teamScoreList, setTeamScoreList, getRaceResult, getOverallTeamScores };
+  return { teamScoreList, setTeamScoreList, getRaceResult, getOverallTeamScores, loadScoresFromServer };
 };

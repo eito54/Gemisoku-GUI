@@ -87,27 +87,34 @@ export async function POST(request: NextRequest) {
     }
   } catch (error: any) { // エラーをany型でキャッチ
     console.error("Gemini API Error (outer catch):", error);
-    let errorMessage = "An unknown error occurred with Gemini API";
+    let errorMessage = "Gemini APIで不明なエラーが発生しました";
     let statusCode = 500; // デフォルトのステータスコード
 
     if (error instanceof GoogleGenerativeAIError) {
-      errorMessage = `Gemini API Error: ${error.message}`;
-      // 'status' プロパティの存在を型ガードで確認
-      if ('status' in error && typeof error.status === 'number') {
-        if (error.status === 429) {
-          errorMessage = "Gemini API Error: Too Many Requests. Please wait a moment and try again. (Rate limit exceeded)";
-          statusCode = 429;
-        } else {
-          // 他のHTTPステータスコードがあればそれを使用
+      console.error("GoogleGenerativeAIError details:", error);
+      
+      // APIキーエラーの詳細チェック
+      if (error.message.includes('API key not valid') || error.message.includes('API_KEY_INVALID')) {
+        errorMessage = "APIキーが無効です。正しいGemini APIキーを設定してください。";
+        statusCode = 400;
+      } else if (error.message.includes('quota') || error.message.includes('RATE_LIMIT')) {
+        errorMessage = "API使用量の上限に達しました。しばらく待ってから再試行してください。";
+        statusCode = 429;
+      } else {
+        errorMessage = `Gemini APIエラー: ${error.message}`;
+        
+        // 'status' プロパティの存在を型ガードで確認
+        if ('status' in error && typeof error.status === 'number') {
           statusCode = error.status;
         }
       }
+      
       // 'cause' プロパティの存在も確認 (オプション)
       if ('cause' in error && error.cause) {
         console.error("Gemini API Error Cause:", error.cause);
       }
     } else if (error instanceof Error) {
-      errorMessage = error.message;
+      errorMessage = `エラー: ${error.message}`;
     }
 
     return new Response(JSON.stringify({ success: false, error: errorMessage }), {

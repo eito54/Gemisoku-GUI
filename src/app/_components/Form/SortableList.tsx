@@ -252,7 +252,7 @@ export default function SortableList({
                     onDragStart={() => {
                       setIsReordering(true);
                     }}
-                    onDragEnd={(event, info) => {
+                    onDragEnd={(dragEvent, info) => {
                       const draggedItemY = info.point.y;
                       const otherItemsPositions = fields
                         .map((field, idx) => {
@@ -416,7 +416,7 @@ export default function SortableList({
                             onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                               if (e.key === 'Enter') e.currentTarget.blur();
                             }}
-                            defaultValue={item.score}
+                            defaultValue={item.score || 0}
                             type="number"
                             className="
                               w-full h-full text-base text-center font-medium text-white

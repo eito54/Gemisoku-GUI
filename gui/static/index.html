@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemisoku-GUI スコアオーバーレイ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Next.jsのSortableListスタイルを完全再現 */
+        
+        /* 滑らかな虹色グラデーションアニメーション */
+        @keyframes smoothRainbowBorder {
+            0% {
+                border-image: linear-gradient(90deg,
+                    hsl(0, 100%, 50%), hsl(51, 100%, 50%), hsl(102, 100%, 50%),
+                    hsl(153, 100%, 50%), hsl(204, 100%, 50%), hsl(255, 100%, 50%),
+                    hsl(306, 100%, 50%), hsl(0, 100%, 50%)
+                ) 1;
+            }
+            25% {
+                border-image: linear-gradient(90deg,
+                    hsl(90, 100%, 50%), hsl(141, 100%, 50%), hsl(192, 100%, 50%),
+                    hsl(243, 100%, 50%), hsl(294, 100%, 50%), hsl(345, 100%, 50%),
+                    hsl(36, 100%, 50%), hsl(90, 100%, 50%)
+                ) 1;
+            }
+            50% {
+                border-image: linear-gradient(90deg,
+                    hsl(180, 100%, 50%), hsl(231, 100%, 50%), hsl(282, 100%, 50%),
+                    hsl(333, 100%, 50%), hsl(24, 100%, 50%), hsl(75, 100%, 50%),
+                    hsl(126, 100%, 50%), hsl(180, 100%, 50%)
+                ) 1;
+            }
+            75% {
+                border-image: linear-gradient(90deg,
+                    hsl(270, 100%, 50%), hsl(321, 100%, 50%), hsl(12, 100%, 50%),
+                    hsl(63, 100%, 50%), hsl(114, 100%, 50%), hsl(165, 100%, 50%),
+                    hsl(216, 100%, 50%), hsl(270, 100%, 50%)
+                ) 1;
+            }
+            100% {
+                border-image: linear-gradient(90deg,
+                    hsl(360, 100%, 50%), hsl(51, 100%, 50%), hsl(102, 100%, 50%),
+                    hsl(153, 100%, 50%), hsl(204, 100%, 50%), hsl(255, 100%, 50%),
+                    hsl(306, 100%, 50%), hsl(360, 100%, 50%)
+                ) 1;
+            }
+        }
+
+        /* オーバーレイ全体の更新アニメーション */
+        @keyframes overlayUpdatePulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+                transform: scale(1.02);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+                transform: scale(1);
+            }
+        }
+
+        .overlay-update-animation {
+            animation: overlayUpdatePulse 1.5s ease-out;
+        }
+
+        /* 加算得点のスコア枠内アニメーション */
+        @keyframes addedScoreFloatUp {
+            0% {
+                opacity: 0;
+                transform: translateY(5px) scale(0.8);
+            }
+            20% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            80% {
+                opacity: 1;
+                transform: translateY(-2px) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.9);
+            }
+        }
+
+        .added-score-float {
+            animation: addedScoreFloatUp 3s ease-out forwards;
+        }
+
+        .animated-parallelogram-border::before {
+            content: '';
+            position: absolute;
+            inset: -1.5px;
+            z-index: 0;
+            background: linear-gradient(to right, rgba(15, 23, 42, 0.95), rgba(30, 58, 138, 0.9));
+            border-width: 2px;
+            border-style: solid;
+            border-color: #fbbf24; /* 黄色の単色 */
+            transform: skewX(-12deg);
+            box-shadow: 0 1px 2px 0 rgba(251, 191, 36, 0.4), 0 1px 3px 0 rgba(251, 191, 36, 0.4);
+            border-radius: 0.25rem;
+        }
+
+        .static-parallelogram-border::before {
+            content: '';
+            position: absolute;
+            inset: -1.5px;
+            z-index: 0;
+            background: linear-gradient(to right, rgba(15, 23, 42, 0.95), rgba(30, 58, 138, 0.9));
+            border-width: 2px;
+            border-style: solid;
+            border-color: rgba(59, 130, 246, 0.7);
+            transform: skewX(-12deg);
+            box-shadow: 0 1px 2px 0 rgba(96, 165, 250, 0.4), 0 1px 3px 0 rgba(96, 165, 250, 0.4);
+            border-radius: 0.25rem;
+        }
+
+        @keyframes scoreBoxGreenFlash {
+            0%, 100% {
+                box-shadow: none;
+            }
+            50% {
+                box-shadow: 0 0 8px 2px rgba(74, 222, 128, 0.8);
+            }
+        }
+
+        .score-flash-active::before {
+            animation: scoreBoxGreenFlash 0.4s ease-in-out 3;
+            animation-fill-mode: forwards;
+        }
+        
+        /* アニメーション終了後にクラスを削除するためのスタイル */
+        .score-flash-active {
+            animation-duration: 1.2s; /* 0.4s × 3回 */
+            animation-fill-mode: forwards;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+            20%, 80% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .added-score-indicator {
+            animation: fadeInOut 2s ease-in-out forwards;
+        }
+
+        /* スライドインアニメーション - 一回のみ */
+        @keyframes slideInFromRight {
+            0% {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .slide-in-initial {
+            animation: slideInFromRight 0.3s ease-out forwards;
+        }
+
+
+        body {
+            background: transparent;
+            overflow: hidden;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+        }
+
+        .no-data {
+            color: #cccccc;
+            text-align: center;
+            font-style: italic;
+            padding: 20px;
+        }
+
+        /* 非オーバーレイモード（テスト用） */
+        body:not(.overlay-mode) {
+            background: #1e293b;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="w-full mx-auto mt-8 bg-transparent" id="scores-container">
+        <div class="no-data">スコアデータがありません</div>
+    </div>
+
+    <script>
+        // URLパラメータでオーバーレイモードかどうかを判定
+        const urlParams = new URLSearchParams(window.location.search);
+        const isOverlayMode = urlParams.get('overlay') === 'true';
+        
+        if (isOverlayMode) {
+            document.body.classList.add('overlay-mode');
+        }
+
+        let selectedTeamInfo = null;
+
+        // チーム選択の切り替え
+        function toggleTeamSelection(teamName) {
+            if (selectedTeamInfo && selectedTeamInfo.name === teamName) {
+                selectedTeamInfo = null;
+            } else {
+                selectedTeamInfo = { name: teamName };
+            }
+            updateScores(); // 即座に更新
+        }
+
+        // スコアデータを取得して表示
+        async function updateScores() {
+            try {
+                const response = await fetch('/api/scores');
+                const data = await response.json();
+                const scores = data.scores || [];
+                
+                const container = document.getElementById('scores-container');
+                
+                if (scores.length === 0) {
+                    container.innerHTML = '<div class="no-data">スコアデータがありません</div>';
+                    return;
+                }
+                
+                // スコアでソート（降順）
+                scores.sort((a, b) => b.score - a.score);
+                
+                // isCurrentPlayerを持つチームを自動選択
+                const currentPlayerTeam = scores.find(team => team.isCurrentPlayer);
+                if (currentPlayerTeam && (!selectedTeamInfo || selectedTeamInfo.name !== currentPlayerTeam.team)) {
+                    selectedTeamInfo = { name: currentPlayerTeam.team };
+                }
+                
+                container.innerHTML = `
+                    <div class="space-y-0 w-full max-w-md mx-auto">
+                        ${scores.map((team, index) => {
+                            const isTeamSelected = selectedTeamInfo && selectedTeamInfo.name === team.team;
+                            const myTeam = selectedTeamInfo ? scores.find(s => s.team === selectedTeamInfo.name) : undefined;
+                            
+                            // 差分計算
+                            let diffDisplay = '';
+                            if (selectedTeamInfo && myTeam && !isTeamSelected) {
+                                const scoreDiff = myTeam.score - team.score;
+                                const diffText = scoreDiff === 0 ? "0" : scoreDiff > 0 ? `+${scoreDiff}` : `${scoreDiff}`;
+                                const textColor = scoreDiff > 0 ? 'text-green-400' : scoreDiff < 0 ? 'text-red-400' : 'text-white';
+                                const iconColor = scoreDiff > 0 ? 'text-green-400' : scoreDiff < 0 ? 'text-red-400' : 'text-blue-300';
+                                diffDisplay = `
+                                    <div class="relative static-parallelogram-border overflow-visible">
+                                        <div class="flex items-center gap-1 px-1.5 py-0.5 text-sm font-bold ${textColor} relative z-10">
+                                            <svg class="h-3 w-3 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                            </svg>
+                                            <span>${diffText}</span>
+                                        </div>
+                                    </div>
+                                `;
+                            } else if (!selectedTeamInfo && index < scores.length - 1) {
+                                const scoreDiff = scores[index].score - scores[index + 1].score;
+                                const diffText = scoreDiff > 0 ? `+${scoreDiff}` : `${scoreDiff}`;
+                                diffDisplay = `
+                                    <div class="relative static-parallelogram-border overflow-visible">
+                                        <div class="flex items-center gap-1 px-1.5 py-0.5 text-sm font-bold text-white relative z-10">
+                                            <svg class="h-3 w-3 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                            </svg>
+                                            <span>${diffText}</span>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                            
+                            return `
+                                <div class="h-12 flex items-center gap-1 px-2 border-0 rounded-lg transition-all duration-200 cursor-pointer relative"
+                                     ondblclick="toggleTeamSelection('${escapeHtml(team.team)}')"
+                                     data-team-row="${escapeHtml(team.team)}">
+                                    
+                                    <!-- チーム名 -->
+                                    <div class="relative w-20 h-7 ${isTeamSelected ? 'animated-parallelogram-border' : 'static-parallelogram-border'} overflow-visible">
+                                        <div class="relative z-20 w-full h-full flex items-center justify-center">
+                                            <span class="text-center font-medium text-white whitespace-nowrap px-0.5" style="font-size: ${team.team.length <= 3 ? '0.75rem' : '0.6rem'}">
+                                                ${escapeHtml(team.team)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- スコアと差分表示のグループ -->
+                                    <div class="flex items-center gap-0.5">
+                                        <!-- スコア -->
+                                        <div class="relative w-16 h-7 score-box ${isTeamSelected ? 'animated-parallelogram-border' : 'static-parallelogram-border'} overflow-visible" data-team="${escapeHtml(team.team)}">
+                                            <div class="relative z-20 w-full h-full flex items-center justify-center">
+                                                <span class="text-base text-center font-medium text-white">
+                                                    ${team.score || 0}
+                                                </span>
+                                                <!-- 加算点数表示（スコア枠内の右側） -->
+                                                ${team.addedScore && team.addedScore > 0 ? `
+                                                    <span class="absolute right-1 top-0 text-green-400 font-bold text-xs" data-added-score="${escapeHtml(team.team)}">
+                                                        +${team.addedScore}
+                                                    </span>
+                                                ` : ''}
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- 差分スコア表示（スコア枠に隣接） -->
+                                        ${diffDisplay}
+                                    </div>
+                                    
+                                    <!-- 右端のスペーサー -->
+                                    <div class="flex-1"></div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('スコア取得エラー:', error);
+                document.getElementById('scores-container').innerHTML =
+                    '<div class="no-data">スコア取得エラー</div>';
+            }
+        }
+
+        // HTMLエスケープ関数
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        let previousScores = new Map(); // 前回のスコアを保存
+        let isFirstLoad = true; // 初回読み込みフラグ
+
+        // チーム選択の切り替え（シンプル版）
+        function toggleTeamSelection(teamName) {
+            if (selectedTeamInfo && selectedTeamInfo.name === teamName) {
+                selectedTeamInfo = null;
+            } else {
+                selectedTeamInfo = { name: teamName };
+            }
+            updateScores(); // 即座に更新
+        }
+
+        // 改良版updateScores関数
+        const originalUpdateScores = updateScores;
+        updateScores = async function() {
+            try {
+                const response = await fetch('/api/scores');
+                const data = await response.json();
+                const scores = data.scores || [];
+                
+                // 元の処理を実行
+                await originalUpdateScores();
+                
+                // DOM更新後のアニメーション制御
+                setTimeout(() => {
+                    let hasScoreUpdate = false;
+                    
+                    // スコア変更アニメーション
+                    scores.forEach(team => {
+                        const prevScore = previousScores.get(team.team);
+                        if (prevScore !== undefined && prevScore !== team.score && team.addedScore > 0) {
+                            hasScoreUpdate = true;
+                            
+                            const scoreElement = document.querySelector(`[data-team="${team.team}"]`);
+                            if (scoreElement) {
+                                scoreElement.classList.add('score-flash-active');
+                                setTimeout(() => {
+                                    scoreElement.classList.remove('score-flash-active');
+                                }, 1200);
+                            }
+                        }
+                        previousScores.set(team.team, team.score);
+                    });
+                    
+                    // 加算得点アニメーション制御（DOM更新後）
+                    setTimeout(() => {
+                        scores.forEach(team => {
+                            // 加算得点アニメーション制御（スコア変更時のみ）
+                            const prevScore = previousScores.get(team.team);
+                            if (prevScore !== undefined && prevScore !== team.score && team.addedScore && team.addedScore > 0) {
+                                const addedScoreElement = document.querySelector(`[data-added-score="${team.team}"]`);
+                                if (addedScoreElement && !addedScoreElement.classList.contains('added-score-float')) {
+                                    addedScoreElement.classList.add('added-score-float');
+                                    
+                                    // 3秒後に要素を削除
+                                    setTimeout(() => {
+                                        if (addedScoreElement.parentNode) {
+                                            addedScoreElement.remove();
+                                        }
+                                    }, 3000);
+                                }
+                            }
+                        });
+                    }, 200);
+                    
+                    // オーバーレイ全体の更新アニメーション
+                    if (hasScoreUpdate) {
+                        const container = document.getElementById('scores-container');
+                        if (container) {
+                            container.classList.add('overlay-update-animation');
+                            setTimeout(() => {
+                                container.classList.remove('overlay-update-animation');
+                            }, 1500);
+                        }
+                    }
+                    
+                    // スライドインアニメーション（初回のみ）
+                    if (isFirstLoad) {
+                        const teamRows = document.querySelectorAll('[data-team-row]');
+                        teamRows.forEach((element, index) => {
+                            element.classList.add('slide-in-initial');
+                            element.style.animationDelay = `${index * 0.05}s`;
+                        });
+                        isFirstLoad = false; // 初回フラグをfalseに
+                    }
+                }, 100);
+                
+            } catch (error) {
+                console.error('スコア取得エラー:', error);
+                document.getElementById('scores-container').innerHTML =
+                    '<div class="no-data">スコア取得エラー</div>';
+            }
+        };
+
+        // 初回読み込み
+        updateScores();
+        
+        // 2秒ごとに更新（Next.jsと同じ）
+        setInterval(updateScores, 2000);
+    </script>
+</body>
+</html>

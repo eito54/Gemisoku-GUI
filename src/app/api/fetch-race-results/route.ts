@@ -90,13 +90,31 @@ const TOTAL_SCORE_PROMPT = `
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const imageUrl = body.imageUrl; // Assuming imageUrl is a base64 data URL
+    let body;
+    try {
+      body = await request.json();
+    } catch (jsonError) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "Invalid JSON in request body"
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const imageUrl = body?.imageUrl; // Assuming imageUrl is a base64 data URL
     const useTotalScore = request.nextUrl.searchParams.get("useTotalScore") === "true";
 
     if (!imageUrl) {
       return new Response(
-        JSON.stringify({ message: "API Error: imageUrl is required" }),
+        JSON.stringify({
+          success: false,
+          error: "imageUrl is required in request body"
+        }),
         {
           status: 400,
           headers: { "Content-Type": "application/json" },
@@ -112,25 +130,11 @@ export async function POST(request: NextRequest) {
     // We need a prompt that specifically asks for the total score column.
     // Let's assume the client will send a specific image for total score updates.
 
-    if (!useTotalScore) {
-        // This case should ideally not be hit if the button is specifically for total scores.
-        // Or, this API route could be generalized if needed, but for now, let's focus on total scores.
-        // We can use the existing gemini route for regular score updates.
-        // For simplicity, if useTotalScore is not true, we might return an error or use a default prompt.
-        // However, the user's request is to fetch *total scores*.
-        // So, this route should primarily handle that.
-        // Let's redirect or suggest using the other API for incremental scores.
-         return new Response(
-        JSON.stringify({ message: "API Error: This endpoint is for fetching total scores. Use /api/gemini for incremental scores." }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-    }
+    // Determine prompt based on useTotalScore parameter
+    const promptToUse = useTotalScore ? TOTAL_SCORE_PROMPT : require('@/constants/prompt').PROMPT;
 
-    // Use the new prompt for total scores
-    const result = await geminiVision.generateContent([TOTAL_SCORE_PROMPT, imagePart]);
+    // Use the appropriate prompt based on useTotalScore parameter
+    const result = await geminiVision.generateContent([promptToUse, imagePart]);
     const response = result.response;
     const text = response.text();
 
@@ -167,22 +171,43 @@ export async function POST(request: NextRequest) {
           headers: { "Content-Type": "application/json" },
         });
       }
-      
-      const transformedResults: TeamScore[] = parsedResponse.results.map((player: any, index: number) => ({
-        id: player.name + index, // Create a simple unique ID
-        rank: index + 1, // Rank based on order, or derive if available
-        name: player.name,
-        team: player.team || player.name.charAt(0) || "UNKNOWN", // ★ player.team を優先的に使用
-        score: parseInt(player.score, 10) || 0,
-        addedScore: 0, // Total score update means no "added" score for this transaction
-        isCurrentPlayer: player.isCurrentPlayer === true,
-      }));
 
-      const json = JSON.stringify({
-        success: true,
-        // response: parsedResponse, // Return the transformed results
-        response: { results: transformedResults }, // Ensure the structure matches what the frontend expects
-      });
+      let json: string;
+      
+      if (useTotalScore) {
+        // For total score requests, check if results array exists and is valid
+        if (!parsedResponse.results || !Array.isArray(parsedResponse.results)) {
+          return new Response(JSON.stringify({
+            success: false,
+            error: "レスポンスに有効な結果配列が含まれていません",
+            geminiResponse: cleanedText
+          }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+        
+        const transformedResults: TeamScore[] = parsedResponse.results?.map((player: any, index: number) => ({
+          id: (player?.name || `unknown_${index}`) + index, // Create a simple unique ID
+          rank: index + 1, // Rank based on order, or derive if available
+          name: player?.name || "Unknown Player",
+          team: player?.team || "UNKNOWN", // ★ player.teamが存在しない場合のみUNKNOWN
+          score: parseInt(player?.score, 10) || 0,
+          addedScore: 0, // Total score update means no "added" score for this transaction
+          isCurrentPlayer: player?.isCurrentPlayer === true,
+        })) || [];
+
+        json = JSON.stringify({
+          success: true,
+          response: { results: transformedResults }, // Ensure the structure matches what the frontend expects
+        });
+      } else {
+        // For regular race results, return the response as-is (like /api/gemini)
+        json = JSON.stringify({
+          success: true,
+          response: parsedResponse,
+        });
+      }
       return new Response(json, {
         status: 200,
         headers: {

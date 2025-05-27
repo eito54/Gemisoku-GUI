@@ -9,10 +9,18 @@
     "start": "next start",
     "lint": "biome lint .",
     "format": "biome format --write .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "gui:install": "npm install --save-dev electron electron-builder && npm install electron-store express",
+    "gui:dev": "electron gui/main.js",
+    "gui:build": "electron-builder",
+    "gui:pack": "electron-builder --dir",
+    "gui:build-win": "electron-builder --win",
+    "gui:build-mac": "electron-builder --mac",
+    "gui:build-linux": "electron-builder --linux",
+    "gui:dist": "npm run gui:build"
   },
   "engines": {
-    "node": "^22.10.0",
+    "node": ">=18.0.0",
     "pnpm": "^9.0.0",
     "npm": "use pnpm please!",
     "yarn": "use pnpm please!"
@@ -35,9 +43,48 @@
     "@types/react": "^19.1.5",
     "@types/react-dom": "^19.1.5",
     "autoprefixer": "^10.4.21",
+    "electron": "^36.3.1",
+    "electron-builder": "^26.0.12",
     "knip": "^5.58.0",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"
+  },
+  "optionalDependencies": {
+    "electron-store": "^8.2.0",
+    "express": "^4.21.2"
+  },
+  "main": "gui/main.js",
+  "description": "Gemisoku-GUI - MK8DXレース結果自動取得アプリ",
+  "author": "eighten (eito54)",
+  "build": {
+    "appId": "com.gemisoku.gui",
+    "productName": "Gemisoku-GUI",
+    "directories": {
+      "output": "dist-gui"
+    },
+    "files": [
+      "gui/**/*",
+      "node_modules/electron-store/**/*",
+      "node_modules/obs-websocket-js/**/*",
+      "node_modules/@google/generative-ai/**/*",
+      "node_modules/express/**/*",
+      "node_modules/ws/**/*",
+      "!node_modules/.cache",
+      "!node_modules/*/{test,tests,spec,specs,example,examples,*.md,*.MD,*.txt,*.TXT,*.yml,*.yaml,*.json.d.ts}",
+      "!node_modules/*/{README,readme,CHANGELOG,changelog,HISTORY,history,LICENSE,license,LICENCE,licence}*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/logo.jpeg"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/logo.jpeg"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/logo.jpeg"
+    }
   }
 }

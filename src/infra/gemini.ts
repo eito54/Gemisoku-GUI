@@ -11,8 +11,8 @@ if (!apiKey) {
 const genAI = new GoogleGenerativeAI(apiKey);
 
 // For text-only input, use the gemini-pro model
-export const gemini = genAI.getGenerativeModel({ model: "gemini-2.0-flash" }); // こちらも必要であれば更新検討
+export const gemini = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
 // For multimodal (text and image) input, use an updated model
-// gemini-pro-vision is deprecated. Using gemini-1.5-flash-latest as suggested.
+// Using gemini-2.0-flash　for latest capabilities.
 export const geminiVision = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
