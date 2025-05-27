@@ -71,7 +71,7 @@ OBS配信とAI画像解析を組み合わせ、簡単な操作でリアルタイ
 
 #### **方法1: 実行ファイル版（推奨）**
 1. **ダウンロード**
-   - [Releases]([https://github.com/eito54/Gemisoku-GUI/releases/tag/1.0.0])から最新版の`Gemisoku-GUI-Setup.exe`をダウンロード
+   - [Releases](https://github.com/eito54/Gemisoku-GUI/releases/tag/1.0.0)から最新版の`Gemisoku-GUI-Setup.exe`をダウンロード
    
 2. **インストール**
    - ダウンロードしたファイルを実行してインストール
