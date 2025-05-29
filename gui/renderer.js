@@ -385,34 +385,31 @@ async function resetScores() {
         const result = await response.json();
         
         if (result.success) {
-            // パッケージ化環境では Next.js アプリは存在しないため、通知をスキップ
-            // 開発環境でのみ Next.js アプリに通知
-            const isDevEnvironment = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost';
-            
-            if (isDevEnvironment) {
-                try {
-                    // Next.js開発サーバーが動いているかチェック
-                    const healthCheck = await fetch('http://localhost:3000/api/scores', {
-                        method: 'GET',
-                        signal: AbortSignal.timeout(1000) // 1秒でタイムアウト
+            // Next.js開発サーバーが動いているかチェック（環境に関係なく試行）
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 1000); // 1秒でタイムアウト
+                
+                const healthCheck = await fetch('http://localhost:3000/api/scores', {
+                    method: 'GET',
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (healthCheck.ok) {
+                    await fetch('http://localhost:3000/api/scores', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify([]) // 空配列でリセット
                     });
-                    
-                    if (healthCheck.ok) {
-                        await fetch('http://localhost:3000/api/scores', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify([]) // 空配列でリセット
-                        });
-                        console.log('Next.js app notified of score reset');
-                    }
-                } catch (nextjsError) {
-                    console.log('Next.js app not available (normal in packaged app):', nextjsError.message);
-                    // パッケージ化環境では正常な動作なのでエラーとして扱わない
+                    console.log('Next.js app notified of score reset');
                 }
-            } else {
-                console.log('Packaged environment detected, skipping Next.js notification');
+            } catch (nextjsError) {
+                console.log('Next.js app not available (normal in packaged app):', nextjsError.message);
+                // パッケージ化環境では正常な動作なのでエラーとして扱わない
             }
             
             showStatus(operationStatus, 'success', 'スコアがリセットされました');
