@@ -87,7 +87,7 @@ function HomeContent() {
         } catch (error) {
           console.error('Failed to refresh scores from server:', error);
         }
-      }, 2000); // 2秒ごとに更新
+      }, 1500); // 1.5秒ごとに更新（リセット反映を高速化）
 
       return () => {
         console.log('Cleaning up overlay periodic updates');

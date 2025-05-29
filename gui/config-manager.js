@@ -33,7 +33,7 @@ class ConfigManager {
   // デフォルト設定
   getDefaultConfig() {
     return {
-      obsIp: 'localhost',
+      obsIp: '127.0.0.1', // localhostから127.0.0.1に統一
       obsPort: 4455,
       obsPassword: '',
       obsSourceName: '映像キャプチャデバイス',

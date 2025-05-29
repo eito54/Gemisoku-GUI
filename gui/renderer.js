@@ -371,7 +371,11 @@ async function resetScores() {
     try {
         showButtonLoading(resetScoresBtn, true);
         
-        const response = await fetch('http://localhost:3001/api/scores/reset', {
+        // サーバーポートを動的に取得
+        const serverPort = await window.electronAPI.getServerPort();
+        
+        // 内蔵サーバーでリセット
+        const response = await fetch(`http://localhost:${serverPort}/api/scores/reset`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -381,6 +385,21 @@ async function resetScores() {
         const result = await response.json();
         
         if (result.success) {
+            // Next.jsアプリ（ポート3000）にもリセット通知
+            try {
+                await fetch('http://localhost:3000/api/scores', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify([]) // 空配列でリセット
+                });
+                console.log('Next.js app notified of score reset');
+            } catch (nextjsError) {
+                console.warn('Failed to notify Next.js app of reset:', nextjsError);
+                // Next.jsアプリへの通知が失敗してもリセット自体は成功として扱う
+            }
+            
             showStatus(operationStatus, 'success', 'スコアがリセットされました');
             showSuccessParticles(resetScoresBtn);
         } else {

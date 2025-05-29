@@ -63,7 +63,14 @@ export const useTeamScoreList = () => {
       const data = await response.json();
       console.log('Loaded data from server:', JSON.stringify(data, null, 2));
       const scores = data.scores || [];
-      console.log('Returning scores:', JSON.stringify(scores, null, 2));
+      
+      // スコアが空配列の場合のログ出力を改善
+      if (scores.length === 0) {
+        console.log('No scores found or scores have been reset');
+      } else {
+        console.log('Returning scores:', JSON.stringify(scores, null, 2));
+      }
+      
       return scores;
     } catch (error) {
       console.error('Error loading scores from server:', error);
