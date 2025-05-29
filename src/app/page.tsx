@@ -13,12 +13,18 @@ const Form = dynamic(() => import("./_components/Form").then(mod => mod.Form), {
   loading: () => <div className="p-4 text-center">Loading form...</div>, // ローディング中の表示
 });
 
+// ScoreEditModal コンポーネントを動的にインポート
+const ScoreEditModal = dynamic(() => import("./_components/ScoreEditModal").then(mod => mod.ScoreEditModal), {
+  ssr: false,
+});
+
 // SearchParamsを使用するコンポーネントをSuspenseでラップ
 function HomeContent() {
   const searchParams = useSearchParams();
   const isOverlayMode = searchParams.get('overlay') === 'true';
+  const isEditMode = searchParams.get('edit') === 'true';
   
-  const { setTeamScoreList, teamScoreList, getRaceResult, getOverallTeamScores, loadScoresFromServer } = useTeamScoreList(); // loadScoresFromServer を追加
+  const { setTeamScoreList, teamScoreList, getRaceResult, getOverallTeamScores, loadScoresFromServer, saveScoresToServer } = useTeamScoreList(); // saveScoresToServer を追加
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(
@@ -26,6 +32,7 @@ function HomeContent() {
   );
   const [lastScreenshot, setLastScreenshot] = useState<string | null>(null); // ★ 追加
   const [lastDataTimestamp, setLastDataTimestamp] = useState<number>(0); // データ更新タイムスタンプ
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // 編集モーダルの状態
 
   // コンポーネント初期化時にサーバーからスコアを読み込む
   useEffect(() => {
@@ -208,6 +215,24 @@ function HomeContent() {
     mainContent = null;
   }
 
+  // 編集モードの場合は、編集モーダルを常に表示
+  if (isEditMode) {
+    return (
+      <div className="flex flex-col items-center w-full min-h-screen bg-gray-900">
+        <ScoreEditModal
+          isOpen={true}
+          onClose={() => {
+            // 編集モードでは閉じる代わりにページを再読み込み
+            window.location.href = window.location.href.replace('&edit=true', '').replace('?edit=true', '');
+          }}
+          teamScoreList={teamScoreList}
+          setTeamScoreList={setTeamScoreList}
+          saveScoresToServer={saveScoresToServer}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col items-center w-full">
       {/* ボタンのみを表示するバー - オーバーレイモードでは完全に非表示 */}
@@ -234,7 +259,7 @@ function HomeContent() {
               <span className="text-xs text-red-200/80 max-w-[170px] truncate">{error}</span>
             </div>
           ) : (
-            <span className="font-bold">レース結果を取得</span>
+            <span className="font-bold">📊 レース結果を取得</span>
           )}
         </button>
         <button
@@ -258,8 +283,20 @@ function HomeContent() {
               <span className="text-xs text-red-200/80 max-w-[170px] truncate">{error}</span>
             </div>
           ) : (
-            <span className="font-bold">チーム合計点を取得</span>
+            <span className="font-bold">🏆 チーム合計点を取得</span>
           )}
+        </button>
+        <button
+          onClick={() => setIsEditModalOpen(true)}
+          disabled={isLoading}
+          className="bg-purple-600/90 hover:bg-purple-700/90 disabled:bg-slate-700/90
+                    backdrop-blur-sm
+                    text-white font-medium px-5 py-2.5 rounded-md
+                    transition-all duration-200 shadow-lg
+                    disabled:text-slate-300 disabled:cursor-not-allowed
+                    flex items-center justify-center min-w-[120px]"
+        >
+          <span className="font-bold">⚙️ 得点編集</span>
         </button>
         </div>
       )}
@@ -272,6 +309,15 @@ function HomeContent() {
           </div>
         ) : null}
       </div>
+
+      {/* 得点編集モーダル */}
+      <ScoreEditModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        teamScoreList={teamScoreList}
+        setTeamScoreList={setTeamScoreList}
+        saveScoresToServer={saveScoresToServer}
+      />
     </div>
   );
 }

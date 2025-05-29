@@ -258,5 +258,5 @@ export const useTeamScoreList = () => {
     }
   };
 
-  return { teamScoreList, setTeamScoreList, getRaceResult, getOverallTeamScores, loadScoresFromServer };
+  return { teamScoreList, setTeamScoreList, getRaceResult, getOverallTeamScores, loadScoresFromServer, saveScoresToServer };
 };

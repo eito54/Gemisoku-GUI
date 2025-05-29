@@ -19,6 +19,7 @@ const configManager = new ConfigManager();
 const embeddedServer = new EmbeddedServer();
 
 let mainWindow;
+let editWindow;
 let serverPort = 3001;
 
 function createWindow() {
@@ -40,6 +41,41 @@ function createWindow() {
   // 開発環境でのみDevToolsを開く
   if (process.env.NODE_ENV === 'development') {
     mainWindow.webContents.openDevTools();
+  }
+}
+
+function createEditWindow() {
+  if (editWindow) {
+    editWindow.focus();
+    return;
+  }
+
+  editWindow = new BrowserWindow({
+    width: 600,
+    height: 700,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      enableRemoteModule: false,
+      preload: path.join(__dirname, 'preload.js')
+    },
+    parent: mainWindow,
+    modal: true,
+    title: '得点編集',
+    resizable: false,
+    minimizable: false,
+    maximizable: false
+  });
+
+  editWindow.loadFile(path.join(__dirname, 'edit-window.html'));
+
+  editWindow.on('closed', () => {
+    editWindow = null;
+  });
+
+  // 開発環境でのみDevToolsを開く
+  if (process.env.NODE_ENV === 'development') {
+    editWindow.webContents.openDevTools();
   }
 }
 
@@ -358,6 +394,48 @@ ipcMain.handle('open-overlay', async () => {
     return { success: true };
   } catch (error) {
     console.error('Failed to open overlay:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('open-external', async (event, url) => {
+  try {
+    await shell.openExternal(url);
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to open external URL:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('open-edit-window', () => {
+  createEditWindow();
+  return { success: true };
+});
+
+ipcMain.handle('get-scores', async () => {
+  try {
+    const response = await makeHttpRequest(`http://localhost:${serverPort}/api/scores`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    return { success: true, scores: response.scores || [] };
+  } catch (error) {
+    console.error('Failed to get scores:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('save-scores', async (event, scores) => {
+  try {
+    const response = await makeHttpRequest(`http://localhost:${serverPort}/api/scores`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(scores)
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to save scores:', error);
     return { success: false, error: error.message };
   }
 });

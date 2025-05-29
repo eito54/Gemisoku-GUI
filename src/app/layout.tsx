@@ -19,7 +19,8 @@ export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {  return (
+}>) {
+  return (
     // htmlタグにフォント変数を適用
     <html lang="en" className={`${inter.variable} ${pressStart2P.variable}`}>
       {/* bodyのclassNameからinter.classNameを削除 */}

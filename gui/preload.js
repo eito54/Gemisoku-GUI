@@ -12,6 +12,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // オーバーレイ表示
   openOverlay: () => ipcRenderer.invoke('open-overlay'),
   
+  // 外部URL開く
+  openExternal: (url) => ipcRenderer.invoke('open-external', url),
+  
+  // 編集ウィンドウを開く
+  openEditWindow: () => ipcRenderer.invoke('open-edit-window'),
+  
+  // スコア取得・保存
+  getScores: () => ipcRenderer.invoke('get-scores'),
+  saveScores: (scores) => ipcRenderer.invoke('save-scores', scores),
+  
   // サーバーポート取得
   getServerPort: () => ipcRenderer.invoke('get-server-port'),
   

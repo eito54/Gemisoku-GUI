@@ -38,6 +38,7 @@ const geminiApiKeyInput = document.getElementById('geminiApiKey');
 const fetchRaceBtn = document.getElementById('fetchRaceBtn');
 const fetchOverallBtn = document.getElementById('fetchOverallBtn');
 const openOverlayBtn = document.getElementById('openOverlayBtn');
+const editScoresBtn = document.getElementById('editScoresBtn');
 const testConnectionBtn = document.getElementById('testConnectionBtn');
 
 // 初期化
@@ -158,6 +159,16 @@ openOverlayBtn.addEventListener('click', async () => {
         showStatus(operationStatus, 'success', 'オーバーレイを開きました（ブラウザで表示）');
     } catch (error) {
         showStatus(operationStatus, 'error', 'オーバーレイの表示に失敗しました: ' + error.message);
+    }
+});
+
+// 得点編集画面を開く
+editScoresBtn.addEventListener('click', async () => {
+    try {
+        await window.electronAPI.openEditWindow();
+        showStatus(operationStatus, 'success', '得点編集ウィンドウを開きました');
+    } catch (error) {
+        showStatus(operationStatus, 'error', '得点編集ウィンドウの表示に失敗しました: ' + error.message);
     }
 });
 
