@@ -385,19 +385,34 @@ async function resetScores() {
         const result = await response.json();
         
         if (result.success) {
-            // Next.jsアプリ（ポート3000）にもリセット通知
-            try {
-                await fetch('http://localhost:3000/api/scores', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify([]) // 空配列でリセット
-                });
-                console.log('Next.js app notified of score reset');
-            } catch (nextjsError) {
-                console.warn('Failed to notify Next.js app of reset:', nextjsError);
-                // Next.jsアプリへの通知が失敗してもリセット自体は成功として扱う
+            // パッケージ化環境では Next.js アプリは存在しないため、通知をスキップ
+            // 開発環境でのみ Next.js アプリに通知
+            const isDevEnvironment = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost';
+            
+            if (isDevEnvironment) {
+                try {
+                    // Next.js開発サーバーが動いているかチェック
+                    const healthCheck = await fetch('http://localhost:3000/api/scores', {
+                        method: 'GET',
+                        signal: AbortSignal.timeout(1000) // 1秒でタイムアウト
+                    });
+                    
+                    if (healthCheck.ok) {
+                        await fetch('http://localhost:3000/api/scores', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify([]) // 空配列でリセット
+                        });
+                        console.log('Next.js app notified of score reset');
+                    }
+                } catch (nextjsError) {
+                    console.log('Next.js app not available (normal in packaged app):', nextjsError.message);
+                    // パッケージ化環境では正常な動作なのでエラーとして扱わない
+                }
+            } else {
+                console.log('Packaged environment detected, skipping Next.js notification');
             }
             
             showStatus(operationStatus, 'success', 'スコアがリセットされました');

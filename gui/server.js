@@ -504,11 +504,27 @@ class EmbeddedServer {
       }
     });
 
+    // 共通関数: スコアファイルパスを取得
+    const getScoresPath = () => {
+      try {
+        const { app } = require('electron');
+        if (app && app.getPath) {
+          // Electronアプリの場合はユーザーデータディレクトリを使用
+          const userDataPath = app.getPath('userData');
+          return path.join(userDataPath, 'scores.json');
+        }
+      } catch (electronError) {
+        // Electronが利用できない場合のフォールバック
+      }
+      // フォールバック: 開発環境用
+      return path.join(__dirname, 'scores.json');
+    };
+
     // スコア保存/取得API
     this.app.get('/api/scores', (req, res) => {
       try {
         const fs = require('fs');
-        const scoresPath = path.join(__dirname, 'scores.json');
+        const scoresPath = getScoresPath();
         
         if (fs.existsSync(scoresPath)) {
           const scores = JSON.parse(fs.readFileSync(scoresPath, 'utf8'));
@@ -517,6 +533,7 @@ class EmbeddedServer {
           res.json({ scores: [] });
         }
       } catch (error) {
+        console.error('Error reading scores:', error);
         res.json({ scores: [] });
       }
     });
@@ -524,12 +541,19 @@ class EmbeddedServer {
     this.app.post('/api/scores', (req, res) => {
       try {
         const fs = require('fs');
-        const scoresPath = path.join(__dirname, 'scores.json');
+        const scoresPath = getScoresPath();
         const scores = req.body;
+        
+        // ディレクトリが存在しない場合は作成
+        const scoreDir = path.dirname(scoresPath);
+        if (!fs.existsSync(scoreDir)) {
+          fs.mkdirSync(scoreDir, { recursive: true });
+        }
         
         fs.writeFileSync(scoresPath, JSON.stringify(scores, null, 2));
         res.json({ success: true });
       } catch (error) {
+        console.error('Error saving scores:', error);
         res.json({ success: false, error: error.message });
       }
     });
@@ -670,11 +694,20 @@ class EmbeddedServer {
     this.app.post('/api/scores/reset', (req, res) => {
       try {
         const fs = require('fs');
-        const path = require('path');
-        const scoresPath = path.join(__dirname, 'scores.json');
+        const scoresPath = getScoresPath();
+        
+        console.log('Resetting scores at path:', scoresPath);
+        
+        // ディレクトリが存在しない場合は作成
+        const scoreDir = path.dirname(scoresPath);
+        if (!fs.existsSync(scoreDir)) {
+          fs.mkdirSync(scoreDir, { recursive: true });
+          console.log('Created scores directory:', scoreDir);
+        }
         
         // 空の配列でリセット
         fs.writeFileSync(scoresPath, JSON.stringify([], null, 2));
+        console.log('Scores reset successfully at:', scoresPath);
         
         res.json({
           success: true,
@@ -682,9 +715,10 @@ class EmbeddedServer {
         });
       } catch (error) {
         console.error('Score reset error:', error);
+        console.error('Error details:', error.message);
         res.status(500).json({
           success: false,
-          error: 'スコアリセットに失敗しました'
+          error: `スコアリセットに失敗しました: ${error.message}`
         });
       }
     });
