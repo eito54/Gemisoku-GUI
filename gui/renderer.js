@@ -59,6 +59,12 @@ async function loadConfig() {
         obsPasswordInput.value = config.obsPassword || '';
         obsSourceNameInput.value = config.obsSourceName || '';
         geminiApiKeyInput.value = config.geminiApiKey || '';
+        
+        // 新しい設定項目の読み込み
+        const showRemainingRacesCheckbox = document.getElementById('showRemainingRaces');
+        if (showRemainingRacesCheckbox) {
+            showRemainingRacesCheckbox.checked = config.showRemainingRaces !== false; // デフォルトはtrue
+        }
     } catch (error) {
         showStatus(configStatus, 'error', '設定の読み込みに失敗しました: ' + error.message);
     }
@@ -68,12 +74,15 @@ async function loadConfig() {
 configForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
+    const showRemainingRacesCheckbox = document.getElementById('showRemainingRaces');
+    
     const config = {
         obsIp: obsIpInput.value.trim(),
         obsPort: obsPortInput.value.trim(),
         obsPassword: obsPasswordInput.value.trim(),
         obsSourceName: obsSourceNameInput.value.trim(),
-        geminiApiKey: geminiApiKeyInput.value.trim()
+        geminiApiKey: geminiApiKeyInput.value.trim(),
+        showRemainingRaces: showRemainingRacesCheckbox ? showRemainingRacesCheckbox.checked : true
     };
     
     // バリデーション（OBSパスワードは必須ではない）
@@ -369,6 +378,26 @@ if (keepScoresCheckbox) {
             const message = keepScoresCheckbox.checked ?
                 'スコア保持設定が有効になりました' :
                 'スコア保持設定が無効になりました（次回起動時にリセット）';
+            showStatus(operationStatus, 'success', message);
+        } catch (error) {
+            console.error('設定保存エラー:', error);
+            showStatus(operationStatus, 'error', '設定の保存に失敗しました');
+        }
+    });
+}
+
+// 残りレース数表示設定の変更イベントリスナー
+const showRemainingRacesCheckbox = document.getElementById('showRemainingRaces');
+if (showRemainingRacesCheckbox) {
+    showRemainingRacesCheckbox.addEventListener('change', async () => {
+        try {
+            const config = await window.electronAPI.getConfig();
+            config.showRemainingRaces = showRemainingRacesCheckbox.checked;
+            await window.electronAPI.saveConfig(config);
+            
+            const message = showRemainingRacesCheckbox.checked ?
+                'オーバーレイでの残りレース数表示が有効になりました' :
+                'オーバーレイでの残りレース数表示が無効になりました';
             showStatus(operationStatus, 'success', message);
         } catch (error) {
             console.error('設定保存エラー:', error);

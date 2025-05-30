@@ -537,6 +537,7 @@ class EmbeddedServer {
         
         let scores = [];
         let isOverallUpdate = false;
+        let showRemainingRaces = true;
         
         if (fs.existsSync(scoresPath)) {
           scores = JSON.parse(fs.readFileSync(scoresPath, 'utf8'));
@@ -557,6 +558,22 @@ class EmbeddedServer {
           }
         }
         
+        // 設定から残りレース数表示設定を取得
+        try {
+          const { app } = require('electron');
+          const userDataPath = app ? app.getPath('userData') : __dirname;
+          const configPath = path.join(userDataPath, 'config.json');
+          
+          if (fs.existsSync(configPath)) {
+            const configData = fs.readFileSync(configPath, 'utf8');
+            const config = JSON.parse(configData);
+            showRemainingRaces = config.showRemainingRaces !== false; // デフォルトはtrue
+          }
+        } catch (configError) {
+          console.log('Config read error (non-critical):', configError.message);
+          showRemainingRaces = true; // デフォルト値
+        }
+        
         // 残りレース数を計算
         // 12レース完了時の総合計点数は984点（82 × 12）
         // 残りレース数 = (984 - 現在の全プレイヤーの合計点数) ÷ 82
@@ -566,11 +583,12 @@ class EmbeddedServer {
         res.json({
           scores,
           isOverallUpdate,
-          remainingRaces
+          remainingRaces: showRemainingRaces ? remainingRaces : null, // 設定に応じて表示制御
+          showRemainingRaces
         });
       } catch (error) {
         console.error('Error reading scores:', error);
-        res.json({ scores: [], isOverallUpdate: false, remainingRaces: 12 });
+        res.json({ scores: [], isOverallUpdate: false, remainingRaces: null, showRemainingRaces: true });
       }
     });
 
@@ -702,7 +720,8 @@ class EmbeddedServer {
             obsPassword: '',
             obsSourceName: '映像キャプチャデバイス',
             geminiApiKey: '',
-            theme: 'light'
+            theme: 'light',
+            showRemainingRaces: true
           });
         }
       } catch (error) {
@@ -713,7 +732,8 @@ class EmbeddedServer {
           obsPassword: '',
           obsSourceName: '映像キャプチャデバイス',
           geminiApiKey: '',
-          theme: 'light'
+          theme: 'light',
+          showRemainingRaces: true
         });
       }
     });

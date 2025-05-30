@@ -38,7 +38,8 @@ class ConfigManager {
       obsPassword: '',
       obsSourceName: '映像キャプチャデバイス',
       geminiApiKey: '',
-      theme: 'light'
+      theme: 'light',
+      showRemainingRaces: true // オーバーレイで残りレース数を表示するかのフラグ
     };
   }
 
