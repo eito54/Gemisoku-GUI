@@ -549,13 +549,20 @@ class EmbeddedServer {
           }
         }
         
+        // 残りレース数を計算
+        // 12レース完了時の総合計点数は984点（82 × 12）
+        // 残りレース数 = (984 - 現在の全プレイヤーの合計点数) ÷ 82
+        const totalScores = scores.reduce((sum, team) => sum + (team.score || 0), 0);
+        const remainingRaces = Math.max(0, Math.floor((984 - totalScores) / 82));
+        
         res.json({
           scores,
-          isOverallUpdate
+          isOverallUpdate,
+          remainingRaces
         });
       } catch (error) {
         console.error('Error reading scores:', error);
-        res.json({ scores: [], isOverallUpdate: false });
+        res.json({ scores: [], isOverallUpdate: false, remainingRaces: 12 });
       }
     });
 
