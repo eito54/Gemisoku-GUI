@@ -316,7 +316,7 @@ MIT License - 詳細は[LICENSE](LICENSE)ファイルをご覧ください。
 ## 🙏 謝辞-Special thanks
 
 このプロジェクトは[mk8dx-bot](https://github.com/keisuke071411/mk8dx-bot)からインスピレーションを得て開発されました。
-Thanks [@keisuke071411](https://github.com/keisuke071411) ！
+ [@keisuke071411](https://github.com/keisuke071411) さん、ありがとうございます！
 
 残りレース数の表示ロジックを考案していただいたnimura_feat.mmさん (https://x.com/Nishimura_mm
 )、ありがとうございます！
