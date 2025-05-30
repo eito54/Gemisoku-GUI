@@ -313,10 +313,13 @@ A: 設定は自動的に保存されますが、手動バックアップは今�
 
 MIT License - 詳細は[LICENSE](LICENSE)ファイルをご覧ください。
 
-## 🙏 謝辞
+## 🙏 謝辞-Special thanks
 
 このプロジェクトは[mk8dx-bot](https://github.com/keisuke071411/mk8dx-bot)からインスピレーションを得て開発されました。
 Thanks [@keisuke071411](https://github.com/keisuke071411) ！
+残りレース数の表示ロジックを考案したnimura_feat.mmさん (https://x.com/Nishimura_mm
+)、ありがとうございます！
+
 
 ## 📝 更新履歴
 
