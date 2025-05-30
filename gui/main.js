@@ -335,10 +335,10 @@ ipcMain.handle('fetch-race-results', async () => {
       })
     });
     
-    // 結果をスコアとして保存
+    // 結果をスコアとして保存（レース結果）
     if (result.success && result.response && result.response.results) {
       const teamScores = await processRaceResults(result.response.results, false);
-      await saveScores(teamScores);
+      await saveScores(teamScores, false); // 通常のレース結果
     }
     
     return result;
@@ -373,10 +373,10 @@ ipcMain.handle('fetch-overall-scores', async () => {
       })
     });
     
-    // 結果をスコアとして保存
+    // 結果をスコアとして保存（合計点計測）
     if (result.success && result.response && result.response.results) {
       const teamScores = await processRaceResults(result.response.results, true);
-      await saveScores(teamScores);
+      await saveScores(teamScores, true); // 合計点計測のフラグを設定
     }
     
     return result;
@@ -426,16 +426,12 @@ ipcMain.handle('get-scores', async () => {
   }
 });
 
-ipcMain.handle('save-scores', async (event, scores) => {
+ipcMain.handle('save-scores', async (event, scores, isOverallUpdate = false) => {
   try {
-    const response = await makeHttpRequest(`http://localhost:${serverPort}/api/scores`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(scores)
-    });
-    return { success: true };
+    const response = await saveScores(scores, isOverallUpdate);
+    return response;
   } catch (error) {
-    console.error('Failed to save scores:', error);
+    console.error('Failed to save scores via IPC:', error);
     return { success: false, error: error.message };
   }
 });
@@ -551,10 +547,11 @@ async function processRaceResults(results, isOverallScore) {
   }
 }
 
-// スコアをサーバーに保存
-async function saveScores(teamScores) {
+// スコアをサーバーに保存（アニメーション制御フラグ対応）
+async function saveScores(teamScores, isOverallUpdate = false) {
   try {
-    const saveResponse = await makeHttpRequest(`http://localhost:${serverPort}/api/scores`, {
+    const queryParam = isOverallUpdate ? '?isOverallUpdate=true' : '';
+    const saveResponse = await makeHttpRequest(`http://localhost:${serverPort}/api/scores${queryParam}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -562,7 +559,7 @@ async function saveScores(teamScores) {
       body: JSON.stringify(teamScores)
     });
     
-    console.log('Scores saved successfully:', saveResponse);
+    console.log('Scores saved successfully with metadata:', { isOverallUpdate, response: saveResponse });
     return saveResponse;
   } catch (error) {
     console.error('Failed to save scores:', error);

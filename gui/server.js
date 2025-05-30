@@ -520,21 +520,42 @@ class EmbeddedServer {
       return path.join(__dirname, 'scores.json');
     };
 
-    // スコア保存/取得API
+    // スコア保存/取得API（アニメーション制御フラグ対応）
     this.app.get('/api/scores', (req, res) => {
       try {
         const fs = require('fs');
         const scoresPath = getScoresPath();
+        const metaPath = path.join(path.dirname(scoresPath), 'scores-meta.json');
+        
+        let scores = [];
+        let isOverallUpdate = false;
         
         if (fs.existsSync(scoresPath)) {
-          const scores = JSON.parse(fs.readFileSync(scoresPath, 'utf8'));
-          res.json({ scores });
-        } else {
-          res.json({ scores: [] });
+          scores = JSON.parse(fs.readFileSync(scoresPath, 'utf8'));
         }
+        
+        // メタデータから更新種別を読み取り
+        if (fs.existsSync(metaPath)) {
+          try {
+            const meta = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
+            isOverallUpdate = meta.isOverallUpdate || false;
+            
+            // フラグを読み取った後、リセット
+            if (isOverallUpdate) {
+              fs.writeFileSync(metaPath, JSON.stringify({ isOverallUpdate: false }, null, 2));
+            }
+          } catch (metaError) {
+            console.log('Meta file read error (non-critical):', metaError.message);
+          }
+        }
+        
+        res.json({
+          scores,
+          isOverallUpdate
+        });
       } catch (error) {
         console.error('Error reading scores:', error);
-        res.json({ scores: [] });
+        res.json({ scores: [], isOverallUpdate: false });
       }
     });
 
@@ -542,7 +563,9 @@ class EmbeddedServer {
       try {
         const fs = require('fs');
         const scoresPath = getScoresPath();
+        const metaPath = path.join(path.dirname(scoresPath), 'scores-meta.json');
         const scores = req.body;
+        const isOverallUpdate = req.query.isOverallUpdate === 'true';
         
         // ディレクトリが存在しない場合は作成
         const scoreDir = path.dirname(scoresPath);
@@ -550,7 +573,15 @@ class EmbeddedServer {
           fs.mkdirSync(scoreDir, { recursive: true });
         }
         
+        // スコアデータを保存
         fs.writeFileSync(scoresPath, JSON.stringify(scores, null, 2));
+        
+        // メタデータを保存（合計点計測の場合）
+        if (isOverallUpdate) {
+          fs.writeFileSync(metaPath, JSON.stringify({ isOverallUpdate: true }, null, 2));
+        }
+        
+        console.log('Scores saved with metadata:', { isOverallUpdate });
         res.json({ success: true });
       } catch (error) {
         console.error('Error saving scores:', error);
