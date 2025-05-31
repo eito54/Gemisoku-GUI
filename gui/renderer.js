@@ -109,10 +109,21 @@ configForm.addEventListener('submit', async (e) => {
     }
 });
 
+// 処理中のボタン制御
+function setProcessingButtonsState(isProcessing) {
+    const processingButtons = [fetchRaceBtn, fetchOverallBtn, resetScoresBtn];
+    processingButtons.forEach(button => {
+        if (button) {
+            button.disabled = isProcessing;
+        }
+    });
+}
+
 // レース結果取得
 fetchRaceBtn.addEventListener('click', async () => {
     try {
         console.log('Race results button clicked!');
+        setProcessingButtonsState(true);
         showButtonLoading(fetchRaceBtn, true);
         showStatus(operationStatus, 'info', 'OBSからスクリーンショットを取得中...');
         
@@ -132,6 +143,7 @@ fetchRaceBtn.addEventListener('click', async () => {
         showStatus(operationStatus, 'error', 'レース結果の取得に失敗しました: ' + error.message);
     } finally {
         showButtonLoading(fetchRaceBtn, false);
+        setProcessingButtonsState(false);
     }
 });
 
@@ -139,6 +151,7 @@ fetchRaceBtn.addEventListener('click', async () => {
 fetchOverallBtn.addEventListener('click', async () => {
     try {
         console.log('Overall scores button clicked!');
+        setProcessingButtonsState(true);
         showButtonLoading(fetchOverallBtn, true);
         showStatus(operationStatus, 'info', 'チーム合計点を取得中...');
         
@@ -158,6 +171,7 @@ fetchOverallBtn.addEventListener('click', async () => {
         showStatus(operationStatus, 'error', 'チーム合計点の取得に失敗しました: ' + error.message);
     } finally {
         showButtonLoading(fetchOverallBtn, false);
+        setProcessingButtonsState(false);
     }
 });
 
@@ -409,6 +423,7 @@ if (showRemainingRacesCheckbox) {
 // スコアリセット機能
 async function resetScores() {
     try {
+        setProcessingButtonsState(true);
         showButtonLoading(resetScoresBtn, true);
         
         // サーバーポートを動的に取得
@@ -462,6 +477,7 @@ async function resetScores() {
         showStatus(operationStatus, 'error', 'スコアリセットエラー: ' + error.message);
     } finally {
         showButtonLoading(resetScoresBtn, false);
+        setProcessingButtonsState(false);
     }
 }
 
