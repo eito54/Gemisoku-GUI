@@ -447,6 +447,60 @@ ipcMain.handle('show-message', (event, type, title, message) => {
 // レース結果を処理してチームスコアに変換
 async function processRaceResults(results, isOverallScore) {
   try {
+    // チーム名の正規化と統合を行う関数
+    function normalizeAndMergeTeams(teamMap) {
+      // 先頭文字でグループ化
+      const firstCharGroups = {};
+      
+      Object.entries(teamMap).forEach(([teamName, teamData]) => {
+        const firstChar = teamName.charAt(0).toUpperCase();
+        if (!firstCharGroups[firstChar]) {
+          firstCharGroups[firstChar] = [];
+        }
+        firstCharGroups[firstChar].push({ name: teamName, data: teamData });
+      });
+      
+      const mergedTeamMap = {};
+      
+      Object.entries(firstCharGroups).forEach(([firstChar, teams]) => {
+        if (teams.length === 1) {
+          // 同じ先頭文字のチームが1つだけの場合はそのまま
+          const team = teams[0];
+          mergedTeamMap[team.name] = team.data;
+        } else {
+          // 複数のチームがある場合は統合
+          console.log(`Merging teams with first character '${firstChar}':`, teams.map(t => t.name));
+          
+          // スコアが最も高いチームを見つける
+          let mainTeam = teams[0];
+          teams.forEach(team => {
+            if (team.data.score > mainTeam.data.score) {
+              mainTeam = team;
+            }
+          });
+          
+          // 全チームのスコアとプレイヤー情報を統合
+          const mergedData = {
+            team: mainTeam.name,
+            score: 0,
+            addedScore: 0,
+            isCurrentPlayer: false
+          };
+          
+          teams.forEach(team => {
+            mergedData.score += team.data.score;
+            mergedData.addedScore += team.data.addedScore || 0;
+            mergedData.isCurrentPlayer = mergedData.isCurrentPlayer || team.data.isCurrentPlayer;
+          });
+          
+          console.log(`Merged team '${mainTeam.name}' total score: ${mergedData.score}`);
+          mergedTeamMap[mainTeam.name] = mergedData;
+        }
+      });
+      
+      return mergedTeamMap;
+    }
+
     if (isOverallScore) {
       // 総合スコアの場合は、既存スコアを上書き
       const teamMap = {};
@@ -468,7 +522,9 @@ async function processRaceResults(results, isOverallScore) {
         teamMap[team].isCurrentPlayer = teamMap[team].isCurrentPlayer || isCurrentPlayer;
       });
       
-      return Object.values(teamMap);
+      // チーム統合を実行
+      const normalizedTeamMap = normalizeAndMergeTeams(teamMap);
+      return Object.values(normalizedTeamMap);
     } else {
       // レース結果の場合は、既存スコアに加算
       let currentScores = [];
@@ -539,7 +595,9 @@ async function processRaceResults(results, isOverallScore) {
         teamMap[team].isCurrentPlayer = teamMap[team].isCurrentPlayer || raceData.isCurrentPlayer;
       });
       
-      return Object.values(teamMap);
+      // チーム統合を実行
+      const normalizedTeamMap = normalizeAndMergeTeams(teamMap);
+      return Object.values(normalizedTeamMap);
     }
   } catch (error) {
     console.error('Error processing race results:', error);

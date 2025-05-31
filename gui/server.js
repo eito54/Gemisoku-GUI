@@ -452,7 +452,7 @@ class EmbeddedServer {
         
         const genAI = new GoogleGenerativeAI(config.geminiApiKey);
         const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-        
+
         // Base64データからGemini用のパートを作成
         function fileToGenerativePart(base64Data) {
           const match = base64Data.match(/^data:(.+);base64,(.+)$/);
