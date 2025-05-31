@@ -4,20 +4,14 @@
   "private": true,
   "packageManager": "pnpm@9.1.0",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "biome lint .",
-    "format": "biome format --write .",
-    "typecheck": "tsc --noEmit",
-    "gui:install": "npm install --save-dev electron electron-builder && npm install electron-store express",
-    "gui:dev": "electron gui/main.js",
-    "gui:build": "electron-builder",
-    "gui:pack": "electron-builder --dir",
-    "gui:build-win": "electron-builder --win",
-    "gui:build-mac": "electron-builder --mac",
-    "gui:build-linux": "electron-builder --linux",
-    "gui:dist": "npm run gui:build"
+    "start": "electron gui/main.js",
+    "dev": "electron gui/main.js",
+    "build": "electron-builder",
+    "pack": "electron-builder --dir",
+    "build-win": "electron-builder --win",
+    "build-mac": "electron-builder --mac",
+    "build-linux": "electron-builder --linux",
+    "dist": "npm run build"
   },
   "engines": {
     "node": ">=18.0.0",
@@ -27,28 +21,11 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
-    "firebase": "^10.13.0",
-    "framer-motion": "^11.5.6",
-    "lucide-react": "^0.428.0",
-    "next": "^15.3.2",
-    "obs-websocket-js": "^5.0.6",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "react-hook-form": "^7.53.0",
-    "tailwindcss-animate": "^1.0.7"
+    "obs-websocket-js": "^5.0.6"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.8.3",
-    "@types/node": "^20.17.50",
-    "@types/react": "^19.1.5",
-    "@types/react-dom": "^19.1.5",
-    "autoprefixer": "^10.4.21",
     "electron": "^36.3.2",
-    "electron-builder": "^26.0.12",
-    "knip": "^5.58.0",
-    "postcss": "^8.5.3",
-    "tailwindcss": "^3.4.17",
-    "typescript": "^5"
+    "electron-builder": "^26.0.12"
   },
   "optionalDependencies": {
     "electron-store": "^8.2.0",
@@ -69,7 +46,6 @@
       "node_modules/obs-websocket-js/**/*",
       "node_modules/@google/generative-ai/**/*",
       "node_modules/express/**/*",
-      "node_modules/ws/**/*",
       "!node_modules/.cache",
       "!node_modules/*/{test,tests,spec,specs,example,examples,*.md,*.MD,*.txt,*.TXT,*.yml,*.yaml,*.json.d.ts}",
       "!node_modules/*/{README,readme,CHANGELOG,changelog,HISTORY,history,LICENSE,license,LICENCE,licence}*"
