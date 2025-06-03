@@ -245,48 +245,62 @@ class EmbeddedServer {
         const { imageUrl } = req.body;
         const useTotalScore = req.query.useTotalScore === 'true';
 
+        // 既存のプレイヤー名マッピングを取得
+        const existingMappings = getAllPlayerMappings();
+        console.log('Existing player mappings:', existingMappings);
+
+        // 既存マッピングを含むプロンプトを構築
+        const existingMappingsText = Object.keys(existingMappings).length > 0 ?
+          `\n  ## existing_player_mappings ##
+  以下のプレイヤーについては、過去に決定されたチーム名を必ず使用してください：
+  ${Object.entries(existingMappings).map(([player, team]) => `  - "${player}" → "${team}"`).join('\n')}
+  
+  これらのプレイヤーが今回の画像に含まれている場合は、上記のチーム名を使用し、新たなチーム名判別は行わないでください。\n` : '';
+
         const prompt = useTotalScore ?
           `## instruction ##
   これは「マリオカート8DX」のレース結果画面の画像です。
   画像を解析して、全プレイヤーのユーザー名、チーム情報、および画面右端に表示されている総合得点を抽出してください。
   総合得点は、各プレイヤーの行の一番右に表示されている数字です。
   指定されたJSON形式で出力してください。
-
+${existingMappingsText}
   ## extraction_rules ##
   - [name]: プレイヤーのユーザー名をそのまま抽出してください。
   - [team]: 以下の厳格なルールでチーム名を識別してください：
     
-    **基本方針：全プレイヤーの最長共通先頭部分のみをチーム名とする**
+    **基本方針：同じ先頭文字のプレイヤー全員の最長連続共通先頭部分をチーム名とする**
     
     **ステップ1：同じ先頭文字のプレイヤーをグループ化**
     - 先頭文字が同じプレイヤーを全て特定する
-    - アルファベットは大文字で統一（「r」と「R」は同じ「R」グループ）
-    - 「ri-chan」「R♪ -chan」は同じ「R」グループとして扱う
+    - アルファベットは大文字で統一（「a」と「A」は同じ「A」グループ）
+    - 「AKSKDあいうえお」「AKSKDかきくけこ」は同じ「A」グループとして扱う
     
-    **ステップ2：各グループ内で全プレイヤーの共通先頭部分を正確に決定**
-    - 同じ先頭文字のプレイヤー全員で、文字単位で正確に共通部分を確認
-    - 例：「かんとつシトラリ」「かんとつヌヴィレット」→ 共通部分「かんとつ」（4文字）
-    - 例：「パンチ」「パンダ」→ 共通部分「パン」（2文字）
-    - 例：「パンチ」「パンダ」「パトロール」→ 共通部分「パ」（1文字）
-    - 例：「ABC」「ABD」→ 共通部分「AB」（2文字）
-    - 例：「ri-chan」「R♪ -chan」→ 共通部分「R」（1文字、先頭文字のみ）
+    **ステップ2：各グループ内で全プレイヤーの最長連続共通先頭部分を正確に決定**
+    - 同じ先頭文字のプレイヤー全員で、1文字ずつ順番に比較して連続で一致する部分を特定
+    - **重要：連続で一致する最長の部分のみをチーム名とする**
+    - 例：「AKSKDあいうえお」「AKSKDかきくけこ」→ 連続共通部分「AKSKD」（5文字）
+    - 例：「かんとつシトラリ」「かんとつヌヴィレット」→ 連続共通部分「かんとつ」（4文字）
+    - 例：「ABC123」「ABD456」→ 連続共通部分「AB」（2文字、3文字目以降は不一致）
+    - 例：「TeamAlpha01」「TeamAlpha02」→ 連続共通部分「TeamAlpha0」（10文字）
     
-    **ステップ3：チーム名を決定し、アルファベットは大文字で統一**
-    - 共通部分が2文字以上ある場合：その共通部分をチーム名とする
-    - 共通部分が1文字のみの場合：先頭1文字をチーム名とする
+    **ステップ3：動的なチーム名再計算（重要）**
+    - 新しいプレイヤーが追加された場合、そのグループ内の全プレイヤーで連続共通部分を再計算する
+    - 例：「AKSKDあいうえお」「AKSKDかきくけこ」→「AKSKD」チーム
+    - その後「AKSKさしすせそ」が追加された場合：
+      - 3名全員で再計算：「AKSKD」「AKSKD」「AKSK」
+      - 連続共通部分は「AKSK」（4文字）になる
+      - チーム名を「AKSKD」から「AKSK」に更新する
+    
+    **ステップ4：チーム名を決定し、アルファベットは大文字で統一**
+    - 連続共通部分が2文字以上ある場合：その連続共通部分をチーム名とする
+    - 連続共通部分が1文字のみの場合：先頭1文字をチーム名とする
     - **重要**：アルファベットのチーム名は必ず大文字で統一する
-      - 「r」→「R」、「t」→「T」のように大文字に変換
-    
-    **重要：動的な共通部分の反映**
-    - 新しいプレイヤーが追加された場合、全プレイヤーでの共通部分を再計算
-    - 共通部分が短くなる場合はチーム名を更新する
-    - あくまで「全員の共通部分」のみをチーム名とする
     
     **具体例**：
-    - 「かんとつシトラリ」「かんとつヌヴィレット」→ 「かんとつ」チーム
-    - 「ri-chan」「R♪ -chan」→ 「R」チーム（大文字で統一）
-    - 「パンチ」「パンダ」→ 「パン」チーム
-    - 「パトロール」が追加 → 全員の共通部分「パ」になるため「パ」チームに更新
+    - 「AKSKDあいうえお」「AKSKDかきくけこ」→ 「AKSKD」チーム（連続共通部分）
+    - その後「AKSKさしすせそ」追加 → 全員で再計算して「AKSK」チーム（連続共通部分）
+    - 「かんとつシトラリ」「かんとつヌヴィレット」→ 「かんとつ」チーム（連続共通部分）
+    - 「TeamRed01」「TeamRed02」「TeamBlue01」→ 「T」チーム（連続共通部分は1文字のみ）
     
     **例外処理**
     - 空白や特殊文字のみの場合は "UNKNOWN"
@@ -329,44 +343,46 @@ class EmbeddedServer {
   1. 順位 (例: 1st, 2nd, 3rd... または単に数字)
   2. ユーザー名
   3. プレイヤーごとの合計得点 (例: 1500, 1250...)
-
+${existingMappingsText}
   ## extraction_rules ##
   - [rank]: プレイヤーの順位を整数で抽出してください (例: 1, 2, 3, ..., 12)。
   - [name]: プレイヤーのユーザー名をそのまま抽出してください。
   - [totalScore]: プレイヤーの合計得点を整数で抽出してください (例: 1500, 1250)。
   - [team]: 以下の厳格なルールでチーム名を識別してください：
     
-    **基本方針：全プレイヤーの最長共通先頭部分のみをチーム名とする**
+    **基本方針：同じ先頭文字のプレイヤー全員の最長連続共通先頭部分をチーム名とする**
     
     **ステップ1：同じ先頭文字のプレイヤーをグループ化**
     - 先頭文字が同じプレイヤーを全て特定する
-    - アルファベットは大文字で統一（「r」と「R」は同じ「R」グループ）
-    - 「ri-chan」「R♪ -chan」は同じ「R」グループとして扱う
+    - アルファベットは大文字で統一（「a」と「A」は同じ「A」グループ）
+    - 「AKSKDあいうえお」「AKSKDかきくけこ」は同じ「A」グループとして扱う
     
-    **ステップ2：各グループ内で全プレイヤーの共通先頭部分を正確に決定**
-    - 同じ先頭文字のプレイヤー全員で、文字単位で正確に共通部分を確認
-    - 例：「かんとつシトラリ」「かんとつヌヴィレット」→ 共通部分「かんとつ」（4文字）
-    - 例：「パンチ」「パンダ」→ 共通部分「パン」（2文字）
-    - 例：「パンチ」「パンダ」「パトロール」→ 共通部分「パ」（1文字）
-    - 例：「ABC」「ABD」→ 共通部分「AB」（2文字）
-    - 例：「ri-chan」「R♪ -chan」→ 共通部分「R」（1文字、先頭文字のみ）
+    **ステップ2：各グループ内で全プレイヤーの最長連続共通先頭部分を正確に決定**
+    - 同じ先頭文字のプレイヤー全員で、1文字ずつ順番に比較して連続で一致する部分を特定
+    - **重要：連続で一致する最長の部分のみをチーム名とする**
+    - 例：「AKSKDあいうえお」「AKSKDかきくけこ」→ 連続共通部分「AKSKD」（5文字）
+    - 例：「かんとつシトラリ」「かんとつヌヴィレット」→ 連続共通部分「かんとつ」（4文字）
+    - 例：「ABC123」「ABD456」→ 連続共通部分「AB」（2文字、3文字目以降は不一致）
+    - 例：「TeamAlpha01」「TeamAlpha02」→ 連続共通部分「TeamAlpha0」（10文字）
     
-    **ステップ3：チーム名を決定し、アルファベットは大文字で統一**
-    - 共通部分が2文字以上ある場合：その共通部分をチーム名とする
-    - 共通部分が1文字のみの場合：先頭1文字をチーム名とする
+    **ステップ3：動的なチーム名再計算（重要）**
+    - 新しいプレイヤーが追加された場合、そのグループ内の全プレイヤーで連続共通部分を再計算する
+    - 例：「AKSKDあいうえお」「AKSKDかきくけこ」→「AKSKD」チーム
+    - その後「AKSKさしすせそ」が追加された場合：
+      - 3名全員で再計算：「AKSKD」「AKSKD」「AKSK」
+      - 連続共通部分は「AKSK」（4文字）になる
+      - チーム名を「AKSKD」から「AKSK」に更新する
+    
+    **ステップ4：チーム名を決定し、アルファベットは大文字で統一**
+    - 連続共通部分が2文字以上ある場合：その連続共通部分をチーム名とする
+    - 連続共通部分が1文字のみの場合：先頭1文字をチーム名とする
     - **重要**：アルファベットのチーム名は必ず大文字で統一する
-      - 「r」→「R」、「t」→「T」のように大文字に変換
-    
-    **重要：動的な共通部分の反映**
-    - 新しいプレイヤーが追加された場合、全プレイヤーでの共通部分を再計算
-    - 共通部分が短くなる場合はチーム名を更新する
-    - あくまで「全員の共通部分」のみをチーム名とする
     
     **具体例**：
-    - 「かんとつシトラリ」「かんとつヌヴィレット」→ 「かんとつ」チーム
-    - 「ri-chan」「R♪ -chan」→ 「R」チーム（大文字で統一）
-    - 「パンチ」「パンダ」→ 「パン」チーム
-    - 「パトロール」が追加 → 全員の共通部分「パ」になるため「パ」チームに更新
+    - 「AKSKDあいうえお」「AKSKDかきくけこ」→ 「AKSKD」チーム（連続共通部分）
+    - その後「AKSKさしすせそ」追加 → 全員で再計算して「AKSK」チーム（連続共通部分）
+    - 「かんとつシトラリ」「かんとつヌヴィレット」→ 「かんとつ」チーム（連続共通部分）
+    - 「TeamRed01」「TeamRed02」「TeamBlue01」→ 「T」チーム（連続共通部分は1文字のみ）
     
     **例外処理**
     - 空白や特殊文字のみの場合は "UNKNOWN"
@@ -404,23 +420,23 @@ class EmbeddedServer {
   
   ## チーム名判別例 ##
   例1: 以下のような結果の場合
-  1. チーズバーガー
-  2. てりやきバーガー
-  3. つるみバーガー
-  → 全て「バーガー」というチーム名を使用
+  1. かんとつシトラリ
+  2. かんとつヌヴィレット
+  3. かんとつアルレッキーノ
+  → 全て「かんとつ」というチーム名を使用（先頭共通部分）
 
   例2: 以下のような結果の場合
-  5. レッドゾーンX
-  6. レッドゾーンZ
-  7. レッドゾーン☆
-  12. レッドゾーンF
-  → 全て「レッドゾーン」というチーム名を使用
+  5. ABCメンバー1
+  6. ABCメンバー2
+  7. ABCメンバー3
+  12. ABCメンバー4
+  → 全て「ABC」というチーム名を使用（先頭共通部分）
 
   例3: 以下のような結果の場合
-  4. I'm Kotaro
-  8. I'm Masaya
-  11. I'm Tomoya
-  → 全て「I'm」というチーム名を使用
+  4. Team_Alpha_01
+  8. Team_Alpha_02
+  11. Team_Alpha_03
+  → 全て「Team_Alpha_」というチーム名を使用（先頭共通部分）
 `;
 
         // Gemini APIを直接呼び出し（設定からAPIキーを使用）
@@ -506,6 +522,23 @@ class EmbeddedServer {
           console.log('Gemini API raw response (cleaned):', cleanText);
           const parsedResponse = JSON.parse(cleanText);
           
+          // プレイヤー名マッピングを動的に更新
+          if (parsedResponse.results && Array.isArray(parsedResponse.results)) {
+            // 新しいプレイヤーの追加に基づいてマッピングを動的に更新
+            const updatedMappings = updatePlayerMappingsForNewPlayers(parsedResponse.results);
+            
+            // 更新されたマッピングに基づいて結果のチーム名を修正
+            parsedResponse.results.forEach(result => {
+              if (result.name && updatedMappings[result.name]) {
+                const correctTeamName = updatedMappings[result.name];
+                if (result.team !== correctTeamName) {
+                  console.log(`Correcting team name for "${result.name}" from "${result.team}" to "${correctTeamName}"`);
+                  result.team = correctTeamName;
+                }
+              }
+            });
+          }
+          
           res.json({
             success: true,
             response: parsedResponse
@@ -539,6 +572,184 @@ class EmbeddedServer {
       }
       // フォールバック: 開発環境用
       return path.join(__dirname, 'scores.json');
+    };
+
+    // 共通関数: プレイヤー名マッピングファイルパスを取得
+    const getPlayerMappingPath = () => {
+      try {
+        const { app } = require('electron');
+        if (app && app.getPath) {
+          const userDataPath = app.getPath('userData');
+          return path.join(userDataPath, 'player-mapping.json');
+        }
+      } catch (electronError) {
+        // Electronが利用できない場合のフォールバック
+      }
+      return path.join(__dirname, 'player-mapping.json');
+    };
+
+    // プレイヤー名からチーム名への履歴を保存
+    const savePlayerMapping = (playerName, teamName) => {
+      try {
+        const fs = require('fs');
+        const mappingPath = getPlayerMappingPath();
+        
+        let mapping = {};
+        if (fs.existsSync(mappingPath)) {
+          mapping = JSON.parse(fs.readFileSync(mappingPath, 'utf8'));
+        }
+        
+        mapping[playerName] = teamName;
+        
+        // ディレクトリが存在しない場合は作成
+        const mappingDir = path.dirname(mappingPath);
+        if (!fs.existsSync(mappingDir)) {
+          fs.mkdirSync(mappingDir, { recursive: true });
+        }
+        
+        fs.writeFileSync(mappingPath, JSON.stringify(mapping, null, 2));
+        console.log(`Player mapping saved: "${playerName}" -> "${teamName}"`);
+      } catch (error) {
+        console.error('Error saving player mapping:', error);
+      }
+    };
+
+    // プレイヤー名からチーム名への履歴を取得
+    const getPlayerMapping = (playerName) => {
+      try {
+        const fs = require('fs');
+        const mappingPath = getPlayerMappingPath();
+        
+        if (!fs.existsSync(mappingPath)) {
+          return null;
+        }
+        
+        const mapping = JSON.parse(fs.readFileSync(mappingPath, 'utf8'));
+        return mapping[playerName] || null;
+      } catch (error) {
+        console.error('Error reading player mapping:', error);
+        return null;
+      }
+    };
+
+    // すべてのプレイヤー名マッピングを取得
+    const getAllPlayerMappings = () => {
+      try {
+        const fs = require('fs');
+        const mappingPath = getPlayerMappingPath();
+        
+        if (!fs.existsSync(mappingPath)) {
+          return {};
+        }
+        
+        return JSON.parse(fs.readFileSync(mappingPath, 'utf8'));
+      } catch (error) {
+        console.error('Error reading all player mappings:', error);
+        return {};
+      }
+    };
+
+    // 連続共通先頭部分を計算する関数
+    const findLongestCommonPrefix = (names) => {
+      if (!names || names.length === 0) return '';
+      if (names.length === 1) return names[0];
+      
+      let prefix = '';
+      const firstName = names[0];
+      
+      for (let i = 0; i < firstName.length; i++) {
+        const char = firstName[i];
+        let allMatch = true;
+        
+        for (let j = 1; j < names.length; j++) {
+          if (i >= names[j].length || names[j][i] !== char) {
+            allMatch = false;
+            break;
+          }
+        }
+        
+        if (allMatch) {
+          prefix += char;
+        } else {
+          break;
+        }
+      }
+      
+      return prefix;
+    };
+
+    // プレイヤー名マッピングを動的に更新する関数
+    const updatePlayerMappingsForNewPlayers = (newResults) => {
+      try {
+        const fs = require('fs');
+        const mappingPath = getPlayerMappingPath();
+        
+        // 現在のマッピングを取得
+        let currentMappings = getAllPlayerMappings();
+        
+        // 先頭文字でグループ化
+        const playerGroups = {};
+        
+        // 新しい結果から全プレイヤーを取得
+        newResults.forEach(result => {
+          if (result.name) {
+            const firstChar = result.name.charAt(0).toUpperCase();
+            if (!playerGroups[firstChar]) {
+              playerGroups[firstChar] = [];
+            }
+            playerGroups[firstChar].push(result.name);
+          }
+        });
+        
+        // 既存のマッピングからも同じ先頭文字のプレイヤーを追加
+        Object.keys(currentMappings).forEach(playerName => {
+          const firstChar = playerName.charAt(0).toUpperCase();
+          if (playerGroups[firstChar] && !playerGroups[firstChar].includes(playerName)) {
+            playerGroups[firstChar].push(playerName);
+          }
+        });
+        
+        // 各グループで連続共通部分を再計算してマッピングを更新
+        let mappingsUpdated = false;
+        
+        Object.entries(playerGroups).forEach(([firstChar, players]) => {
+          if (players.length > 1) {
+            const commonPrefix = findLongestCommonPrefix(players);
+            let teamName = commonPrefix.length >= 2 ? commonPrefix : firstChar;
+            
+            // アルファベットのチーム名は大文字に統一
+            if (/^[A-Za-z]+/.test(teamName)) {
+              teamName = teamName.toUpperCase();
+            }
+            
+            // このグループの全プレイヤーのマッピングを更新
+            players.forEach(playerName => {
+              const currentTeamName = currentMappings[playerName];
+              if (!currentTeamName || currentTeamName !== teamName) {
+                console.log(`Updating player mapping: "${playerName}" from "${currentTeamName || 'none'}" to "${teamName}"`);
+                currentMappings[playerName] = teamName;
+                mappingsUpdated = true;
+              }
+            });
+          }
+        });
+        
+        // マッピングが更新された場合のみファイルに保存
+        if (mappingsUpdated) {
+          const mappingDir = path.dirname(mappingPath);
+          if (!fs.existsSync(mappingDir)) {
+            fs.mkdirSync(mappingDir, { recursive: true });
+          }
+          
+          fs.writeFileSync(mappingPath, JSON.stringify(currentMappings, null, 2));
+          console.log('Player mappings updated dynamically');
+        }
+        
+        return currentMappings;
+      } catch (error) {
+        console.error('Error updating player mappings:', error);
+        return getAllPlayerMappings();
+      }
     };
 
     // スコア保存/取得API（アニメーション制御フラグ対応）
@@ -774,8 +985,10 @@ class EmbeddedServer {
       try {
         const fs = require('fs');
         const scoresPath = getScoresPath();
+        const playerMappingPath = getPlayerMappingPath();
         
         console.log('Resetting scores at path:', scoresPath);
+        console.log('Resetting player mappings at path:', playerMappingPath);
         
         // ディレクトリが存在しない場合は作成
         const scoreDir = path.dirname(scoresPath);
@@ -784,20 +997,68 @@ class EmbeddedServer {
           console.log('Created scores directory:', scoreDir);
         }
         
-        // 空の配列でリセット
+        // 空の配列でスコアをリセット
         fs.writeFileSync(scoresPath, JSON.stringify([], null, 2));
         console.log('Scores reset successfully at:', scoresPath);
         
+        // プレイヤー名マッピングもリセット
+        fs.writeFileSync(playerMappingPath, JSON.stringify({}, null, 2));
+        console.log('Player mappings reset successfully at:', playerMappingPath);
+        
         res.json({
           success: true,
-          message: 'スコアがリセットされました'
+          message: 'スコアとプレイヤー名マッピングがリセットされました'
         });
       } catch (error) {
-        console.error('Score reset error:', error);
+        console.error('Reset error:', error);
         console.error('Error details:', error.message);
         res.status(500).json({
           success: false,
-          error: `スコアリセットに失敗しました: ${error.message}`
+          error: `リセットに失敗しました: ${error.message}`
+        });
+      }
+    });
+
+    // プレイヤー名マッピング取得API
+    this.app.get('/api/player-mappings', (req, res) => {
+      try {
+        const mappings = getAllPlayerMappings();
+        res.json({
+          success: true,
+          mappings: mappings
+        });
+      } catch (error) {
+        console.error('Player mappings retrieval error:', error);
+        res.status(500).json({
+          success: false,
+          error: error.message
+        });
+      }
+    });
+
+    // プレイヤー名マッピング手動更新API
+    this.app.post('/api/player-mappings', (req, res) => {
+      try {
+        const { playerName, teamName } = req.body;
+        
+        if (!playerName || !teamName) {
+          return res.status(400).json({
+            success: false,
+            error: 'プレイヤー名とチーム名は必須です'
+          });
+        }
+        
+        savePlayerMapping(playerName, teamName);
+        
+        res.json({
+          success: true,
+          message: `プレイヤー "${playerName}" のチーム名を "${teamName}" に更新しました`
+        });
+      } catch (error) {
+        console.error('Player mapping update error:', error);
+        res.status(500).json({
+          success: false,
+          error: error.message
         });
       }
     });
