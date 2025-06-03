@@ -679,71 +679,124 @@
         .button.danger:hover {
             box-shadow: 0 8px 25px rgba(245, 101, 101, 0.3);
         }
+
+        /* 言語選択ドロップダウンのスタイル */
+        .language-selector {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+
+        .language-selector select {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            outline: none;
+        }
+
+        .language-selector select:hover,
+        .language-selector select:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        .language-selector select option {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            padding: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .language-selector {
+                top: 16px;
+                left: 16px;
+            }
+            
+            .language-selector select {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="theme-toggle" onclick="toggleTheme()" title="ダークモード切り替え">
+    <div class="theme-toggle" onclick="toggleTheme()" data-i18n-title="theme.toggle">
         🌓
     </div>
 
+    <!-- 言語選択ドロップダウン -->
+    <div class="language-selector">
+        <select id="languageSelector" onchange="changeLanguage(this.value)">
+            <option value="ja">日本語</option>
+            <option value="en">English</option>
+        </select>
+    </div>
+
     <div class="header">
-        <h1>🏎️ Gemisoku-GUI</h1>
-        <p>マリオカート8デラックス レース結果自動取得・分析アプリケーション</p>
+        <h1 data-i18n="app.title">🏎️ Gemisoku-GUI</h1>
+        <p data-i18n="app.subtitle">マリオカート8デラックス レース結果自動取得・分析アプリケーション</p>
     </div>
 
     <div class="container">
         <!-- 設定セクション -->
         <div class="section">
-            <h2>⚙️ 設定</h2>
+            <h2 data-i18n="config.title">⚙️ 設定</h2>
             <form id="configForm">
                 <div class="form-group">
-                    <label for="obsIp">OBS IPアドレス:</label>
+                    <label for="obsIp" data-i18n="config.obsIp">OBS IPアドレス:</label>
                     <input type="text" id="obsIp" placeholder="127.0.0.1" required>
                 </div>
                 <div class="form-group">
-                    <label for="obsPort">OBS WebSocketポート:</label>
+                    <label for="obsPort" data-i18n="config.obsPort">OBS WebSocketポート:</label>
                     <input type="number" id="obsPort" placeholder="4455" min="1" max="65535" required>
                 </div>
                 <div class="form-group">
-                    <label for="obsPassword">OBS WebSocketパスワード:</label>
-                    <input type="password" id="obsPassword" placeholder="パスワード（設定している場合のみ）">
+                    <label for="obsPassword" data-i18n="config.obsPassword">OBS WebSocketパスワード:</label>
+                    <input type="password" id="obsPassword" data-i18n="config.obsPasswordPlaceholder" placeholder="パスワード（設定している場合のみ）">
                 </div>
                 <div class="form-group">
-                    <label for="obsSourceName">OBS ソース名:</label>
-                    <input type="text" id="obsSourceName" placeholder="映像キャプチャデバイス" required>
+                    <label for="obsSourceName" data-i18n="config.obsSourceName">OBS ソース名:</label>
+                    <input type="text" id="obsSourceName" data-i18n="config.obsSourceNamePlaceholder" placeholder="映像キャプチャデバイス" required>
                 </div>
                 <div class="form-group">
-                    <label for="geminiApiKey">Gemini API キー:</label>
-                    <input type="password" id="geminiApiKey" placeholder="AIzaSy..." required>
+                    <label for="geminiApiKey" data-i18n="config.geminiApiKey">Gemini API キー:</label>
+                    <input type="password" id="geminiApiKey" data-i18n="config.geminiApiKeyPlaceholder" placeholder="AIzaSy..." required>
                 </div>
-                <button type="submit" class="button">💾 設定を保存</button>
+                <button type="submit" class="button" data-i18n="config.saveButton">💾 設定を保存</button>
             </form>
             <div id="configStatus" class="status"></div>
         </div>
 
         <!-- 操作セクション -->
         <div class="section">
-            <h2>🎮 操作</h2>
+            <h2 data-i18n="operations.title">🎮 操作</h2>
             <div class="button-grid">
-                <button id="fetchRaceBtn" class="button success">
+                <button id="fetchRaceBtn" class="button success" data-i18n="operations.fetchRace">
                     📊 レース結果を取得
                 </button>
-                <button id="fetchOverallBtn" class="button warning">
+                <button id="fetchOverallBtn" class="button warning" data-i18n="operations.fetchOverall">
                     🏆 チーム合計点を取得
                 </button>
-                <button id="openOverlayBtn" class="button secondary">
+                <button id="openOverlayBtn" class="button secondary" data-i18n="operations.openOverlay">
                     🖥️ オーバーレイを開く
                 </button>
-                <button id="editScoresBtn" class="button secondary">
+                <button id="editScoresBtn" class="button secondary" data-i18n="operations.editScores">
                     ⚙️ 得点編集
                 </button>
-                <button id="resetScoresBtn" class="button danger">
+                <button id="resetScoresBtn" class="button danger" data-i18n="operations.resetScores">
                     🗑️ スコアをリセット
                 </button>
-                <button id="testConnectionBtn" class="button">
+                <button id="testConnectionBtn" class="button" data-i18n="operations.testConnection">
                     🔗 接続テスト
                 </button>
-                <button id="checkUpdatesBtn" class="button secondary">
+                <button id="checkUpdatesBtn" class="button secondary" data-i18n="operations.checkUpdates">
                     🔄 アップデートチェック
                 </button>
             </div>
@@ -751,37 +804,37 @@
             
             <!-- スコア設定セクション -->
             <div class="overlay-info">
-                <h3>⚙️ スコア設定</h3>
+                <h3 data-i18n="scoreSettings.title">⚙️ スコア設定</h3>
                 <div class="form-group">
                     <label class="toggle-label">
-                        <span>アプリ再起動時にスコアを保持する</span>
+                        <span data-i18n="scoreSettings.keepScoresOnRestart">アプリ再起動時にスコアを保持する</span>
                         <div class="toggle-switch">
                             <input type="checkbox" id="keepScoresOnRestart" checked>
                             <span class="toggle-slider"></span>
                         </div>
                     </label>
-                    <small>スイッチをオフにすると、アプリ起動時にスコアが自動的にリセットされます</small>
+                    <small data-i18n="scoreSettings.keepScoresHelp">スイッチをオフにすると、アプリ起動時にスコアが自動的にリセットされます</small>
                 </div>
             </div>
 
             <!-- オーバーレイ設定セクション -->
             <div class="overlay-info">
-                <h3>🖥️ オーバーレイ設定</h3>
+                <h3 data-i18n="overlaySettings.title">🖥️ オーバーレイ設定</h3>
                 <div class="form-group">
                     <label class="toggle-label">
-                        <span>オーバーレイで残りレース数を表示する</span>
+                        <span data-i18n="overlaySettings.showRemainingRaces">オーバーレイで残りレース数を表示する</span>
                         <div class="toggle-switch">
                             <input type="checkbox" id="showRemainingRaces" checked>
                             <span class="toggle-slider"></span>
                         </div>
                     </label>
-                    <small>スイッチをオフにすると、オーバーレイで残りレース数が表示されなくなります</small>
+                    <small data-i18n="overlaySettings.showRemainingRacesHelp">スイッチをオフにすると、オーバーレイで残りレース数が表示されなくなります</small>
                 </div>
             </div>
             
             <div class="overlay-info">
-                <h3>💡 使用方法</h3>
-                <p>
+                <h3 data-i18n="usage.title">💡 使用方法</h3>
+                <p data-i18n="usage.steps">
                     1. 上記の設定を入力して保存してください<br>
                     2. 「オーバーレイを開く」でブラウザが開きます<br>
                     3. そのURLをOBSのブラウザソースに設定してください<br>
@@ -792,9 +845,10 @@
     </div>
 
     <div class="footer">
-        <p>Gemisoku-GUI <span id="appVersion">v1.0.0</span> | Made with ❤️ by eighten (eito54)</p>
+        <p>Gemisoku-GUI <span id="appVersion">v1.0.0</span> | <span data-i18n="footer.madeWith">Made with ❤️ by eighten (eito54)</span></p>
     </div>
 
+    <script src="i18n.js"></script>
     <script src="renderer.js"></script>
 </body>
 </html>

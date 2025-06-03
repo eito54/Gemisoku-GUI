@@ -1,3 +1,24 @@
+// 言語切り替え機能
+async function changeLanguage(language) {
+    if (typeof i18n !== 'undefined') {
+        await i18n.setLanguage(language);
+        // テーマトグルのタイトルも更新
+        updateThemeToggleTitle();
+    }
+}
+
+// テーマトグルのタイトルを現在の言語で更新
+function updateThemeToggleTitle() {
+    const themeToggle = document.querySelector('.theme-toggle');
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    
+    if (typeof i18n !== 'undefined' && themeToggle) {
+        const titleKey = currentTheme === 'dark' ? 'theme.toggleLight' : 'theme.toggle';
+        const title = i18n.t('theme.toggle');
+        themeToggle.title = title;
+    }
+}
+
 // ダークモード切り替え機能
 function toggleTheme() {
     const currentTheme = document.documentElement.getAttribute('data-theme');
@@ -9,7 +30,9 @@ function toggleTheme() {
     // アイコンを更新
     const themeToggle = document.querySelector('.theme-toggle');
     themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌓';
-    themeToggle.title = newTheme === 'dark' ? 'ライトモードに切り替え' : 'ダークモードに切り替え';
+    
+    // タイトルを現在の言語で更新
+    updateThemeToggleTitle();
 }
 
 // 保存されたテーマを読み込み
@@ -20,7 +43,8 @@ function loadTheme() {
     const themeToggle = document.querySelector('.theme-toggle');
     if (themeToggle) {
         themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌓';
-        themeToggle.title = savedTheme === 'dark' ? 'ライトモードに切り替え' : 'ダークモードに切り替え';
+        // タイトルは多言語対応のため、i18n初期化後に設定
+        updateThemeToggleTitle();
     }
 }
 
@@ -45,6 +69,12 @@ const checkUpdatesBtn = document.getElementById('checkUpdatesBtn');
 // 初期化
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('GUI renderer loaded, initializing...');
+    
+    // i18nの初期化を待つ
+    if (typeof i18n !== 'undefined') {
+        await i18n.init();
+    }
+    
     loadTheme(); // テーマを読み込み
     await loadConfig();
     setupUpdateListeners(); // アップデートリスナーを設定
@@ -69,7 +99,8 @@ async function loadConfig() {
             showRemainingRacesCheckbox.checked = config.showRemainingRaces !== false; // デフォルトはtrue
         }
     } catch (error) {
-        showStatus(configStatus, 'error', '設定の読み込みに失敗しました: ' + error.message);
+        const errorMsg = typeof i18n !== 'undefined' ? i18n.t('messages.configLoadError') : '設定の読み込みに失敗しました';
+        showStatus(configStatus, 'error', errorMsg + ': ' + error.message);
     }
 }
 
@@ -90,7 +121,8 @@ configForm.addEventListener('submit', async (e) => {
     
     // バリデーション（OBSパスワードは必須ではない）
     if (!config.obsIp || !config.obsPort || !config.obsSourceName || !config.geminiApiKey) {
-        showStatus(configStatus, 'error', 'OBS IPアドレス、ポート、ソース名、Gemini APIキーは必須です');
+        const errorMsg = typeof i18n !== 'undefined' ? i18n.t('config.validationError') : 'OBS IPアドレス、ポート、ソース名、Gemini APIキーは必須です';
+        showStatus(configStatus, 'error', errorMsg);
         return;
     }
     
@@ -100,13 +132,16 @@ configForm.addEventListener('submit', async (e) => {
         const result = await window.electronAPI.saveConfig(config);
         
         if (result.success) {
-            showStatus(configStatus, 'success', '設定が保存されました');
+            const successMsg = typeof i18n !== 'undefined' ? i18n.t('messages.configSaved') : '設定が保存されました';
+            showStatus(configStatus, 'success', successMsg);
             showSuccessParticles(document.querySelector('button[type="submit"]'));
         } else {
-            showStatus(configStatus, 'error', '設定の保存に失敗しました');
+            const errorMsg = typeof i18n !== 'undefined' ? i18n.t('messages.configSaveError') : '設定の保存に失敗しました';
+            showStatus(configStatus, 'error', errorMsg);
         }
     } catch (error) {
-        showStatus(configStatus, 'error', '設定の保存に失敗しました: ' + error.message);
+        const errorMsg = typeof i18n !== 'undefined' ? i18n.t('messages.configSaveError') : '設定の保存に失敗しました';
+        showStatus(configStatus, 'error', errorMsg + ': ' + error.message);
     } finally {
         showButtonLoading(e.target.querySelector('button'), false);
     }
