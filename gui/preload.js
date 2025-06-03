@@ -26,5 +26,25 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getServerPort: () => ipcRenderer.invoke('get-server-port'),
   
   // メッセージ表示
-  showMessage: (type, title, message) => ipcRenderer.invoke('show-message', type, title, message)
+  showMessage: (type, title, message) => ipcRenderer.invoke('show-message', type, title, message),
+  
+  // アップデート関連API
+  checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+  installUpdate: () => ipcRenderer.invoke('install-update'),
+  getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+  openDownloadPage: (url) => ipcRenderer.invoke('open-download-page', url),
+  downloadUpdateCustom: (asset) => ipcRenderer.invoke('download-update-custom', asset),
+  installDownloadedUpdate: (filePath) => ipcRenderer.invoke('install-downloaded-update', filePath),
+  
+  // アップデートイベントリスナー
+  onUpdateAvailable: (callback) => ipcRenderer.on('update-available', callback),
+  onDownloadProgress: (callback) => ipcRenderer.on('download-progress', callback),
+  onUpdateDownloaded: (callback) => ipcRenderer.on('update-downloaded', callback),
+  onDownloadProgressCustom: (callback) => ipcRenderer.on('download-progress-custom', callback),
+  removeAllUpdateListeners: () => {
+    ipcRenderer.removeAllListeners('update-available');
+    ipcRenderer.removeAllListeners('download-progress');
+    ipcRenderer.removeAllListeners('update-downloaded');
+    ipcRenderer.removeAllListeners('download-progress-custom');
+  }
 });

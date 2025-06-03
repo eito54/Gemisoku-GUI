@@ -1,6 +1,6 @@
 {
   "name": "mk8dx-bot",
-  "version": "0.1.0",
+  "version": "1.2.0",
   "private": true,
   "packageManager": "pnpm@9.1.0",
   "scripts": {
@@ -11,7 +11,11 @@
     "build-win": "electron-builder --win",
     "build-mac": "electron-builder --mac",
     "build-linux": "electron-builder --linux",
-    "dist": "npm run build"
+    "dist": "npm run build",
+    "release": "electron-builder --publish=always",
+    "release-win": "electron-builder --win --publish=always",
+    "release-mac": "electron-builder --mac --publish=always",
+    "release-linux": "electron-builder --linux --publish=always"
   },
   "engines": {
     "node": ">=18.0.0",
@@ -21,7 +25,8 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
-    "obs-websocket-js": "^5.0.6"
+    "obs-websocket-js": "^5.0.6",
+    "electron-updater": "^6.1.8"
   },
   "devDependencies": {
     "electron": "^36.3.2",
@@ -46,21 +51,38 @@
       "node_modules/obs-websocket-js/**/*",
       "node_modules/@google/generative-ai/**/*",
       "node_modules/express/**/*",
+      "node_modules/electron-updater/**/*",
       "!node_modules/.cache",
       "!node_modules/*/{test,tests,spec,specs,example,examples,*.md,*.MD,*.txt,*.TXT,*.yml,*.yaml,*.json.d.ts}",
       "!node_modules/*/{README,readme,CHANGELOG,changelog,HISTORY,history,LICENSE,license,LICENCE,licence}*"
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "eito54",
+        "repo": "Gemisoku-GUI",
+        "releaseType": "release"
+      }
     ],
     "win": {
       "target": "nsis",
       "icon": "assets/logo.jpeg"
     },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
     "mac": {
       "target": "dmg",
-      "icon": "assets/logo.jpeg"
+      "icon": "assets/logo.jpeg",
+      "category": "public.app-category.entertainment"
     },
     "linux": {
       "target": "AppImage",
-      "icon": "assets/logo.jpeg"
+      "icon": "assets/logo.jpeg",
+      "category": "Game"
     }
   }
 }

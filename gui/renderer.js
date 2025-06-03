@@ -40,12 +40,15 @@ const fetchOverallBtn = document.getElementById('fetchOverallBtn');
 const openOverlayBtn = document.getElementById('openOverlayBtn');
 const editScoresBtn = document.getElementById('editScoresBtn');
 const testConnectionBtn = document.getElementById('testConnectionBtn');
+const checkUpdatesBtn = document.getElementById('checkUpdatesBtn');
 
 // 初期化
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('GUI renderer loaded, initializing...');
     loadTheme(); // テーマを読み込み
     await loadConfig();
+    setupUpdateListeners(); // アップデートリスナーを設定
+    await checkAppVersion(); // アプリバージョンを表示
     console.log('GUI initialization complete');
 });
 
@@ -237,6 +240,50 @@ testConnectionBtn.addEventListener('click', async () => {
         showButtonLoading(testConnectionBtn, false);
     }
 });
+
+// アップデートチェックボタン
+if (checkUpdatesBtn) {
+    checkUpdatesBtn.addEventListener('click', async () => {
+        try {
+            showButtonLoading(checkUpdatesBtn, true);
+            showStatus(operationStatus, 'info', 'アップデートをチェック中...');
+            
+            const result = await window.electronAPI.checkForUpdates();
+            
+            if (result.success) {
+                if (result.upToDate) {
+                    if (result.newerVersion) {
+                        // 現在のバージョンの方が新しい（開発版）
+                        showStatus(operationStatus, 'info',
+                            `🚀 開発版をお使いです (現在: v${result.currentVersion}, 最新安定版: v${result.latestVersion})`);
+                    } else if (result.isNewerRelease) {
+                        // パッケージ版で最新リリース版（GitHubより新しい正式版）
+                        showStatus(operationStatus, 'success',
+                            `✅ 最新バージョンをお使いです (v${result.currentVersion})`);
+                    } else {
+                        // 最新バージョンまたは同じバージョン
+                        const message = result.latestVersion
+                            ? `✅ 最新バージョンをお使いです (v${result.currentVersion})`
+                            : '✅ 最新バージョンをお使いです';
+                        showStatus(operationStatus, 'success', message);
+                    }
+                } else if (result.manualUpdate) {
+                    showStatus(operationStatus, 'info', '🆕 新しいバージョンが利用可能です');
+                    showManualUpdateDialog(result.latestRelease, result.currentVersion);
+                } else {
+                    showStatus(operationStatus, 'success', 'アップデートチェックが完了しました');
+                }
+                showSuccessParticles(checkUpdatesBtn);
+            } else {
+                showStatus(operationStatus, 'error', 'アップデートチェックに失敗しました: ' + result.error);
+            }
+        } catch (error) {
+            showStatus(operationStatus, 'error', 'アップデートチェックに失敗しました: ' + error.message);
+        } finally {
+            showButtonLoading(checkUpdatesBtn, false);
+        }
+    });
+}
 
 // ユーティリティ関数
 function showStatus(element, type, message) {
@@ -505,3 +552,307 @@ async function checkInitialScoreReset() {
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(checkInitialScoreReset, 1000); // 1秒後に実行
 });
+
+// アップデート関連の機能
+async function setupUpdateListeners() {
+    // アップデート利用可能時
+    window.electronAPI.onUpdateAvailable((event, info) => {
+        console.log('アップデートが利用可能:', info);
+        showUpdateAvailableDialog(info);
+    });
+    
+    // ダウンロード進行状況
+    window.electronAPI.onDownloadProgress((event, progress) => {
+        console.log('ダウンロード進行状況:', Math.round(progress.percent) + '%');
+        showDownloadProgress(progress);
+    });
+    
+    // アップデートダウンロード完了
+    window.electronAPI.onUpdateDownloaded((event, info) => {
+        console.log('アップデートダウンロード完了:', info);
+        showUpdateReadyDialog(info);
+    });
+    
+    // カスタムダウンロード進行状況
+    window.electronAPI.onDownloadProgressCustom((event, progress) => {
+        console.log('カスタムダウンロード進行状況:', Math.round(progress.percent) + '%');
+        showDownloadProgress(progress);
+    });
+}
+
+// アプリバージョンを表示
+async function checkAppVersion() {
+    try {
+        const version = await window.electronAPI.getAppVersion();
+        const versionElement = document.getElementById('appVersion');
+        if (versionElement) {
+            versionElement.textContent = `v${version}`;
+        }
+    } catch (error) {
+        console.error('バージョン取得エラー:', error);
+    }
+}
+
+// アップデート利用可能ダイアログ
+function showUpdateAvailableDialog(info) {
+    const modal = createModal({
+        title: '🆕 新しいアップデートが利用可能です',
+        content: `
+            <div class="update-dialog">
+                <p><strong>新しいバージョン:</strong> v${info.version}</p>
+                <p><strong>現在のバージョン:</strong> v${info.currentVersion || 'Unknown'}</p>
+                <div class="update-notes">
+                    <h4>更新内容:</h4>
+                    <div class="release-notes">${info.releaseNotes || '詳細な更新内容については、GitHubリリースページをご覧ください。'}</div>
+                </div>
+                <div class="update-actions">
+                    <button id="downloadUpdateBtn" class="btn btn-primary">
+                        📥 ダウンロード開始
+                    </button>
+                    <button id="laterBtn" class="btn btn-secondary">
+                        ⏰ 後で
+                    </button>
+                </div>
+            </div>
+        `
+    });
+    
+    document.getElementById('downloadUpdateBtn').addEventListener('click', () => {
+        modal.remove();
+        showStatus(operationStatus, 'info', 'アップデートのダウンロードを開始しています...');
+    });
+    
+    document.getElementById('laterBtn').addEventListener('click', () => {
+        modal.remove();
+    });
+}
+
+// ダウンロード進行状況を表示
+function showDownloadProgress(progress) {
+    const existingProgress = document.getElementById('updateProgress');
+    if (existingProgress) {
+        const progressBar = existingProgress.querySelector('.progress-bar');
+        const progressText = existingProgress.querySelector('.progress-text');
+        progressBar.style.width = `${progress.percent}%`;
+        progressText.textContent = `${Math.round(progress.percent)}% (${formatBytes(progress.transferred)} / ${formatBytes(progress.total)})`;
+        return;
+    }
+    
+    const progressHTML = `
+        <div id="updateProgress" class="update-progress">
+            <h4>📦 アップデートをダウンロード中...</h4>
+            <div class="progress-container">
+                <div class="progress-bar" style="width: ${progress.percent}%"></div>
+            </div>
+            <div class="progress-text">${Math.round(progress.percent)}% (${formatBytes(progress.transferred)} / ${formatBytes(progress.total)})</div>
+        </div>
+    `;
+    
+    showStatus(operationStatus, 'info', progressHTML);
+}
+
+// アップデート準備完了ダイアログ
+function showUpdateReadyDialog(info) {
+    const modal = createModal({
+        title: '✅ アップデートの準備が完了しました',
+        content: `
+            <div class="update-dialog">
+                <p>新しいバージョン <strong>v${info.version}</strong> のダウンロードが完了しました。</p>
+                <p>アプリを再起動してアップデートを適用しますか？</p>
+                <div class="update-actions">
+                    <button id="installNowBtn" class="btn btn-primary">
+                        🔄 今すぐ再起動
+                    </button>
+                    <button id="installLaterBtn" class="btn btn-secondary">
+                        ⏰ 後で再起動
+                    </button>
+                </div>
+            </div>
+        `
+    });
+    
+    document.getElementById('installNowBtn').addEventListener('click', async () => {
+        try {
+            await window.electronAPI.installUpdate();
+        } catch (error) {
+            console.error('アップデートインストールエラー:', error);
+            showStatus(operationStatus, 'error', 'アップデートのインストールに失敗しました');
+        }
+    });
+    
+    document.getElementById('installLaterBtn').addEventListener('click', () => {
+        modal.remove();
+        showStatus(operationStatus, 'success', 'アップデートは次回起動時に適用されます');
+    });
+}
+
+// 手動アップデートダイアログ（カスタム自動ダウンロード対応）
+function showManualUpdateDialog(latestRelease, currentVersion) {
+    const canAutoUpdate = latestRelease.canAutoUpdate;
+    
+    const modal = createModal({
+        title: '🆕 新しいアップデートが利用可能です',
+        content: `
+            <div class="update-dialog">
+                <p><strong>新しいバージョン:</strong> v${latestRelease.version}</p>
+                <p><strong>現在のバージョン:</strong> v${currentVersion}</p>
+                <div class="update-notes">
+                    <h4>更新内容:</h4>
+                    <div class="release-notes">${latestRelease.releaseNotes || '詳細な更新内容については、GitHubリリースページをご覧ください。'}</div>
+                </div>
+                ${canAutoUpdate ? `
+                    <div class="update-success" style="background: var(--bg-secondary); padding: 12px; border-radius: 8px; margin: 16px 0; border-left: 4px solid var(--accent-green);">
+                        <p><strong>✅ 自動アップデート:</strong> このバージョンは自動的にダウンロード・インストールできます。</p>
+                    </div>
+                ` : `
+                    <div class="update-warning" style="background: var(--bg-secondary); padding: 12px; border-radius: 8px; margin: 16px 0; border-left: 4px solid var(--accent-orange);">
+                        <p><strong>💡 情報:</strong> 手動でのアップデートとなります。下記ボタンからダウンロードページにアクセスしてください。</p>
+                    </div>
+                `}
+                <div class="update-actions">
+                    ${canAutoUpdate ? `
+                        <button id="downloadAutoBtn" class="btn btn-primary">
+                            📥 自動ダウンロード開始
+                        </button>
+                        <button id="downloadManualBtn" class="btn btn-secondary">
+                            🌐 手動ダウンロード
+                        </button>
+                    ` : `
+                        <button id="downloadManualBtn" class="btn btn-primary">
+                            🌐 ダウンロードページを開く
+                        </button>
+                    `}
+                    <button id="laterManualBtn" class="btn btn-secondary">
+                        ⏰ 後で
+                    </button>
+                </div>
+            </div>
+        `
+    });
+    
+    // 自動ダウンロードボタン
+    const downloadAutoBtn = document.getElementById('downloadAutoBtn');
+    if (downloadAutoBtn) {
+        downloadAutoBtn.addEventListener('click', async () => {
+            try {
+                modal.remove();
+                showStatus(operationStatus, 'info', 'アップデートのダウンロードを開始しています...');
+                
+                const result = await window.electronAPI.downloadUpdateCustom(latestRelease.installerAsset);
+                
+                if (result.success) {
+                    showCustomUpdateReadyDialog(result, latestRelease.version);
+                } else {
+                    showStatus(operationStatus, 'error', 'ダウンロードに失敗しました: ' + result.error);
+                }
+            } catch (error) {
+                showStatus(operationStatus, 'error', 'ダウンロードに失敗しました: ' + error.message);
+            }
+        });
+    }
+    
+    // 手動ダウンロードボタン
+    const downloadManualBtn = document.getElementById('downloadManualBtn');
+    if (downloadManualBtn) {
+        downloadManualBtn.addEventListener('click', async () => {
+            try {
+                await window.electronAPI.openDownloadPage(latestRelease.downloadUrl);
+                modal.remove();
+                showStatus(operationStatus, 'success', 'ダウンロードページを開きました');
+            } catch (error) {
+                showStatus(operationStatus, 'error', 'ダウンロードページを開けませんでした: ' + error.message);
+            }
+        });
+    }
+    
+    // 後でボタン
+    const laterManualBtn = document.getElementById('laterManualBtn');
+    if (laterManualBtn) {
+        laterManualBtn.addEventListener('click', () => {
+            modal.remove();
+        });
+    }
+}
+
+// カスタムアップデート準備完了ダイアログ
+function showCustomUpdateReadyDialog(downloadResult, version) {
+    const modal = createModal({
+        title: '✅ アップデートの準備が完了しました',
+        content: `
+            <div class="update-dialog">
+                <p>新しいバージョン <strong>v${version}</strong> のダウンロードが完了しました。</p>
+                <p><strong>ファイル:</strong> ${downloadResult.fileName}</p>
+                <p>インストーラーを実行してアップデートを適用しますか？</p>
+                <div class="update-actions">
+                    <button id="installCustomNowBtn" class="btn btn-primary">
+                        🚀 今すぐインストール
+                    </button>
+                    <button id="installCustomLaterBtn" class="btn btn-secondary">
+                        ⏰ 後でインストール
+                    </button>
+                </div>
+            </div>
+        `
+    });
+    
+    document.getElementById('installCustomNowBtn').addEventListener('click', async () => {
+        try {
+            const result = await window.electronAPI.installDownloadedUpdate(downloadResult.filePath);
+            if (result.success) {
+                modal.remove();
+                showStatus(operationStatus, 'success', 'インストーラーを起動しました。アプリを終了します...');
+            } else {
+                showStatus(operationStatus, 'error', 'インストーラーの起動に失敗しました: ' + result.error);
+            }
+        } catch (error) {
+            console.error('カスタムアップデートインストールエラー:', error);
+            showStatus(operationStatus, 'error', 'インストーラーの起動に失敗しました: ' + error.message);
+        }
+    });
+    
+    document.getElementById('installCustomLaterBtn').addEventListener('click', () => {
+        modal.remove();
+        showStatus(operationStatus, 'success', `アップデートファイルは ${downloadResult.filePath} に保存されました`);
+    });
+}
+
+// モーダルダイアログを作成
+function createModal({ title, content }) {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>${title}</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                ${content}
+            </div>
+        </div>
+    `;
+    
+    // 閉じるボタンのイベント
+    modal.querySelector('.modal-close').addEventListener('click', () => {
+        modal.remove();
+    });
+    
+    // 背景クリックで閉じる
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+    
+    document.body.appendChild(modal);
+    return modal;
+}
+
+// バイト数をフォーマット
+function formatBytes(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}

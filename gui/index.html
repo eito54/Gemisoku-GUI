@@ -491,6 +491,194 @@
             cursor: pointer;
             gap: 8px;
         }
+
+        /* モーダルダイアログのスタイル */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 0;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow-hover);
+            border: 1px solid var(--border);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            padding: 24px 24px 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .update-dialog {
+            color: var(--text-primary);
+        }
+
+        .update-dialog p {
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .update-notes {
+            background: var(--bg-secondary);
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+            border: 1px solid var(--border);
+        }
+
+        .update-notes h4 {
+            margin: 0 0 12px 0;
+            color: var(--text-primary);
+            font-size: 16px;
+        }
+
+        .release-notes {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .update-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+
+        .update-actions .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .update-actions .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        .update-actions .btn-primary:hover {
+            background: #3182ce;
+            transform: translateY(-1px);
+        }
+
+        .update-actions .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .update-actions .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .update-progress {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin: 16px 0;
+        }
+
+        .update-progress h4 {
+            margin: 0 0 16px 0;
+            color: var(--text-primary);
+            font-size: 16px;
+        }
+
+        .progress-container {
+            background: var(--bg-card);
+            border-radius: 8px;
+            overflow: hidden;
+            height: 8px;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+            transition: width 0.3s ease;
+            border-radius: 8px;
+        }
+
+        .progress-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .button.danger {
+            background: linear-gradient(135deg, #f56565, #e53e3e);
+            box-shadow: 0 4px 15px rgba(245, 101, 101, 0.2);
+        }
+
+        .button.danger:hover {
+            box-shadow: 0 8px 25px rgba(245, 101, 101, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -555,6 +743,9 @@
                 <button id="testConnectionBtn" class="button">
                     🔗 接続テスト
                 </button>
+                <button id="checkUpdatesBtn" class="button secondary">
+                    🔄 アップデートチェック
+                </button>
             </div>
             <div id="operationStatus" class="status"></div>
             
@@ -601,7 +792,7 @@
     </div>
 
     <div class="footer">
-        <p>Gemisoku-GUI v1.0.0 | Made with ❤️ by eighten (eito54)</p>
+        <p>Gemisoku-GUI <span id="appVersion">v1.0.0</span> | Made with ❤️ by eighten (eito54)</p>
     </div>
 
     <script src="renderer.js"></script>

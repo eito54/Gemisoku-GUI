@@ -11,6 +11,18 @@ const http = require('http');
 const ConfigManager = require('./config-manager');
 const EmbeddedServer = require('./server');
 
+// 自動アップデート機能
+const { autoUpdater } = require('electron-updater');
+
+// 開発環境では自動アップデートを無効化
+if (process.env.NODE_ENV === 'development') {
+  autoUpdater.updateConfigPath = null;
+  autoUpdater.checkForUpdatesAndNotify = () => Promise.resolve();
+} else {
+  // プロダクション環境でのみ自動アップデートを有効化
+  autoUpdater.checkForUpdatesAndNotify();
+}
+
 // 設定ストア（後方互換性のため保持）
 const store = new Store();
 // 新しい設定管理システム
@@ -21,6 +33,43 @@ const embeddedServer = new EmbeddedServer();
 let mainWindow;
 let editWindow;
 let serverPort = 3001;
+
+// 自動アップデート設定
+autoUpdater.logger = console;
+
+// アップデートイベントの設定
+autoUpdater.on('checking-for-update', () => {
+  console.log('アップデートをチェック中...');
+});
+
+autoUpdater.on('update-available', (info) => {
+  console.log('アップデートが利用可能です:', info.version);
+  if (mainWindow) {
+    mainWindow.webContents.send('update-available', info);
+  }
+});
+
+autoUpdater.on('update-not-available', (info) => {
+  console.log('アップデートはありません');
+});
+
+autoUpdater.on('error', (err) => {
+  console.log('アップデートエラー:', err);
+});
+
+autoUpdater.on('download-progress', (progressObj) => {
+  console.log(`ダウンロード進行中: ${Math.round(progressObj.percent)}%`);
+  if (mainWindow) {
+    mainWindow.webContents.send('download-progress', progressObj);
+  }
+});
+
+autoUpdater.on('update-downloaded', (info) => {
+  console.log('アップデートのダウンロードが完了しました');
+  if (mainWindow) {
+    mainWindow.webContents.send('update-downloaded', info);
+  }
+});
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -442,6 +491,336 @@ ipcMain.handle('show-message', (event, type, title, message) => {
     title: title,
     message: message
   });
+});
+
+// アップデート関連のIPCハンドラー
+ipcMain.handle('check-for-updates', async () => {
+  try {
+    // まず通常のアップデートチェックを試行
+    const result = await autoUpdater.checkForUpdates();
+    return { success: true, result };
+  } catch (error) {
+    console.error('自動アップデートチェックエラー:', error);
+    
+    // フォールバック: GitHub APIで手動チェック
+    try {
+      const latestRelease = await checkLatestReleaseManually();
+      const currentVersion = app.getVersion();
+      
+      if (latestRelease) {
+        const versionComparison = compareVersions(currentVersion, latestRelease.version);
+        
+        if (versionComparison < 0) {
+          // 現在のバージョンが古い - アップデート利用可能
+          return {
+            success: true,
+            manualUpdate: true,
+            latestRelease: latestRelease,
+            currentVersion: currentVersion
+          };
+        } else if (versionComparison > 0) {
+          // 現在のバージョンが新しい
+          // パッケージ版の場合は最新版として扱う（GitHub未リリースの正式版）
+          const isPackaged = app.isPackaged;
+          
+          if (isPackaged) {
+            // パッケージ版では最新版として表示
+            return {
+              success: true,
+              upToDate: true,
+              isNewerRelease: true, // GitHubより新しいリリース版
+              currentVersion: currentVersion,
+              latestVersion: latestRelease.version
+            };
+          } else {
+            // 開発環境では開発版として表示
+            return {
+              success: true,
+              upToDate: true,
+              newerVersion: true,
+              currentVersion: currentVersion,
+              latestVersion: latestRelease.version
+            };
+          }
+        } else {
+          // バージョンが同じ - 最新版
+          return {
+            success: true,
+            upToDate: true,
+            currentVersion: currentVersion,
+            latestVersion: latestRelease.version
+          };
+        }
+      } else {
+        return {
+          success: true,
+          upToDate: true,
+          currentVersion: currentVersion
+        };
+      }
+    } catch (fallbackError) {
+      console.error('手動アップデートチェックもエラー:', fallbackError);
+      return { success: false, error: `アップデートチェックに失敗しました: ${error.message}` };
+    }
+  }
+});
+
+// バージョン比較関数
+function compareVersions(version1, version2) {
+  const v1parts = version1.split('.').map(Number);
+  const v2parts = version2.split('.').map(Number);
+  
+  // 配列の長さを合わせる（例: 1.2 と 1.2.0）
+  const maxLength = Math.max(v1parts.length, v2parts.length);
+  while (v1parts.length < maxLength) v1parts.push(0);
+  while (v2parts.length < maxLength) v2parts.push(0);
+  
+  for (let i = 0; i < maxLength; i++) {
+    if (v1parts[i] < v2parts[i]) return -1; // version1 が古い
+    if (v1parts[i] > v2parts[i]) return 1;  // version1 が新しい
+  }
+  return 0; // 同じバージョン
+}
+
+// GitHub APIで最新リリースをチェック（カスタム自動アップデート対応）
+async function checkLatestReleaseManually() {
+  return new Promise((resolve, reject) => {
+    const options = {
+      hostname: 'api.github.com',
+      port: 443,
+      path: '/repos/eito54/Gemisoku-GUI/releases/latest',
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Gemisoku-GUI-Updater'
+      }
+    };
+
+    const req = https.request(options, (res) => {
+      let data = '';
+      
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+      
+      res.on('end', () => {
+        try {
+          if (res.statusCode === 200) {
+            const release = JSON.parse(data);
+            
+            // プラットフォーム別のインストーラーを特定
+            const platform = process.platform;
+            let installerAsset = null;
+            
+            for (const asset of release.assets) {
+              if (platform === 'win32' && asset.name.endsWith('.exe')) {
+                installerAsset = asset;
+                break;
+              } else if (platform === 'darwin' && asset.name.endsWith('.dmg')) {
+                installerAsset = asset;
+                break;
+              } else if (platform === 'linux' && asset.name.endsWith('.AppImage')) {
+                installerAsset = asset;
+                break;
+              }
+            }
+            
+            resolve({
+              version: release.tag_name.replace(/^v/, ''),
+              releaseNotes: release.body || '',
+              downloadUrl: release.html_url,
+              assets: release.assets,
+              installerAsset: installerAsset,
+              canAutoUpdate: !!installerAsset
+            });
+          } else {
+            reject(new Error(`GitHub API error: ${res.statusCode}`));
+          }
+        } catch (parseError) {
+          reject(parseError);
+        }
+      });
+    });
+    
+    req.on('error', (error) => {
+      reject(error);
+    });
+    
+    req.end();
+  });
+}
+
+ipcMain.handle('install-update', () => {
+  autoUpdater.quitAndInstall();
+});
+
+ipcMain.handle('get-app-version', () => {
+  return app.getVersion();
+});
+
+ipcMain.handle('open-download-page', async (event, url) => {
+  try {
+    await shell.openExternal(url);
+    return { success: true };
+  } catch (error) {
+    console.error('ダウンロードページを開くエラー:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// カスタム自動ダウンロード機能（リダイレクト対応）
+ipcMain.handle('download-update-custom', async (event, asset) => {
+  try {
+    const fs = require('fs');
+    const os = require('os');
+    const url = require('url');
+    
+    // 一時ディレクトリにダウンロード
+    const tempDir = os.tmpdir();
+    const fileName = asset.name;
+    const filePath = path.join(tempDir, fileName);
+    
+    console.log(`ダウンロード開始: ${asset.browser_download_url} -> ${filePath}`);
+    
+    // ダウンロード進行状況を送信
+    const downloadProgress = { percent: 0, transferred: 0, total: asset.size };
+    mainWindow.webContents.send('download-progress-custom', downloadProgress);
+    
+    return new Promise((resolve, reject) => {
+      const file = fs.createWriteStream(filePath);
+      
+      // リダイレクトに対応したダウンロード関数
+      const downloadFile = (downloadUrl, redirectCount = 0) => {
+        if (redirectCount > 5) {
+          reject(new Error('リダイレクト回数が上限を超えました'));
+          return;
+        }
+        
+        const parsedUrl = url.parse(downloadUrl);
+        const httpModule = parsedUrl.protocol === 'https:' ? https : http;
+        
+        const request = httpModule.get(downloadUrl, {
+          headers: {
+            'User-Agent': 'Gemisoku-GUI-Updater',
+            'Accept': 'application/octet-stream'
+          }
+        }, (response) => {
+          console.log(`HTTP Status: ${response.statusCode}, URL: ${downloadUrl}`);
+          
+          // リダイレクトの処理
+          if (response.statusCode === 301 || response.statusCode === 302 || response.statusCode === 307 || response.statusCode === 308) {
+            const redirectUrl = response.headers.location;
+            if (redirectUrl) {
+              console.log(`リダイレクト: ${redirectUrl}`);
+              response.destroy();
+              downloadFile(redirectUrl, redirectCount + 1);
+              return;
+            } else {
+              reject(new Error(`リダイレクトURLが見つかりません: ${response.statusCode}`));
+              return;
+            }
+          }
+          
+          if (response.statusCode !== 200) {
+            reject(new Error(`ダウンロードエラー: ${response.statusCode}`));
+            return;
+          }
+          
+          const totalSize = parseInt(response.headers['content-length'] || asset.size || '0');
+          let downloadedSize = 0;
+          
+          response.on('data', (chunk) => {
+            downloadedSize += chunk.length;
+            const percent = totalSize > 0 ? (downloadedSize / totalSize) * 100 : 0;
+            
+            // 進行状況を送信
+            const progress = {
+              percent: percent,
+              transferred: downloadedSize,
+              total: totalSize
+            };
+            mainWindow.webContents.send('download-progress-custom', progress);
+          });
+          
+          response.pipe(file);
+          
+          file.on('finish', () => {
+            file.close(() => {
+              console.log('ダウンロード完了:', filePath);
+              resolve({
+                success: true,
+                filePath: filePath,
+                fileName: fileName
+              });
+            });
+          });
+          
+          file.on('error', (error) => {
+            fs.unlink(filePath, () => {}); // ファイルを削除
+            reject(error);
+          });
+        });
+        
+        request.on('error', (error) => {
+          reject(error);
+        });
+        
+        request.setTimeout(30000, () => {
+          request.destroy();
+          reject(new Error('ダウンロードタイムアウト'));
+        });
+      };
+      
+      // ダウンロード開始
+      downloadFile(asset.browser_download_url);
+    });
+    
+  } catch (error) {
+    console.error('カスタムダウンロードエラー:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// インストーラーを実行
+ipcMain.handle('install-downloaded-update', async (event, filePath) => {
+  try {
+    const { exec } = require('child_process');
+    const platform = process.platform;
+    
+    console.log('インストーラー実行:', filePath);
+    
+    if (platform === 'win32') {
+      // Windows: .exeファイルを実行
+      exec(`"${filePath}"`, (error) => {
+        if (error) {
+          console.error('インストーラー実行エラー:', error);
+        }
+      });
+    } else if (platform === 'darwin') {
+      // macOS: .dmgファイルをマウントして開く
+      exec(`open "${filePath}"`, (error) => {
+        if (error) {
+          console.error('DMGマウントエラー:', error);
+        }
+      });
+    } else if (platform === 'linux') {
+      // Linux: .AppImageファイルに実行権限を付与して実行
+      exec(`chmod +x "${filePath}" && "${filePath}"`, (error) => {
+        if (error) {
+          console.error('AppImage実行エラー:', error);
+        }
+      });
+    }
+    
+    // アプリを終了（新しいバージョンに置き換わるため）
+    setTimeout(() => {
+      app.quit();
+    }, 2000);
+    
+    return { success: true };
+  } catch (error) {
+    console.error('インストーラー実行エラー:', error);
+    return { success: false, error: error.message };
+  }
 });
 
 // レース結果を処理してチームスコアに変換
