@@ -43,6 +43,7 @@ Thumbs.db
 # Electron
 dist/
 dist-electron/
+dist-gui/
 release/
 *.exe
 *.dmg
@@ -52,4 +53,4 @@ release/
 
 # GUI specific
 gui/scores.json
-gui/config.json"dist-gui/" 
+gui/config.json
