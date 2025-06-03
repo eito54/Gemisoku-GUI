@@ -190,16 +190,54 @@ class EmbeddedServer {
         console.log('Using Gemini API key (first 10 chars):', config.geminiApiKey.substring(0, 10) + '...');
         
         const genAI = new GoogleGenerativeAI(config.geminiApiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
 
         const { prompt, imageData } = req.body;
+
+        // MIMEタイプを動的に検出
+        function extractMimeTypeAndData(base64Data) {
+          const match = base64Data.match(/^data:(.+);base64,(.+)$/);
+          if (!match || match.length !== 3) {
+            // フォールバック: 古い形式の場合
+            return {
+              data: base64Data.replace(/^data:image\/[a-z]+;base64,/, ''),
+              mimeType: "image/jpeg"
+            };
+          }
+          
+          // MIMEタイプを正規化
+          let mimeType = match[1];
+          const mimeTypeMap = {
+            'image/jpg': 'image/jpeg',
+            'image/jpeg': 'image/jpeg',
+            'image/png': 'image/png',
+            'image/gif': 'image/gif',
+            'image/webp': 'image/webp'
+          };
+          
+          if (mimeTypeMap[mimeType]) {
+            mimeType = mimeTypeMap[mimeType];
+          } else {
+            console.warn(`Warning: Unsupported MIME type: ${mimeType}. Using image/jpeg as fallback.`);
+            mimeType = 'image/jpeg';
+          }
+          
+          console.log(`Processing image with MIME type: ${mimeType}`);
+          
+          return {
+            data: match[2],
+            mimeType: mimeType
+          };
+        }
+
+        const imageInfo = extractMimeTypeAndData(imageData);
 
         const result = await model.generateContent([
           prompt,
           {
             inlineData: {
-              data: imageData.replace(/^data:image\/[a-z]+;base64,/, ''),
-              mimeType: "image/jpeg"
+              data: imageInfo.data,
+              mimeType: imageInfo.mimeType
             }
           }
         ]);
@@ -467,7 +505,7 @@ ${existingMappingsText}
         console.log('Using Gemini API key (first 10 chars):', config.geminiApiKey.substring(0, 10) + '...');
         
         const genAI = new GoogleGenerativeAI(config.geminiApiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
 
         // Base64データからGemini用のパートを作成
         function fileToGenerativePart(base64Data) {
@@ -475,10 +513,29 @@ ${existingMappingsText}
           if (!match || match.length !== 3) {
             throw new Error("Invalid base64 data URL format.");
           }
+          
+          // MIMEタイプを正規化（Gemini APIサポート形式に変換）
+          let mimeType = match[1];
+          const mimeTypeMap = {
+            'image/jpg': 'image/jpeg',
+            'image/jpeg': 'image/jpeg',
+            'image/png': 'image/png',
+            'image/gif': 'image/gif',
+            'image/webp': 'image/webp'
+          };
+          
+          if (mimeTypeMap[mimeType]) {
+            mimeType = mimeTypeMap[mimeType];
+          } else {
+            console.warn(`Warning: Unsupported MIME type: ${mimeType}. Attempting to use as-is.`);
+          }
+          
+          console.log(`Processing image with MIME type: ${mimeType}`);
+          
           return {
             inlineData: {
               data: match[2],
-              mimeType: match[1],
+              mimeType: mimeType,
             },
           };
         }

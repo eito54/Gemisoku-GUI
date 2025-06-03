@@ -188,7 +188,7 @@ GEMINI_API_KEY=${config.geminiApiKey}
       
       console.log('Testing Gemini API key...');
       const genAI = new GoogleGenerativeAI(apiKey.trim());
-      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-preview-05-20" });
       
       // 簡単なテストプロンプトでAPIキーの有効性を確認
       const result = await model.generateContent("test");
