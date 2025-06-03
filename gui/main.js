@@ -687,6 +687,7 @@ ipcMain.handle('download-update-custom', async (event, asset) => {
     
     return new Promise((resolve, reject) => {
       const file = fs.createWriteStream(filePath);
+      let lastPercent = -1; // 進行状況の重複送信を避けるため
       
       // リダイレクトに対応したダウンロード関数
       const downloadFile = (downloadUrl, redirectCount = 0) => {
@@ -732,13 +733,19 @@ ipcMain.handle('download-update-custom', async (event, asset) => {
             downloadedSize += chunk.length;
             const percent = totalSize > 0 ? (downloadedSize / totalSize) * 100 : 0;
             
-            // 進行状況を送信
+            // 進行状況を送信（1%以上変化した場合のみ、またはダウンロード完了時）
             const progress = {
-              percent: percent,
+              percent: Math.min(percent, 100),
               transferred: downloadedSize,
               total: totalSize
             };
-            mainWindow.webContents.send('download-progress-custom', progress);
+            
+            const percentInt = Math.floor(progress.percent);
+            if (percentInt !== lastPercent || percentInt === 100) {
+              console.log(`ダウンロード進行状況: ${percentInt}%`);
+              mainWindow.webContents.send('download-progress-custom', progress);
+              lastPercent = percentInt;
+            }
           });
           
           response.pipe(file);
@@ -784,39 +791,74 @@ ipcMain.handle('download-update-custom', async (event, asset) => {
 ipcMain.handle('install-downloaded-update', async (event, filePath) => {
   try {
     const { exec } = require('child_process');
+    const { spawn } = require('child_process');
     const platform = process.platform;
     
     console.log('インストーラー実行:', filePath);
     
-    if (platform === 'win32') {
-      // Windows: .exeファイルを実行
-      exec(`"${filePath}"`, (error) => {
-        if (error) {
-          console.error('インストーラー実行エラー:', error);
-        }
+    return new Promise((resolve, reject) => {
+      let installer;
+      
+      if (platform === 'win32') {
+        // Windows: .exeファイルを実行
+        installer = spawn(filePath, [], {
+          detached: true,
+          stdio: 'ignore'
+        });
+      } else if (platform === 'darwin') {
+        // macOS: .dmgファイルをマウントして開く
+        installer = spawn('open', [filePath], {
+          detached: true,
+          stdio: 'ignore'
+        });
+      } else if (platform === 'linux') {
+        // Linux: .AppImageファイルに実行権限を付与して実行
+        exec(`chmod +x "${filePath}"`, (chmodError) => {
+          if (chmodError) {
+            console.error('chmod error:', chmodError);
+            reject({ success: false, error: chmodError.message });
+            return;
+          }
+          
+          installer = spawn(filePath, [], {
+            detached: true,
+            stdio: 'ignore'
+          });
+          
+          installer.unref();
+          
+          // インストーラーが起動したことを確認してからアプリを終了
+          setTimeout(() => {
+            console.log('Linux installer started, quitting app...');
+            app.quit();
+          }, 3000);
+          
+          resolve({ success: true });
+        });
+        return;
+      } else {
+        reject({ success: false, error: 'Unsupported platform' });
+        return;
+      }
+      
+      installer.unref();
+      
+      installer.on('error', (error) => {
+        console.error('インストーラー起動エラー:', error);
+        reject({ success: false, error: error.message });
       });
-    } else if (platform === 'darwin') {
-      // macOS: .dmgファイルをマウントして開く
-      exec(`open "${filePath}"`, (error) => {
-        if (error) {
-          console.error('DMGマウントエラー:', error);
-        }
-      });
-    } else if (platform === 'linux') {
-      // Linux: .AppImageファイルに実行権限を付与して実行
-      exec(`chmod +x "${filePath}" && "${filePath}"`, (error) => {
-        if (error) {
-          console.error('AppImage実行エラー:', error);
-        }
-      });
-    }
-    
-    // アプリを終了（新しいバージョンに置き換わるため）
-    setTimeout(() => {
-      app.quit();
-    }, 2000);
-    
-    return { success: true };
+      
+      // インストーラーが正常に起動したことを確認
+      setTimeout(() => {
+        console.log('Installer started successfully, quitting app...');
+        resolve({ success: true });
+        
+        // 少し待ってからアプリを終了
+        setTimeout(() => {
+          app.quit();
+        }, 1000);
+      }, 2000);
+    });
   } catch (error) {
     console.error('インストーラー実行エラー:', error);
     return { success: false, error: error.message };

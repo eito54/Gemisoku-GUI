@@ -1,6 +1,6 @@
 {
   "name": "mk8dx-bot",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "private": true,
   "packageManager": "pnpm@9.1.0",
   "scripts": {

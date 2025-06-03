@@ -611,7 +611,19 @@ async function setupUpdateListeners() {
     // カスタムダウンロード進行状況
     window.electronAPI.onDownloadProgressCustom((event, progress) => {
         console.log('カスタムダウンロード進行状況:', Math.round(progress.percent) + '%');
+        
+        // プログレスバーがない場合は作成
+        if (!document.getElementById('updateProgress')) {
+            showDownloadProgress({ percent: 0, transferred: 0, total: progress.total });
+        }
+        
+        // プログレスバーを更新
         showDownloadProgress(progress);
+        
+        // ダウンロード完了時の処理
+        if (progress.percent >= 100) {
+            console.log('ダウンロード完了検知');
+        }
     });
 }
 
@@ -664,15 +676,19 @@ function showUpdateAvailableDialog(info) {
 
 // ダウンロード進行状況を表示
 function showDownloadProgress(progress) {
+    // 既存のプログレスバーを更新
     const existingProgress = document.getElementById('updateProgress');
     if (existingProgress) {
         const progressBar = existingProgress.querySelector('.progress-bar');
         const progressText = existingProgress.querySelector('.progress-text');
-        progressBar.style.width = `${progress.percent}%`;
-        progressText.textContent = `${Math.round(progress.percent)}% (${formatBytes(progress.transferred)} / ${formatBytes(progress.total)})`;
+        if (progressBar && progressText) {
+            progressBar.style.width = `${progress.percent}%`;
+            progressText.textContent = `${Math.round(progress.percent)}% (${formatBytes(progress.transferred)} / ${formatBytes(progress.total)})`;
+        }
         return;
     }
-    
+
+    // 新しいプログレスバーを作成
     const progressHTML = `
         <div id="updateProgress" class="update-progress">
             <h4>📦 アップデートをダウンロード中...</h4>
@@ -682,8 +698,14 @@ function showDownloadProgress(progress) {
             <div class="progress-text">${Math.round(progress.percent)}% (${formatBytes(progress.transferred)} / ${formatBytes(progress.total)})</div>
         </div>
     `;
-    
-    showStatus(operationStatus, 'info', progressHTML);
+
+    // ステータス領域にプログレスバーを表示
+    const statusDiv = operationStatus;
+    if (statusDiv) {
+        statusDiv.className = 'status info';
+        statusDiv.style.display = 'block';
+        statusDiv.innerHTML = progressHTML;
+    }
 }
 
 // アップデート準備完了ダイアログ
@@ -773,10 +795,22 @@ function showManualUpdateDialog(latestRelease, currentVersion) {
                 modal.remove();
                 showStatus(operationStatus, 'info', 'アップデートのダウンロードを開始しています...');
                 
+                // ダウンロード開始前にプログレスバーを表示
+                showDownloadProgress({ percent: 0, transferred: 0, total: latestRelease.installerAsset.size });
+                
                 const result = await window.electronAPI.downloadUpdateCustom(latestRelease.installerAsset);
                 
                 if (result.success) {
-                    showCustomUpdateReadyDialog(result, latestRelease.version);
+                    // プログレスバーを削除してからダイアログを表示
+                    const progressElement = document.getElementById('updateProgress');
+                    if (progressElement) {
+                        progressElement.remove();
+                    }
+                    
+                    // ダウンロード完了後に少し待ってからダイアログを表示
+                    setTimeout(() => {
+                        showCustomUpdateReadyDialog(result, latestRelease.version);
+                    }, 500);
                 } else {
                     showStatus(operationStatus, 'error', 'ダウンロードに失敗しました: ' + result.error);
                 }
@@ -832,15 +866,40 @@ function showCustomUpdateReadyDialog(downloadResult, version) {
     
     document.getElementById('installCustomNowBtn').addEventListener('click', async () => {
         try {
+            // ボタンを無効化してローディング表示
+            const installBtn = document.getElementById('installCustomNowBtn');
+            const originalText = installBtn.textContent;
+            installBtn.disabled = true;
+            installBtn.textContent = '🔄 インストーラーを起動中...';
+            
+            console.log('インストーラー起動開始:', downloadResult.filePath);
+            
             const result = await window.electronAPI.installDownloadedUpdate(downloadResult.filePath);
+            
             if (result.success) {
                 modal.remove();
                 showStatus(operationStatus, 'success', 'インストーラーを起動しました。アプリを終了します...');
+                
+                // アプリが終了するまで少し待つ
+                setTimeout(() => {
+                    console.log('アプリ終了処理中...');
+                }, 1000);
             } else {
-                showStatus(operationStatus, 'error', 'インストーラーの起動に失敗しました: ' + result.error);
+                // エラーの場合はボタンを復元
+                installBtn.disabled = false;
+                installBtn.textContent = originalText;
+                showStatus(operationStatus, 'error', 'インストーラーの起動に失敗しました: ' + (result.error || 'Unknown error'));
             }
         } catch (error) {
             console.error('カスタムアップデートインストールエラー:', error);
+            
+            // エラーの場合はボタンを復元
+            const installBtn = document.getElementById('installCustomNowBtn');
+            if (installBtn) {
+                installBtn.disabled = false;
+                installBtn.textContent = '🚀 今すぐインストール';
+            }
+            
             showStatus(operationStatus, 'error', 'インストーラーの起動に失敗しました: ' + error.message);
         }
     });
