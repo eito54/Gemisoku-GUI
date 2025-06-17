@@ -36,7 +36,7 @@
     "electron-store": "^8.2.0",
     "express": "^4.21.2"
   },
-  "main": "gui/src/main.js",
+  "main": "gui/main.js",
   "description": "Gemisoku-GUI - MK8DXレース結果自動取得アプリ",
   "author": "eighten (eito54)",
   "build": {
