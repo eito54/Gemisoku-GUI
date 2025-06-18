@@ -141,10 +141,29 @@ async function startEmbeddedServer() {
 // 内蔵サーバーを停止
 async function stopEmbeddedServer() {
   try {
+    console.log('Stopping embedded server...');
     await embeddedServer.stop();
-    console.log('Embedded server stopped');
+    console.log('Embedded server stopped successfully');
   } catch (error) {
     console.error('Error stopping embedded server:', error);
+    
+    // 強制的にサーバーを停止する試行
+    try {
+      const serverInstance = embeddedServer.server;
+      if (serverInstance) {
+        console.log('Force closing server instance...');
+        serverInstance.close(() => {
+          console.log('Server force closed');
+        });
+        
+        // 接続中のソケットも強制終了
+        if (serverInstance.listening) {
+          serverInstance.closeAllConnections?.();
+        }
+      }
+    } catch (forceError) {
+      console.error('Error during force server stop:', forceError);
+    }
   }
 }
 
@@ -177,33 +196,104 @@ app.whenReady().then(async () => {
   });
 });
 
+// アプリケーション終了フラグ
+let isQuitting = false;
+
 app.on('window-all-closed', async () => {
-  await stopEmbeddedServer();
+  if (isQuitting) return;
+  isQuitting = true;
+  
+  console.log('All windows closed, cleaning up...');
+  await performCleanup();
+  
   if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 
-app.on('before-quit', async () => {
-  await stopEmbeddedServer();
+app.on('before-quit', async (event) => {
+  if (isQuitting) return;
+  
+  console.log('Before quit event received, performing cleanup...');
+  event.preventDefault(); // 一時的に終了を防ぐ
+  isQuitting = true;
+  
+  await performCleanup();
+  
+  // クリーンアップ完了後に再度終了を試行
+  setTimeout(() => {
+    app.exit(0);
+  }, 1000);
 });
 
+// 統一されたクリーンアップ処理
+async function performCleanup() {
+  console.log('Starting application cleanup...');
+  
+  try {
+    // 内蔵サーバーを停止
+    await stopEmbeddedServer();
+    console.log('Embedded server cleanup completed');
+  } catch (serverError) {
+    console.error('Error during server cleanup:', serverError);
+  }
+
+  try {
+    // 全てのウィンドウを強制的に閉じる
+    const allWindows = BrowserWindow.getAllWindows();
+    allWindows.forEach(window => {
+      if (!window.isDestroyed()) {
+        window.destroy();
+      }
+    });
+    console.log('All windows destroyed');
+  } catch (windowError) {
+    console.error('Error during window cleanup:', windowError);
+  }
+
+  // OBSプロセスは独立して動作させるため、強制終了は行わない
+  console.log('OBS application will remain running independently');
+
+  console.log('Application cleanup completed');
+}
+
 // プロセス終了時の確実なクリーンアップ
-process.on('exit', async () => {
-  await stopEmbeddedServer();
+process.on('exit', (code) => {
+  console.log(`Process exiting with code: ${code}`);
 });
 
 process.on('SIGINT', async () => {
-  console.log('Received SIGINT, stopping embedded server...');
-  await stopEmbeddedServer();
-  app.quit();
+  console.log('Received SIGINT, performing cleanup...');
+  if (!isQuitting) {
+    isQuitting = true;
+    await performCleanup();
+  }
+  process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
-  console.log('Received SIGTERM, stopping embedded server...');
-  await stopEmbeddedServer();
-  app.quit();
+  console.log('Received SIGTERM, performing cleanup...');
+  if (!isQuitting) {
+    isQuitting = true;
+    await performCleanup();
+  }
+  process.exit(0);
 });
+
+// Windows固有の終了処理
+if (process.platform === 'win32') {
+  process.on('message', (data) => {
+    if (data === 'graceful-exit') {
+      console.log('Received graceful exit message');
+      if (!isQuitting) {
+        isQuitting = true;
+        performCleanup().then(() => {
+          process.exit(0);
+        });
+      }
+    }
+  });
+}
 
 // IPC handlers
 ipcMain.handle('get-config', async () => {

@@ -44,9 +44,11 @@ class EmbeddedServer {
 
     // OBS API
     this.app.post('/api/obs', async (req, res) => {
+      const OBSWebSocket = require('obs-websocket-js').default;
+      let obs = null;
+      
       try {
-        const OBSWebSocket = require('obs-websocket-js').default;
-        const obs = new OBSWebSocket();
+        obs = new OBSWebSocket();
 
         // 設定ファイルを動的に読み込み
         let config;
@@ -87,6 +89,14 @@ class EmbeddedServer {
           hasPassword: !!(config.obsPassword && config.obsPassword.trim()),
           sourceName: config.obsSourceName
         });
+
+        // 接続タイムアウトを設定
+        const connectTimeout = setTimeout(() => {
+          if (obs) {
+            console.log('OBS connection timeout, attempting gentle disconnection...');
+            obs.disconnect().catch(e => console.error('Error during timeout disconnect:', e));
+          }
+        }, 15000); // 15秒タイムアウト（より長めに設定）
         
         try {
           console.log(`Connecting to OBS at ${obsUrl}...`);
@@ -100,8 +110,10 @@ class EmbeddedServer {
             await obs.connect(obsUrl);
           }
           
+          clearTimeout(connectTimeout); // 接続成功したらタイムアウトをクリア
           console.log('OBS connection successful');
         } catch (connectError) {
+          clearTimeout(connectTimeout); // エラー時もタイムアウトをクリア
           console.error('OBS connection failed:', connectError.message);
           console.error('Full error:', connectError);
           
@@ -139,7 +151,15 @@ class EmbeddedServer {
           imageCompressionQuality: 80
         });
 
-        await obs.disconnect();
+        // 優しくWebSocket接続を切断
+        try {
+          console.log('Disconnecting from OBS WebSocket...');
+          await obs.disconnect();
+          console.log('OBS WebSocket disconnected successfully');
+        } catch (disconnectError) {
+          console.error('Error during OBS disconnect:', disconnectError);
+          // 切断エラーが発生してもOBSプロセスには影響しないよう、ログのみ出力
+        }
 
         res.json({
           success: true,
@@ -147,10 +167,34 @@ class EmbeddedServer {
         });
       } catch (error) {
         console.error('OBS API Error:', error);
+        
+        // エラー時も優しく切断を試行
+        if (obs) {
+          try {
+            console.log('Attempting to disconnect OBS WebSocket after error...');
+            await obs.disconnect();
+            console.log('OBS WebSocket disconnected after error');
+          } catch (disconnectError) {
+            console.error('Error during cleanup disconnect:', disconnectError);
+            // OBSプロセスに影響しないよう、エラーログのみ出力
+          }
+        }
+        
         res.json({
           success: false,
           error: error.message
         });
+      } finally {
+        // 最終的なクリーンアップ（OBSプロセスに影響しないよう優しく処理）
+        if (obs) {
+          try {
+            // WebSocketインスタンスの参照をクリア
+            console.log('Cleaning up OBS WebSocket reference...');
+          } catch (finalError) {
+            console.error('Error during final cleanup:', finalError);
+          }
+          obs = null;
+        }
       }
     });
 
@@ -1185,11 +1229,50 @@ ${existingMappingsText}
   stop() {
     return new Promise((resolve) => {
       if (this.server) {
-        this.server.close(() => {
-          console.log('Embedded server stopped');
+        console.log('Stopping embedded server...');
+        
+        // タイムアウトを設定（強制終了用）
+        const forceCloseTimeout = setTimeout(() => {
+          console.log('Force closing server due to timeout...');
+          if (this.server) {
+            // 強制的にサーバーを破棄
+            this.server.destroy?.();
+            this.server = null;
+          }
+          resolve();
+        }, 5000); // 5秒タイムアウト
+        
+        // 全ての接続を強制終了
+        if (this.server.closeAllConnections) {
+          try {
+            this.server.closeAllConnections();
+            console.log('All server connections closed');
+          } catch (connectionError) {
+            console.error('Error closing connections:', connectionError);
+          }
+        }
+        
+        // サーバーを正常に停止
+        this.server.close((error) => {
+          clearTimeout(forceCloseTimeout);
+          if (error) {
+            console.error('Error during server close:', error);
+          } else {
+            console.log('Embedded server stopped successfully');
+          }
+          this.server = null;
           resolve();
         });
+        
+        // リスニング状態を確認
+        if (!this.server.listening) {
+          clearTimeout(forceCloseTimeout);
+          this.server = null;
+          console.log('Server was not listening, cleanup completed');
+          resolve();
+        }
       } else {
+        console.log('Server was not running, nothing to stop');
         resolve();
       }
     });
