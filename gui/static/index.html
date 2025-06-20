@@ -284,36 +284,6 @@
             }
         }
 
-        .remaining-races-pulse {
-            animation: none;
-        }
-
-        @keyframes remainingRacesFadeIn {
-            0% {
-                opacity: 0;
-            }
-            100% {
-                opacity: 1;
-            }
-        }
-
-        .remaining-races-fade-in {
-            animation: remainingRacesFadeIn 1s ease-out forwards;
-        }
-
-        @keyframes remainingRacesUpdate {
-            0%, 100% {
-                opacity: 0.8;
-            }
-            50% {
-                opacity: 1;
-                color: #22d3ee;
-            }
-        }
-
-        .remaining-races-update {
-            animation: remainingRacesUpdate 1.5s ease-out;
-        }
     </style>
 </head>
 <body>
@@ -354,14 +324,10 @@
             if (!showRemainingRaces || remainingRaces === undefined || remainingRaces === null) {
                 if (remainingRacesContainer) {
                     remainingRacesContainer.style.display = 'none';
-                    remainingRacesContainer.classList.remove('remaining-races-fade-in', 'remaining-races-update');
                 }
                 previousRemainingRaces = null;
                 return;
             }
-            
-            const isFirstDisplay = remainingRacesContainer && remainingRacesContainer.style.display === 'none';
-            const hasChanged = previousRemainingRaces !== null && previousRemainingRaces !== remainingRaces;
             
             if (remainingRacesContainer) {
                 remainingRacesContainer.style.display = 'flex';
@@ -390,20 +356,6 @@
                         </div>
                     `;
                 }
-                
-                // 初回表示時のみフェードインアニメーション
-                if (isFirstDisplay) {
-                    remainingRacesContainer.classList.add('remaining-races-fade-in');
-                    setTimeout(() => {
-                        remainingRacesContainer.classList.remove('remaining-races-fade-in');
-                    }, 1000);
-                } else if (hasChanged) {
-                    // 値が変更された時の更新アニメーション（一回のみ）
-                    remainingRacesContainer.classList.add('remaining-races-update');
-                    setTimeout(() => {
-                        remainingRacesContainer.classList.remove('remaining-races-update');
-                    }, 1500);
-                }
             }
             
             previousRemainingRaces = remainingRaces;
@@ -418,8 +370,10 @@
                 const remainingRaces = data.remainingRaces;
                 const showRemainingRaces = data.showRemainingRaces !== false; // デフォルトはtrue
                 
-                // 残りレース数を更新（設定に基づいて制御）
-                updateRemainingRaces(remainingRaces, showRemainingRaces);
+                // 初回読み込み時は常に表示、その後はスコア変動があった場合のみ更新
+                if (!hasDataEverLoaded) {
+                    updateRemainingRaces(remainingRaces, showRemainingRaces);
+                }
                 
                 const container = document.getElementById('scores-container');
                 
@@ -726,9 +680,6 @@
 
         // 初回読み込み
         updateScores();
-        
-        // 2秒ごとに更新（Next.jsと同じ）
-        setInterval(updateScores, 2000);
     </script>
 </body>
 </html>
