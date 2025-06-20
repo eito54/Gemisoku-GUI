@@ -244,6 +244,35 @@
         .scores-container::-webkit-scrollbar-thumb:hover {
             background: var(--text-secondary);
         }
+
+        .current-player-btn {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 5px;
+            transition: background-color 0.2s;
+        }
+
+        .current-player-btn:hover {
+            background: #3182ce;
+        }
+
+        .current-player-btn.active {
+            background: var(--accent-green);
+        }
+
+        .current-player-btn.active:hover {
+            background: #38a169;
+        }
+
+        .score-item.current-player {
+            background: rgba(72, 187, 120, 0.1);
+            border: 1px solid var(--accent-green);
+        }
     </style>
 </head>
 <body>
@@ -262,6 +291,10 @@
         <div class="add-form">
             <input type="text" id="newTeamName" class="team-input" placeholder="チーム名" style="flex: 1;">
             <input type="number" id="newTeamScore" class="score-input" placeholder="0" value="0">
+            <label style="display: flex; align-items: center; margin: 0 10px; color: var(--text-primary); font-size: 14px;">
+                <input type="checkbox" id="newTeamIsCurrentPlayer" style="margin-right: 5px;">
+                自分のチーム
+            </label>
             <button id="addTeamBtn" class="add-btn">追加</button>
         </div>
     </div>

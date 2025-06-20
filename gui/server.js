@@ -8,6 +8,7 @@ class EmbeddedServer {
     this.app = express();
     this.server = null;
     this.port = 3001; // メインの開発サーバーと重複しないポート
+    this.sseClients = new Set(); // SSEクライアントを管理
     this.setupMiddleware();
     this.setupRoutes();
   }
@@ -40,6 +41,28 @@ class EmbeddedServer {
     // 静的ページ（オーバーレイ用）
     this.app.get('/static/', (req, res) => {
       res.sendFile(path.join(__dirname, 'static', 'index.html'));
+    });
+
+    // SSE エンドポイント（スコア更新通知用）
+    this.app.get('/api/scores/events', (req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Cache-Control'
+      });
+
+      // クライアントを追加
+      this.sseClients.add(res);
+
+      // 接続時に初期データを送信
+      res.write('data: {"type":"connected"}\n\n');
+
+      // クライアントが切断した時のクリーンアップ
+      req.on('close', () => {
+        this.sseClients.delete(res);
+      });
     });
 
     // OBS API
@@ -940,6 +963,10 @@ ${existingMappingsText}
         }
         
         console.log('Scores saved with metadata:', { isOverallUpdate });
+        
+        // SSEクライアントに更新通知を送信
+        this.broadcastScoreUpdate();
+        
         res.json({ success: true });
       } catch (error) {
         console.error('Error saving scores:', error);
@@ -1274,6 +1301,18 @@ ${existingMappingsText}
       } else {
         console.log('Server was not running, nothing to stop');
         resolve();
+      }
+    });
+  }
+
+  broadcastScoreUpdate() {
+    const message = JSON.stringify({ type: 'scores-updated' });
+    this.sseClients.forEach((client) => {
+      try {
+        client.write(`data: ${message}\n\n`);
+      } catch (error) {
+        console.error('Error sending SSE message:', error);
+        this.sseClients.delete(client);
       }
     });
   }

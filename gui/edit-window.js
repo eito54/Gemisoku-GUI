@@ -3,6 +3,7 @@ const scoresContainer = document.getElementById('scoresContainer');
 const statusDiv = document.getElementById('status');
 const newTeamNameInput = document.getElementById('newTeamName');
 const newTeamScoreInput = document.getElementById('newTeamScore');
+const newTeamIsCurrentPlayerCheckbox = document.getElementById('newTeamIsCurrentPlayer');
 const addTeamBtn = document.getElementById('addTeamBtn');
 const saveBtn = document.getElementById('saveBtn');
 const resetBtn = document.getElementById('resetBtn');
@@ -41,12 +42,16 @@ function renderScores() {
 
     currentScores.forEach((score, index) => {
         const scoreItem = document.createElement('div');
-        scoreItem.className = 'score-item';
+        scoreItem.className = score.isCurrentPlayer ? 'score-item current-player' : 'score-item';
         scoreItem.innerHTML = `
-            <input type="text" class="team-input" value="${score.team}" 
+            <input type="text" class="team-input" value="${score.team}"
                    onchange="updateTeamName(${index}, this.value)">
-            <input type="number" class="score-input" value="${score.score}" 
+            <input type="number" class="score-input" value="${score.score}"
                    onchange="updateTeamScore(${index}, this.value)">
+            <button class="current-player-btn ${score.isCurrentPlayer ? 'active' : ''}"
+                    onclick="toggleCurrentPlayer(${index})">
+                ${score.isCurrentPlayer ? '自分のチーム' : '自分に設定'}
+            </button>
             <button class="delete-btn" onclick="deleteTeam(${index})">削除</button>
         `;
         scoresContainer.appendChild(scoreItem);
@@ -80,10 +85,22 @@ function deleteTeam(index) {
     }
 }
 
+// 自分のチームを切り替え
+function toggleCurrentPlayer(index) {
+    // 他の全てのチームのisCurrentPlayerをfalseに設定
+    currentScores.forEach((score, i) => {
+        score.isCurrentPlayer = (i === index);
+    });
+    
+    renderScores();
+    showStatus('success', `"${currentScores[index].team}" を自分のチームに設定しました`);
+}
+
 // 新しいチームを追加
 addTeamBtn.addEventListener('click', () => {
     const teamName = newTeamNameInput.value.trim();
     const teamScore = parseInt(newTeamScoreInput.value) || 0;
+    const isCurrentPlayer = newTeamIsCurrentPlayerCheckbox.checked;
 
     if (teamName === '') {
         showStatus('error', 'チーム名を入力してください');
@@ -96,11 +113,18 @@ addTeamBtn.addEventListener('click', () => {
         return;
     }
 
+    // 新しいチームを自分のチームにする場合、他のチームのisCurrentPlayerをfalseに
+    if (isCurrentPlayer) {
+        currentScores.forEach(score => {
+            score.isCurrentPlayer = false;
+        });
+    }
+
     const newTeam = {
         team: teamName,
         score: teamScore,
         addedScore: 0,
-        isCurrentPlayer: false
+        isCurrentPlayer: isCurrentPlayer
     };
 
     currentScores.push(newTeam);
@@ -109,9 +133,13 @@ addTeamBtn.addEventListener('click', () => {
     // 入力欄をクリア
     newTeamNameInput.value = '';
     newTeamScoreInput.value = '0';
+    newTeamIsCurrentPlayerCheckbox.checked = false;
     
     renderScores();
-    showStatus('success', `"${teamName}" を追加しました`);
+    const message = isCurrentPlayer ?
+        `"${teamName}" を追加し、自分のチームに設定しました` :
+        `"${teamName}" を追加しました`;
+    showStatus('success', message);
 });
 
 // Enterキーで追加
