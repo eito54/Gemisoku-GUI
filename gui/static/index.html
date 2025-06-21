@@ -361,12 +361,36 @@
             previousRemainingRaces = remainingRaces;
         }
 
-        // スコアデータを取得して表示（アニメーション対応版）
+        // スコアデータを取得して表示（エラーハンドリング強化版）
         async function updateScores() {
             try {
-                const response = await fetch('/api/scores');
+                console.log('Fetching scores...');
+                
+                // タイムアウト付きのfetch
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000); // 5秒タイムアウト
+                
+                const response = await fetch('/api/scores', {
+                    signal: controller.signal,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+                }
+                
                 const data = await response.json();
-                const scores = data.scores || [];
+                
+                // レスポンスデータの検証
+                if (!data || typeof data !== 'object') {
+                    throw new Error('無効なレスポンスデータ');
+                }
+                
+                const scores = Array.isArray(data.scores) ? data.scores : [];
                 const remainingRaces = data.remainingRaces;
                 const showRemainingRaces = data.showRemainingRaces !== false; // デフォルトはtrue
                 
@@ -681,31 +705,91 @@
         // 初回読み込み
         updateScores();
 
-        // SSE接続でリアルタイム更新
+        // SSE接続でリアルタイム更新（堅牢性強化版）
+        let sseReconnectAttempts = 0;
+        const MAX_SSE_RECONNECT_ATTEMPTS = 10;
+        const BASE_RECONNECT_DELAY = 1000; // 1秒
+        let currentEventSource = null;
+
         function setupSSE() {
-            const eventSource = new EventSource('/api/scores/events');
+            // 既存の接続をクリーンアップ
+            if (currentEventSource) {
+                currentEventSource.close();
+                currentEventSource = null;
+            }
+
+            console.log(`SSE接続試行 (${sseReconnectAttempts + 1}/${MAX_SSE_RECONNECT_ATTEMPTS})`);
             
-            eventSource.onmessage = function(event) {
-                try {
-                    const data = JSON.parse(event.data);
-                    if (data.type === 'scores-updated') {
-                        console.log('Received score update notification');
-                        updateScores();
+            try {
+                currentEventSource = new EventSource('/api/scores/events');
+                
+                currentEventSource.onopen = function(event) {
+                    console.log('SSE接続が正常に確立されました');
+                    sseReconnectAttempts = 0; // 成功時はカウンターをリセット
+                };
+                
+                currentEventSource.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        if (data.type === 'scores-updated') {
+                            console.log('Received score update notification');
+                            updateScores();
+                        } else if (data.type === 'connected') {
+                            console.log('SSE接続確認');
+                        }
+                    } catch (error) {
+                        console.error('SSE message parsing error:', error);
                     }
-                } catch (error) {
-                    console.error('SSE message parsing error:', error);
+                };
+                
+                currentEventSource.onerror = function(error) {
+                    console.error('SSE connection error:', error);
+                    
+                    // 現在の接続を閉じる
+                    if (currentEventSource) {
+                        currentEventSource.close();
+                        currentEventSource = null;
+                    }
+                    
+                    // 最大再試行回数に達した場合は停止
+                    if (sseReconnectAttempts >= MAX_SSE_RECONNECT_ATTEMPTS) {
+                        console.error('SSE再接続の最大試行回数に達しました。手動でページを更新してください。');
+                        return;
+                    }
+                    
+                    // 指数バックオフで再接続を試行
+                    const delay = BASE_RECONNECT_DELAY * Math.pow(2, sseReconnectAttempts);
+                    const maxDelay = 30000; // 最大30秒
+                    const actualDelay = Math.min(delay, maxDelay);
+                    
+                    console.log(`${actualDelay / 1000}秒後にSSE再接続を試行します...`);
+                    sseReconnectAttempts++;
+                    
+                    setTimeout(() => {
+                        setupSSE();
+                    }, actualDelay);
+                };
+                
+            } catch (error) {
+                console.error('SSE接続の初期化に失敗:', error);
+                
+                // 初期化エラーの場合も再試行
+                if (sseReconnectAttempts < MAX_SSE_RECONNECT_ATTEMPTS) {
+                    sseReconnectAttempts++;
+                    setTimeout(() => {
+                        setupSSE();
+                    }, BASE_RECONNECT_DELAY);
                 }
-            };
-            
-            eventSource.onerror = function(error) {
-                console.error('SSE connection error:', error);
-                // 接続が失われた場合、5秒後に再接続を試行
-                setTimeout(() => {
-                    eventSource.close();
-                    setupSSE();
-                }, 5000);
-            };
+            }
         }
+
+        // ページがアンロードされる前にSSE接続をクリーンアップ
+        window.addEventListener('beforeunload', function() {
+            if (currentEventSource) {
+                currentEventSource.close();
+                currentEventSource = null;
+            }
+        });
 
         // SSE接続を開始
         setupSSE();

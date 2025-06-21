@@ -8,9 +8,11 @@ class EmbeddedServer {
     this.app = express();
     this.server = null;
     this.port = 3001; // メインの開発サーバーと重複しないポート
-    this.sseClients = new Set(); // SSEクライアントを管理
+    this.sseClients = new Map(); // SSEクライアントを管理（接続時刻も保存）
+    this.sseCleanupInterval = null; // クリーンアップ用のタイマー
     this.setupMiddleware();
     this.setupRoutes();
+    this.setupSSECleanup();
   }
 
   setupMiddleware() {
@@ -43,26 +45,63 @@ class EmbeddedServer {
       res.sendFile(path.join(__dirname, 'static', 'index.html'));
     });
 
-    // SSE エンドポイント（スコア更新通知用）
+    // SSE エンドポイント（スコア更新通知用）- 改良版
     this.app.get('/api/scores/events', (req, res) => {
-      res.writeHead(200, {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Cache-Control'
-      });
+      try {
+        res.writeHead(200, {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Cache-Control'
+        });
 
-      // クライアントを追加
-      this.sseClients.add(res);
+        // クライアント情報を追加（接続時刻付き）
+        const clientInfo = {
+          response: res,
+          connectedAt: Date.now(),
+          lastPing: Date.now()
+        };
+        this.sseClients.set(res, clientInfo);
 
-      // 接続時に初期データを送信
-      res.write('data: {"type":"connected"}\n\n');
+        console.log(`SSE client connected. Total clients: ${this.sseClients.size}`);
 
-      // クライアントが切断した時のクリーンアップ
-      req.on('close', () => {
-        this.sseClients.delete(res);
-      });
+        // 接続時に初期データを送信
+        res.write('data: {"type":"connected"}\n\n');
+
+        // 定期的なハートビート（30秒毎）
+        const heartbeatInterval = setInterval(() => {
+          try {
+            res.write('data: {"type":"heartbeat"}\n\n');
+            clientInfo.lastPing = Date.now();
+          } catch (error) {
+            console.error('Heartbeat error:', error);
+            clearInterval(heartbeatInterval);
+            this.sseClients.delete(res);
+          }
+        }, 30000);
+
+        // クライアントが切断した時のクリーンアップ
+        const cleanup = () => {
+          clearInterval(heartbeatInterval);
+          this.sseClients.delete(res);
+          console.log(`SSE client disconnected. Total clients: ${this.sseClients.size}`);
+        };
+
+        req.on('close', cleanup);
+        req.on('error', (error) => {
+          console.error('SSE request error:', error);
+          cleanup();
+        });
+        res.on('error', (error) => {
+          console.error('SSE response error:', error);
+          cleanup();
+        });
+
+      } catch (error) {
+        console.error('SSE endpoint error:', error);
+        res.status(500).json({ error: 'SSE接続の初期化に失敗しました' });
+      }
     });
 
     // OBS API
@@ -1258,6 +1297,24 @@ ${existingMappingsText}
       if (this.server) {
         console.log('Stopping embedded server...');
         
+        // SSEクリーンアップタイマーを停止
+        if (this.sseCleanupInterval) {
+          clearInterval(this.sseCleanupInterval);
+          this.sseCleanupInterval = null;
+        }
+        
+        // 全てのSSE接続を閉じる
+        console.log(`Closing ${this.sseClients.size} SSE connections...`);
+        this.sseClients.forEach((clientInfo, res) => {
+          try {
+            res.write('data: {"type":"server-shutdown"}\n\n');
+            res.end();
+          } catch (error) {
+            console.error('Error closing SSE client:', error);
+          }
+        });
+        this.sseClients.clear();
+        
         // タイムアウトを設定（強制終了用）
         const forceCloseTimeout = setTimeout(() => {
           console.log('Force closing server due to timeout...');
@@ -1306,15 +1363,60 @@ ${existingMappingsText}
   }
 
   broadcastScoreUpdate() {
-    const message = JSON.stringify({ type: 'scores-updated' });
-    this.sseClients.forEach((client) => {
+    const message = JSON.stringify({ type: 'scores-updated', timestamp: Date.now() });
+    const deadClients = [];
+    
+    console.log(`Broadcasting score update to ${this.sseClients.size} clients`);
+    
+    this.sseClients.forEach((clientInfo, res) => {
       try {
-        client.write(`data: ${message}\n\n`);
+        res.write(`data: ${message}\n\n`);
+        clientInfo.lastPing = Date.now();
       } catch (error) {
         console.error('Error sending SSE message:', error);
-        this.sseClients.delete(client);
+        deadClients.push(res);
       }
     });
+    
+    // 送信に失敗したクライアントを削除
+    deadClients.forEach(res => {
+      this.sseClients.delete(res);
+    });
+    
+    if (deadClients.length > 0) {
+      console.log(`Removed ${deadClients.length} dead SSE clients`);
+    }
+  }
+
+  setupSSECleanup() {
+    // 5分毎に古い接続をクリーンアップ
+    this.sseCleanupInterval = setInterval(() => {
+      const now = Date.now();
+      const timeout = 10 * 60 * 1000; // 10分でタイムアウト
+      const deadClients = [];
+      
+      this.sseClients.forEach((clientInfo, res) => {
+        if (now - clientInfo.lastPing > timeout) {
+          console.log('SSE client timed out, removing...');
+          deadClients.push(res);
+        }
+      });
+      
+      deadClients.forEach(res => {
+        try {
+          res.end();
+        } catch (error) {
+          console.error('Error closing timed out SSE client:', error);
+        }
+        this.sseClients.delete(res);
+      });
+      
+      if (deadClients.length > 0) {
+        console.log(`Cleaned up ${deadClients.length} timed out SSE clients`);
+      }
+      
+      console.log(`Active SSE clients: ${this.sseClients.size}`);
+    }, 5 * 60 * 1000); // 5分毎
   }
 
   getPort() {
