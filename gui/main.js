@@ -180,6 +180,25 @@ app.whenReady().then(async () => {
     await startEmbeddedServer();
     console.log('Server started successfully on port:', serverPort);
     
+    // OBSブラウザソースの自動再読み込み
+    setTimeout(async () => {
+      try {
+        console.log('Attempting to refresh OBS browser sources...');
+        const refreshResponse = await makeHttpRequest(`http://localhost:${serverPort}/api/obs/refresh-browser-source`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (refreshResponse.success) {
+          console.log('OBS browser sources refreshed successfully:', refreshResponse.message);
+        } else {
+          console.warn('OBS browser source refresh failed:', refreshResponse.error);
+        }
+      } catch (error) {
+        console.warn('Could not refresh OBS browser sources (OBS may not be running):', error.message);
+      }
+    }, 2000); // サーバー起動後2秒待って実行
+    
     // サーバー起動を待ってからウィンドウを作成
     setTimeout(() => {
       createWindow();

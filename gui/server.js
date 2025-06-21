@@ -1129,6 +1129,120 @@ ${existingMappingsText}
       }
     });
 
+    // OBSブラウザソース再読み込みAPI
+    this.app.post('/api/obs/refresh-browser-source', async (req, res) => {
+      const OBSWebSocket = require('obs-websocket-js').default;
+      let obs = null;
+      
+      try {
+        obs = new OBSWebSocket();
+
+        // 設定ファイルを動的に読み込み
+        let config;
+        try {
+          const fs = require('fs');
+          const { app } = require('electron');
+          const Store = require('electron-store');
+          const store = new Store();
+          
+          config = {
+            obsIp: store.get('obsIp', '127.0.0.1'),
+            obsPort: store.get('obsPort', '4455'),
+            obsPassword: store.get('obsPassword', ''),
+            obsSourceName: store.get('obsSourceName', '映像キャプチャデバイス')
+          };
+        } catch (error) {
+          console.error('Failed to load config for OBS refresh:', error);
+          throw new Error('設定の読み込みに失敗しました');
+        }
+
+        // OBS WebSocketのURL構築
+        const obsPort = config.obsPort || '4455';
+        const obsIp = config.obsIp === 'localhost' ? '127.0.0.1' : config.obsIp;
+        const obsUrl = `ws://${obsIp}:${obsPort}`;
+        
+        console.log('Connecting to OBS for browser source refresh...', { obsUrl });
+
+        // OBS接続（タイムアウト付き）
+        const connectTimeout = setTimeout(() => {
+          if (obs) {
+            obs.disconnect().catch(e => console.error('Error during timeout disconnect:', e));
+          }
+        }, 10000);
+
+        try {
+          if (config.obsPassword && config.obsPassword.trim() !== '') {
+            await obs.connect(obsUrl, config.obsPassword);
+          } else {
+            await obs.connect(obsUrl);
+          }
+          clearTimeout(connectTimeout);
+          console.log('OBS connection successful for browser source refresh');
+        } catch (connectError) {
+          clearTimeout(connectTimeout);
+          throw new Error(`OBS接続に失敗しました: ${connectError.message}`);
+        }
+
+        // ブラウザソースの一覧を取得
+        const sourcesResponse = await obs.call('GetInputList');
+        const browserSources = sourcesResponse.inputs.filter(input =>
+          input.inputKind === 'browser_source'
+        );
+
+        console.log(`Found ${browserSources.length} browser sources`);
+
+        // 各ブラウザソースを再読み込み
+        const refreshPromises = browserSources.map(async (source) => {
+          try {
+            await obs.call('PressInputPropertiesButton', {
+              inputName: source.inputName,
+              propertyName: 'refreshnocache'
+            });
+            console.log(`Refreshed browser source: ${source.inputName}`);
+            return { source: source.inputName, success: true };
+          } catch (error) {
+            console.error(`Failed to refresh browser source ${source.inputName}:`, error);
+            return { source: source.inputName, success: false, error: error.message };
+          }
+        });
+
+        const results = await Promise.all(refreshPromises);
+
+        // 接続を閉じる
+        try {
+          await obs.disconnect();
+          console.log('OBS WebSocket disconnected after browser source refresh');
+        } catch (disconnectError) {
+          console.error('Error during OBS disconnect:', disconnectError);
+        }
+
+        res.json({
+          success: true,
+          message: `${browserSources.length}個のブラウザソースを再読み込みしました`,
+          results: results
+        });
+
+      } catch (error) {
+        console.error('OBS browser source refresh error:', error);
+
+        // エラー時も優しく切断を試行
+        if (obs) {
+          try {
+            await obs.disconnect();
+          } catch (disconnectError) {
+            console.error('Error during cleanup disconnect:', disconnectError);
+          }
+        }
+
+        res.status(500).json({
+          success: false,
+          error: error.message || 'ブラウザソースの再読み込みに失敗しました'
+        });
+      } finally {
+        obs = null;
+      }
+    });
+
     // ローカルIP取得API
     this.app.get('/api/localIp', (req, res) => {
       const os = require('os');
@@ -1171,6 +1285,16 @@ ${existingMappingsText}
         // プレイヤー名マッピングもリセット
         fs.writeFileSync(playerMappingPath, JSON.stringify({}, null, 2));
         console.log('Player mappings reset successfully at:', playerMappingPath);
+        
+        // メタファイルも削除（存在する場合）
+        const metaPath = path.join(path.dirname(scoresPath), 'scores-meta.json');
+        if (fs.existsSync(metaPath)) {
+          fs.unlinkSync(metaPath);
+          console.log('Meta file deleted:', metaPath);
+        }
+        
+        // SSEクライアントにリセット通知を送信
+        this.broadcastScoreUpdate();
         
         res.json({
           success: true,
