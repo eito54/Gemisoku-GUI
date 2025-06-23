@@ -1,3 +1,24 @@
+// F1/F2グローバルショートカット受信
+window.electronAPI?.on?.('trigger-fetch-race-results', async () => {
+  setProcessingButtonsState(true);
+  showButtonLoading(fetchRaceBtn, true);
+  try {
+    await window.electronAPI?.fetchRaceResults();
+  } finally {
+    showButtonLoading(fetchRaceBtn, false);
+    setProcessingButtonsState(false);
+  }
+});
+window.electronAPI?.on?.('trigger-fetch-overall-scores', async () => {
+  setProcessingButtonsState(true);
+  showButtonLoading(fetchOverallBtn, true);
+  try {
+    await window.electronAPI?.fetchOverallScores();
+  } finally {
+    showButtonLoading(fetchOverallBtn, false);
+    setProcessingButtonsState(false);
+  }
+});
 // 言語切り替え機能
 async function changeLanguage(language) {
     if (typeof i18n !== 'undefined') {

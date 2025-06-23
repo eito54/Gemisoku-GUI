@@ -37,6 +37,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   installDownloadedUpdate: (filePath) => ipcRenderer.invoke('install-downloaded-update', filePath),
   
   // アップデートイベントリスナー
+// グローバルショートカットイベント受信
+  on: (channel, callback) => ipcRenderer.on(channel, (_event, ...args) => callback(...args)),
+  // グローバルショートカットからIPC呼び出し
+  invoke: (channel, ...args) => ipcRenderer.invoke(channel, ...args),
   onUpdateAvailable: (callback) => ipcRenderer.on('update-available', callback),
   onDownloadProgress: (callback) => ipcRenderer.on('download-progress', callback),
   onUpdateDownloaded: (callback) => ipcRenderer.on('update-downloaded', callback),

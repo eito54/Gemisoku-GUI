@@ -7,6 +7,8 @@ console.log('BrowserWindow:', BrowserWindow);
 const path = require('path');
 const Store = require('electron-store');
 const https = require('https');
+// グローバルショートカット用
+const { globalShortcut } = require('electron');
 const http = require('http');
 const ConfigManager = require('./config-manager');
 const EmbeddedServer = require('./server');
@@ -87,6 +89,19 @@ function createWindow() {
 
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
+  // グローバルショートカット登録（ウィンドウ生成後に確実に登録）
+  globalShortcut.unregisterAll();
+  globalShortcut.register('F1', () => {
+    if (mainWindow) {
+      mainWindow.webContents.send('trigger-fetch-race-results');
+    }
+  });
+  globalShortcut.register('F2', () => {
+    if (mainWindow) {
+      mainWindow.webContents.send('trigger-fetch-overall-scores');
+    }
+  });
+
   // 開発環境でのみDevToolsを開く
   if (process.env.NODE_ENV === 'development') {
     mainWindow.webContents.openDevTools();
@@ -165,6 +180,19 @@ async function stopEmbeddedServer() {
       console.error('Error during force server stop:', forceError);
     }
   }
+// グローバルショートカット登録
+app.whenReady().then(() => {
+  globalShortcut.register('F1', () => {
+    if (mainWindow) {
+      mainWindow.webContents.send('trigger-fetch-race-results');
+    }
+  });
+  globalShortcut.register('F2', () => {
+    if (mainWindow) {
+      mainWindow.webContents.send('trigger-fetch-overall-scores');
+    }
+  });
+});
 }
 
 app.whenReady().then(async () => {

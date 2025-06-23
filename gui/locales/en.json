@@ -21,8 +21,8 @@
   },
   "operations": {
     "title": "🎮 Operations",
-    "fetchRace": "📊 Fetch Race Results",
-    "fetchOverall": "🏆 Get Team Total Score",
+    "fetchRace": "📊 Fetch Race Results(F1)",
+    "fetchOverall": "🏆 Get Team Total Score(F2)",
     "openOverlay": "🖥️ Open Overlay",
     "editScores": "⚙️ Edit Scores",
     "resetScores": "🗑️ Reset Scores",

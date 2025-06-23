@@ -21,8 +21,8 @@
   },
   "operations": {
     "title": "🎮 操作",
-    "fetchRace": "📊 レース結果を取得",
-    "fetchOverall": "🏆 チーム合計点を取得",
+    "fetchRace": "📊 レース結果を取得(F1)",
+    "fetchOverall": "🏆 チーム合計点を取得(F2)",
     "openOverlay": "🖥️ オーバーレイを開く",
     "editScores": "⚙️ 得点編集",
     "resetScores": "🗑️ スコアをリセット",
