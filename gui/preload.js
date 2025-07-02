@@ -18,6 +18,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // 編集ウィンドウを開く
   openEditWindow: () => ipcRenderer.invoke('open-edit-window'),
   
+  // リオープン管理ウィンドウを開く
+  openReopenManager: () => ipcRenderer.invoke('open-reopen-manager'),
+  
   // スコア取得・保存
   getScores: () => ipcRenderer.invoke('get-scores'),
   saveScores: (scores) => ipcRenderer.invoke('save-scores', scores),

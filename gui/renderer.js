@@ -86,6 +86,7 @@ const openOverlayBtn = document.getElementById('openOverlayBtn');
 const editScoresBtn = document.getElementById('editScoresBtn');
 const testConnectionBtn = document.getElementById('testConnectionBtn');
 const checkUpdatesBtn = document.getElementById('checkUpdatesBtn');
+const reopenManagerBtn = document.getElementById('reopenManagerBtn');
 
 // 初期化
 document.addEventListener('DOMContentLoaded', async () => {
@@ -251,6 +252,16 @@ editScoresBtn.addEventListener('click', async () => {
         showStatus(operationStatus, 'success', '得点編集ウィンドウを開きました');
     } catch (error) {
         showStatus(operationStatus, 'error', '得点編集ウィンドウの表示に失敗しました: ' + error.message);
+    }
+});
+
+// リオープン管理画面を開く
+reopenManagerBtn.addEventListener('click', async () => {
+    try {
+        await window.electronAPI.openReopenManager();
+        showStatus(operationStatus, 'success', 'リオープン管理ウィンドウを開きました');
+    } catch (error) {
+        showStatus(operationStatus, 'error', 'リオープン管理ウィンドウの表示に失敗しました: ' + error.message);
     }
 });
 

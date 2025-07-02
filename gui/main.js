@@ -34,6 +34,7 @@ const embeddedServer = new EmbeddedServer();
 
 let mainWindow;
 let editWindow;
+let reopenManagerWindow;
 let serverPort = 3001;
 
 // 自動アップデート設定
@@ -140,6 +141,41 @@ function createEditWindow() {
   // 開発環境でのみDevToolsを開く
   if (process.env.NODE_ENV === 'development') {
     editWindow.webContents.openDevTools();
+  }
+}
+
+function createReopenManagerWindow() {
+  if (reopenManagerWindow) {
+    reopenManagerWindow.focus();
+    return;
+  }
+
+  reopenManagerWindow = new BrowserWindow({
+    width: 1000,
+    height: 800,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      enableRemoteModule: false,
+      preload: path.join(__dirname, 'preload.js')
+    },
+    parent: mainWindow,
+    title: 'リオープン管理 - Gemisoku-GUI',
+    resizable: true,
+    minimizable: true,
+    maximizable: true,
+    icon: path.join(__dirname, '../assets/logo.jpeg')
+  });
+
+  reopenManagerWindow.loadFile(path.join(__dirname, 'views', 'reopen-manager.html'));
+
+  reopenManagerWindow.on('closed', () => {
+    reopenManagerWindow = null;
+  });
+
+  // 開発環境でのみDevToolsを開く
+  if (process.env.NODE_ENV === 'development') {
+    reopenManagerWindow.webContents.openDevTools();
   }
 }
 
@@ -596,6 +632,11 @@ ipcMain.handle('open-external', async (event, url) => {
 
 ipcMain.handle('open-edit-window', () => {
   createEditWindow();
+  return { success: true };
+});
+
+ipcMain.handle('open-reopen-manager', () => {
+  createReopenManagerWindow();
   return { success: true };
 });
 

@@ -1353,6 +1353,190 @@ ${existingMappingsText}
         });
       }
     });
+
+    // リオープンスロット管理API
+    
+    // リオープンスロットファイルパスを取得
+    const getReopenSlotsPath = () => {
+      try {
+        const { app } = require('electron');
+        if (app && app.getPath) {
+          const userDataPath = app.getPath('userData');
+          return path.join(userDataPath, 'reopen-slots.json');
+        }
+      } catch (electronError) {
+        // Electronが利用できない場合のフォールバック
+      }
+      return path.join(__dirname, 'reopen-slots.json');
+    };
+
+    // 全リオープンスロットを取得
+    this.app.get('/api/reopen-slots', (req, res) => {
+      try {
+        const fs = require('fs');
+        const slotsPath = getReopenSlotsPath();
+        
+        let slots = [];
+        if (fs.existsSync(slotsPath)) {
+          const slotsData = fs.readFileSync(slotsPath, 'utf8');
+          slots = JSON.parse(slotsData);
+        }
+        
+        res.json(slots);
+      } catch (error) {
+        console.error('Error reading reopen slots:', error);
+        res.status(500).json({
+          success: false,
+          error: error.message
+        });
+      }
+    });
+
+    // 特定のリオープンスロットを取得
+    this.app.get('/api/reopen-slots/:slotId', (req, res) => {
+      try {
+        const fs = require('fs');
+        const slotsPath = getReopenSlotsPath();
+        const slotId = parseInt(req.params.slotId);
+        
+        if (isNaN(slotId) || slotId < 0 || slotId >= 10) {
+          return res.status(400).json({
+            success: false,
+            error: '無効なスロットIDです (0-9の範囲で指定してください)'
+          });
+        }
+        
+        let slots = [];
+        if (fs.existsSync(slotsPath)) {
+          const slotsData = fs.readFileSync(slotsPath, 'utf8');
+          slots = JSON.parse(slotsData);
+        }
+        
+        const slot = slots.find(s => s.slotId === slotId);
+        if (!slot) {
+          return res.status(404).json({
+            success: false,
+            error: 'スロットが見つかりません'
+          });
+        }
+        
+        res.json({
+          success: true,
+          data: slot
+        });
+      } catch (error) {
+        console.error('Error reading reopen slot:', error);
+        res.status(500).json({
+          success: false,
+          error: error.message
+        });
+      }
+    });
+
+    // リオープンスロットにセーブ
+    this.app.post('/api/reopen-slots', (req, res) => {
+      try {
+        const fs = require('fs');
+        const slotsPath = getReopenSlotsPath();
+        const saveData = req.body;
+        
+        // バリデーション
+        if (typeof saveData.slotId !== 'number' || saveData.slotId < 0 || saveData.slotId >= 10) {
+          return res.status(400).json({
+            success: false,
+            error: '無効なスロットIDです (0-9の範囲で指定してください)'
+          });
+        }
+        
+        if (!saveData.scores || !Array.isArray(saveData.scores)) {
+          return res.status(400).json({
+            success: false,
+            error: 'スコアデータが無効です'
+          });
+        }
+        
+        // 既存のスロットデータを読み込み
+        let slots = [];
+        if (fs.existsSync(slotsPath)) {
+          const slotsData = fs.readFileSync(slotsPath, 'utf8');
+          slots = JSON.parse(slotsData);
+        }
+        
+        // 既存のスロットがあれば更新、なければ追加
+        const existingSlotIndex = slots.findIndex(s => s.slotId === saveData.slotId);
+        if (existingSlotIndex >= 0) {
+          slots[existingSlotIndex] = saveData;
+        } else {
+          slots.push(saveData);
+        }
+        
+        // ディレクトリが存在しない場合は作成
+        const slotsDir = path.dirname(slotsPath);
+        if (!fs.existsSync(slotsDir)) {
+          fs.mkdirSync(slotsDir, { recursive: true });
+        }
+        
+        // ファイルに保存
+        fs.writeFileSync(slotsPath, JSON.stringify(slots, null, 2));
+        
+        res.json({
+          success: true,
+          message: `スロット ${saveData.slotId + 1} にセーブしました`
+        });
+      } catch (error) {
+        console.error('Error saving reopen slot:', error);
+        res.status(500).json({
+          success: false,
+          error: error.message
+        });
+      }
+    });
+
+    // リオープンスロットを削除
+    this.app.delete('/api/reopen-slots/:slotId', (req, res) => {
+      try {
+        const fs = require('fs');
+        const slotsPath = getReopenSlotsPath();
+        const slotId = parseInt(req.params.slotId);
+        
+        if (isNaN(slotId) || slotId < 0 || slotId >= 10) {
+          return res.status(400).json({
+            success: false,
+            error: '無効なスロットIDです (0-9の範囲で指定してください)'
+          });
+        }
+        
+        let slots = [];
+        if (fs.existsSync(slotsPath)) {
+          const slotsData = fs.readFileSync(slotsPath, 'utf8');
+          slots = JSON.parse(slotsData);
+        }
+        
+        // 指定されたスロットを削除
+        const filteredSlots = slots.filter(s => s.slotId !== slotId);
+        
+        if (filteredSlots.length === slots.length) {
+          return res.status(404).json({
+            success: false,
+            error: 'スロットが見つかりません'
+          });
+        }
+        
+        // ファイルに保存
+        fs.writeFileSync(slotsPath, JSON.stringify(filteredSlots, null, 2));
+        
+        res.json({
+          success: true,
+          message: `スロット ${slotId + 1} を削除しました`
+        });
+      } catch (error) {
+        console.error('Error deleting reopen slot:', error);
+        res.status(500).json({
+          success: false,
+          error: error.message
+        });
+      }
+    });
   }
 
   makeHttpRequest(url, options = {}) {

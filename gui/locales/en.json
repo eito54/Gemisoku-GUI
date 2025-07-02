@@ -27,7 +27,8 @@
     "editScores": "⚙️ Edit Scores",
     "resetScores": "🗑️ Reset Scores",
     "testConnection": "🔗 Test Connection",
-    "checkUpdates": "🔄 Check for Updates"
+    "checkUpdates": "🔄 Check for Updates",
+    "reopenManager": "🔄 Reopen Manager"
   },
   "scoreSettings": {
     "title": "⚙️ Score Settings",
