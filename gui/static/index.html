@@ -78,7 +78,7 @@
 
         .added-score-float {
             animation: dynamicAddedScoreFloat 3.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-            text-shadow: 0 0 8px rgba(34, 197, 94, 0.8);
+            text-shadow: 0 0 8px var(--score-effect-color-rgba, rgba(34, 197, 94, 0.8));
         }
 
         .animated-parallelogram-border::before {
@@ -89,9 +89,9 @@
             background: linear-gradient(to right, rgba(15, 23, 42, 0.95), rgba(30, 58, 138, 0.9));
             border-width: 2px;
             border-style: solid;
-            border-color: #fbbf24; /* 黄色の単色 */
+            border-color: var(--current-player-color, #fbbf24); /* カスタマイズ可能な色 */
             transform: skewX(-12deg);
-            box-shadow: 0 1px 2px 0 rgba(251, 191, 36, 0.4), 0 1px 3px 0 rgba(251, 191, 36, 0.4);
+            box-shadow: 0 1px 2px 0 var(--current-player-shadow-color, rgba(251, 191, 36, 0.4)), 0 1px 3px 0 var(--current-player-shadow-color, rgba(251, 191, 36, 0.4));
             border-radius: 0.25rem;
         }
 
@@ -109,7 +109,7 @@
             border-radius: 0.25rem;
         }
 
-        /* 強化された緑色点滅エフェクト */
+        /* 動的な色による点滅エフェクト */
         @keyframes enhancedGreenFlash {
             0% {
                 border-color: rgba(59, 130, 246, 0.7);
@@ -117,19 +117,19 @@
                 background: linear-gradient(to right, rgba(15, 23, 42, 0.95), rgba(30, 58, 138, 0.9));
             }
             25% {
-                border-color: rgba(34, 197, 94, 1);
-                box-shadow: 0 0 15px 4px rgba(34, 197, 94, 0.9), 0 0 25px 8px rgba(34, 197, 94, 0.5);
-                background: linear-gradient(to right, rgba(22, 101, 52, 0.95), rgba(34, 197, 94, 0.9));
+                border-color: var(--score-effect-color, rgba(34, 197, 94, 1));
+                box-shadow: 0 0 15px 4px var(--score-effect-color-strong, rgba(34, 197, 94, 0.9)), 0 0 25px 8px var(--score-effect-color-medium, rgba(34, 197, 94, 0.5));
+                background: linear-gradient(to right, var(--score-effect-bg-dark, rgba(22, 101, 52, 0.95)), var(--score-effect-color-medium, rgba(34, 197, 94, 0.9)));
             }
             50% {
-                border-color: rgba(74, 222, 128, 1);
-                box-shadow: 0 0 20px 6px rgba(74, 222, 128, 1), 0 0 35px 12px rgba(74, 222, 128, 0.6);
-                background: linear-gradient(to right, rgba(22, 101, 52, 0.95), rgba(74, 222, 128, 0.9));
+                border-color: var(--score-effect-color-light, rgba(74, 222, 128, 1));
+                box-shadow: 0 0 20px 6px var(--score-effect-color-light, rgba(74, 222, 128, 1)), 0 0 35px 12px var(--score-effect-color-light-alpha, rgba(74, 222, 128, 0.6));
+                background: linear-gradient(to right, var(--score-effect-bg-dark, rgba(22, 101, 52, 0.95)), var(--score-effect-color-light-alpha, rgba(74, 222, 128, 0.9)));
             }
             75% {
-                border-color: rgba(34, 197, 94, 1);
-                box-shadow: 0 0 15px 4px rgba(34, 197, 94, 0.9), 0 0 25px 8px rgba(34, 197, 94, 0.5);
-                background: linear-gradient(to right, rgba(22, 101, 52, 0.95), rgba(34, 197, 94, 0.9));
+                border-color: var(--score-effect-color, rgba(34, 197, 94, 1));
+                box-shadow: 0 0 15px 4px var(--score-effect-color-strong, rgba(34, 197, 94, 0.9)), 0 0 25px 8px var(--score-effect-color-medium, rgba(34, 197, 94, 0.5));
+                background: linear-gradient(to right, var(--score-effect-bg-dark, rgba(22, 101, 52, 0.95)), var(--score-effect-color-medium, rgba(34, 197, 94, 0.9)));
             }
             100% {
                 border-color: rgba(59, 130, 246, 0.7);
@@ -791,6 +791,113 @@
             }
         });
 
+        // 色設定の初期化と管理
+        async function loadColorSettings() {
+            try {
+                // 先にスコアAPIから設定を取得を試行（設定統合済み）
+                let colors = {};
+                try {
+                    const scoresResponse = await fetch('/api/scores');
+                    const scoresData = await scoresResponse.json();
+                    if (scoresData.scoreEffectColor && scoresData.currentPlayerColor) {
+                        colors = {
+                            scoreEffectColor: scoresData.scoreEffectColor,
+                            currentPlayerColor: scoresData.currentPlayerColor
+                        };
+                        console.log('Loaded color settings from scores API:', colors);
+                    }
+                } catch (scoresError) {
+                    console.log('Failed to load colors from scores API, trying overlay-colors API');
+                }
+                
+                // フォールバック: 専用の色設定APIから取得
+                if (!colors.scoreEffectColor) {
+                    const response = await fetch('/api/overlay-colors');
+                    colors = await response.json();
+                    console.log('Loaded color settings from overlay-colors API:', colors);
+                }
+                
+                // CSS変数として設定
+                const root = document.documentElement;
+                
+                // 点数エフェクト色の設定
+                const scoreColor = colors.scoreEffectColor || '#22c55e';
+                const scoreColorRgb = hexToRgb(scoreColor);
+                
+                root.style.setProperty('--score-effect-color', scoreColor);
+                root.style.setProperty('--score-effect-color-rgba', `rgba(${scoreColorRgb.r}, ${scoreColorRgb.g}, ${scoreColorRgb.b}, 0.8)`);
+                root.style.setProperty('--score-effect-color-strong', `rgba(${scoreColorRgb.r}, ${scoreColorRgb.g}, ${scoreColorRgb.b}, 0.9)`);
+                root.style.setProperty('--score-effect-color-medium', `rgba(${scoreColorRgb.r}, ${scoreColorRgb.g}, ${scoreColorRgb.b}, 0.5)`);
+                root.style.setProperty('--score-effect-color-light', lightenColor(scoreColor));
+                root.style.setProperty('--score-effect-color-light-alpha', `rgba(${lightenColorRgb(scoreColor).r}, ${lightenColorRgb(scoreColor).g}, ${lightenColorRgb(scoreColor).b}, 0.6)`);
+                root.style.setProperty('--score-effect-bg-dark', darkenColor(scoreColor));
+                
+                // 自チーム表示色の設定
+                const currentPlayerColor = colors.currentPlayerColor || '#fbbf24';
+                const currentPlayerColorRgb = hexToRgb(currentPlayerColor);
+                
+                root.style.setProperty('--current-player-color', currentPlayerColor);
+                root.style.setProperty('--current-player-shadow-color', `rgba(${currentPlayerColorRgb.r}, ${currentPlayerColorRgb.g}, ${currentPlayerColorRgb.b}, 0.4)`);
+                
+                console.log('Color settings applied successfully');
+            } catch (error) {
+                console.error('Failed to load color settings:', error);
+                // デフォルト色を設定
+                const root = document.documentElement;
+                root.style.setProperty('--score-effect-color', '#22c55e');
+                root.style.setProperty('--current-player-color', '#fbbf24');
+            }
+        }
+        
+        // 16進数カラーをRGBに変換
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : { r: 34, g: 197, b: 94 }; // デフォルト緑色
+        }
+        
+        // 色を明るくする
+        function lightenColor(hex) {
+            const rgb = hexToRgb(hex);
+            const factor = 0.3; // 明るくする係数
+            const r = Math.min(255, Math.floor(rgb.r + (255 - rgb.r) * factor));
+            const g = Math.min(255, Math.floor(rgb.g + (255 - rgb.g) * factor));
+            const b = Math.min(255, Math.floor(rgb.b + (255 - rgb.b) * factor));
+            return `rgba(${r}, ${g}, ${b}, 1)`;
+        }
+        
+        // 色を明るくしたRGB値を返す
+        function lightenColorRgb(hex) {
+            const rgb = hexToRgb(hex);
+            const factor = 0.3;
+            return {
+                r: Math.min(255, Math.floor(rgb.r + (255 - rgb.r) * factor)),
+                g: Math.min(255, Math.floor(rgb.g + (255 - rgb.g) * factor)),
+                b: Math.min(255, Math.floor(rgb.b + (255 - rgb.b) * factor))
+            };
+        }
+        
+        // 色を暗くする
+        function darkenColor(hex) {
+            const rgb = hexToRgb(hex);
+            const factor = 0.5; // 暗くする係数
+            const r = Math.floor(rgb.r * factor);
+            const g = Math.floor(rgb.g * factor);
+            const b = Math.floor(rgb.b * factor);
+            return `rgba(${r}, ${g}, ${b}, 0.95)`;
+        }
+        
+        // 色設定を定期的にチェック（設定が変更された場合）
+        setInterval(loadColorSettings, 5000); // 5秒ごとにチェック
+        
+        // 初期色設定を読み込み（複数回試行して確実に読み込む）
+        loadColorSettings();
+        setTimeout(loadColorSettings, 1000); // 1秒後に再試行
+        setTimeout(loadColorSettings, 3000); // 3秒後に再試行
+        
         // SSE接続を開始
         setupSSE();
     </script>

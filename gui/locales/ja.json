@@ -38,7 +38,11 @@
   "overlaySettings": {
     "title": "🖥️ オーバーレイ設定",
     "showRemainingRaces": "オーバーレイで残りレース数を表示する",
-    "showRemainingRacesHelp": "スイッチをオフにすると、オーバーレイで残りレース数が表示されなくなります"
+    "showRemainingRacesHelp": "スイッチをオフにすると、オーバーレイで残りレース数が表示されなくなります",
+    "scoreEffectColor": "点数変動エフェクト色:",
+    "scoreEffectColorHelp": "チームスコアが増加した時の緑色フラッシュエフェクトの色を変更できます",
+    "currentPlayerColor": "自チーム表示色:",
+    "currentPlayerColorHelp": "自分のチームを区別するための外枠線の色を変更できます"
   },
   "usage": {
     "title": "💡 使用方法",

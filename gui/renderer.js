@@ -87,6 +87,10 @@ const editScoresBtn = document.getElementById('editScoresBtn');
 const testConnectionBtn = document.getElementById('testConnectionBtn');
 const checkUpdatesBtn = document.getElementById('checkUpdatesBtn');
 const reopenManagerBtn = document.getElementById('reopenManagerBtn');
+const scoreEffectColorInput = document.getElementById('scoreEffectColor');
+const currentPlayerColorInput = document.getElementById('currentPlayerColor');
+const saveColorsBtn = document.getElementById('saveColorsBtn');
+const resetColorsBtn = document.getElementById('resetColorsBtn');
 
 // 初期化
 document.addEventListener('DOMContentLoaded', async () => {
@@ -99,7 +103,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     loadTheme(); // テーマを読み込み
     await loadConfig();
+    initializeColorSettings(); // 色設定を初期化
     setupUpdateListeners(); // アップデートリスナーを設定
+    
+    // 初期設定の色をオーバーレイに適用
+    setTimeout(() => {
+        updateOverlayColors();
+    }, 1000);
+    
     await checkAppVersion(); // アプリバージョンを表示
     console.log('GUI initialization complete');
 });
@@ -120,6 +131,16 @@ async function loadConfig() {
         if (showRemainingRacesCheckbox) {
             showRemainingRacesCheckbox.checked = config.showRemainingRaces !== false; // デフォルトはtrue
         }
+        
+        // 色設定の読み込み
+        if (scoreEffectColorInput) {
+            scoreEffectColorInput.value = config.scoreEffectColor || '#22c55e';
+            updateColorPickerPreview('scoreEffect', config.scoreEffectColor || '#22c55e');
+        }
+        if (currentPlayerColorInput) {
+            currentPlayerColorInput.value = config.currentPlayerColor || '#fbbf24';
+            updateColorPickerPreview('currentPlayer', config.currentPlayerColor || '#fbbf24');
+        }
     } catch (error) {
         const errorMsg = typeof i18n !== 'undefined' ? i18n.t('messages.configLoadError') : '設定の読み込みに失敗しました';
         showStatus(configStatus, 'error', errorMsg + ': ' + error.message);
@@ -138,7 +159,9 @@ configForm.addEventListener('submit', async (e) => {
         obsPassword: obsPasswordInput.value.trim(),
         obsSourceName: obsSourceNameInput.value.trim(),
         geminiApiKey: geminiApiKeyInput.value.trim(),
-        showRemainingRaces: showRemainingRacesCheckbox ? showRemainingRacesCheckbox.checked : true
+        showRemainingRaces: showRemainingRacesCheckbox ? showRemainingRacesCheckbox.checked : true,
+        scoreEffectColor: scoreEffectColorInput ? scoreEffectColorInput.value : '#22c55e',
+        currentPlayerColor: currentPlayerColorInput ? currentPlayerColorInput.value : '#fbbf24'
     };
     
     // バリデーション（OBSパスワードは必須ではない）
@@ -157,6 +180,9 @@ configForm.addEventListener('submit', async (e) => {
             const successMsg = typeof i18n !== 'undefined' ? i18n.t('messages.configSaved') : '設定が保存されました';
             showStatus(configStatus, 'success', successMsg);
             showSuccessParticles(document.querySelector('button[type="submit"]'));
+            
+            // 色設定も保存されたことをオーバーレイに通知
+            updateOverlayColors();
         } else {
             const errorMsg = typeof i18n !== 'undefined' ? i18n.t('messages.configSaveError') : '設定の保存に失敗しました';
             showStatus(configStatus, 'error', errorMsg);
@@ -1248,3 +1274,141 @@ window.testUpdateNotification = function() {
 };
 
 console.log('Update notification system loaded. Use testUpdateNotification() to test in development.');
+
+// 色設定の初期化と管理
+function initializeColorSettings() {
+    console.log('Initializing color settings...');
+    
+    // カラーピッカーの変更イベント（プレビューのみ、保存は手動）
+    if (scoreEffectColorInput) {
+        scoreEffectColorInput.addEventListener('input', (e) => {
+            updateColorPickerPreview('scoreEffect', e.target.value);
+        });
+    }
+    
+    if (currentPlayerColorInput) {
+        currentPlayerColorInput.addEventListener('input', (e) => {
+            updateColorPickerPreview('currentPlayer', e.target.value);
+        });
+    }
+    
+    // 保存ボタン
+    if (saveColorsBtn) {
+        saveColorsBtn.addEventListener('click', saveColors);
+    }
+    
+    // リセットボタン
+    if (resetColorsBtn) {
+        resetColorsBtn.addEventListener('click', resetColors);
+    }
+    
+    console.log('Color settings initialized');
+}
+
+// オーバーレイの色を更新
+async function updateOverlayColors() {
+    try {
+        const scoreEffectColor = scoreEffectColorInput ? scoreEffectColorInput.value : '#22c55e';
+        const currentPlayerColor = currentPlayerColorInput ? currentPlayerColorInput.value : '#fbbf24';
+        
+        console.log('Updating overlay colors:', { scoreEffectColor, currentPlayerColor });
+        
+        // サーバーに色設定を送信
+        const serverPort = await window.electronAPI.getServerPort();
+        const response = await fetch(`http://localhost:${serverPort}/api/overlay-colors`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                scoreEffectColor,
+                currentPlayerColor
+            })
+        });
+        
+        if (response.ok) {
+            console.log('Colors updated successfully');
+        }
+    } catch (error) {
+        console.error('Failed to update overlay colors:', error);
+    }
+}
+
+// 色設定を保存
+async function saveColors() {
+    try {
+        showButtonLoading(saveColorsBtn, true);
+        
+        const scoreEffectColor = scoreEffectColorInput ? scoreEffectColorInput.value : '#22c55e';
+        const currentPlayerColor = currentPlayerColorInput ? currentPlayerColorInput.value : '#fbbf24';
+        
+        console.log('Saving colors:', { scoreEffectColor, currentPlayerColor });
+        
+        // 現在の設定を取得
+        const currentConfig = await window.electronAPI.getConfig();
+        
+        // 色設定を追加
+        const updatedConfig = {
+            ...currentConfig,
+            scoreEffectColor,
+            currentPlayerColor
+        };
+        
+        // 設定を保存
+        const result = await window.electronAPI.saveConfig(updatedConfig);
+        
+        if (result.success) {
+            showStatus(configStatus, 'success', '色設定が保存されました');
+            showSuccessParticles(saveColorsBtn);
+            
+            // オーバーレイにも色を適用
+            updateOverlayColors();
+        } else {
+            showStatus(configStatus, 'error', '色設定の保存に失敗しました');
+        }
+    } catch (error) {
+        console.error('Color save error:', error);
+        showStatus(configStatus, 'error', '色設定の保存に失敗しました: ' + error.message);
+    } finally {
+        showButtonLoading(saveColorsBtn, false);
+    }
+}
+
+// カラーピッカーの背景プレビューを更新
+function updateColorPickerPreview(type, color) {
+    const root = document.documentElement;
+    
+    if (type === 'scoreEffect') {
+        root.style.setProperty('--score-effect-preview', color);
+    } else if (type === 'currentPlayer') {
+        root.style.setProperty('--current-player-preview', color);
+    }
+}
+
+// 色をデフォルトにリセット
+async function resetColors() {
+    if (scoreEffectColorInput) {
+        scoreEffectColorInput.value = '#22c55e';
+        updateColorPickerPreview('scoreEffect', '#22c55e');
+    }
+    if (currentPlayerColorInput) {
+        currentPlayerColorInput.value = '#fbbf24';
+        updateColorPickerPreview('currentPlayer', '#fbbf24');
+    }
+    
+    // デフォルト色を保存
+    await saveColors();
+}
+
+// デバウンス関数（頻繁な更新を制限）
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}

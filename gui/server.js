@@ -945,7 +945,10 @@ ${existingMappingsText}
           }
         }
         
-        // 設定から残りレース数表示設定を取得
+        // 設定から残りレース数表示設定と色設定を取得
+        let scoreEffectColor = '#22c55e';
+        let currentPlayerColor = '#fbbf24';
+        
         try {
           const { app } = require('electron');
           const userDataPath = app ? app.getPath('userData') : __dirname;
@@ -955,6 +958,8 @@ ${existingMappingsText}
             const configData = fs.readFileSync(configPath, 'utf8');
             const config = JSON.parse(configData);
             showRemainingRaces = config.showRemainingRaces !== false; // デフォルトはtrue
+            scoreEffectColor = config.scoreEffectColor || '#22c55e';
+            currentPlayerColor = config.currentPlayerColor || '#fbbf24';
           }
         } catch (configError) {
           console.log('Config read error (non-critical):', configError.message);
@@ -971,7 +976,9 @@ ${existingMappingsText}
           scores,
           isOverallUpdate,
           remainingRaces: showRemainingRaces ? remainingRaces : null, // 設定に応じて表示制御
-          showRemainingRaces
+          showRemainingRaces,
+          scoreEffectColor,
+          currentPlayerColor
         });
       } catch (error) {
         console.error('Error reading scores:', error);
@@ -1531,6 +1538,91 @@ ${existingMappingsText}
         });
       } catch (error) {
         console.error('Error deleting reopen slot:', error);
+        res.status(500).json({
+          success: false,
+          error: error.message
+        });
+      }
+    });
+
+    // オーバーレイ色設定管理API
+    
+    // 色設定ファイルパスを取得
+    const getOverlayColorsPath = () => {
+      try {
+        const { app } = require('electron');
+        if (app && app.getPath) {
+          const userDataPath = app.getPath('userData');
+          return path.join(userDataPath, 'overlay-colors.json');
+        }
+      } catch (electronError) {
+        // Electronが利用できない場合のフォールバック
+      }
+      return path.join(__dirname, 'overlay-colors.json');
+    };
+
+    // 色設定を取得
+    this.app.get('/api/overlay-colors', (req, res) => {
+      try {
+        const fs = require('fs');
+        const colorsPath = getOverlayColorsPath();
+        
+        let colors = {
+          scoreEffectColor: '#22c55e',
+          currentPlayerColor: '#fbbf24'
+        };
+        
+        if (fs.existsSync(colorsPath)) {
+          const colorsData = fs.readFileSync(colorsPath, 'utf8');
+          colors = { ...colors, ...JSON.parse(colorsData) };
+        }
+        
+        res.json(colors);
+      } catch (error) {
+        console.error('Error reading overlay colors:', error);
+        res.status(500).json({
+          success: false,
+          error: error.message
+        });
+      }
+    });
+
+    // 色設定を保存
+    this.app.post('/api/overlay-colors', (req, res) => {
+      try {
+        const fs = require('fs');
+        const colorsPath = getOverlayColorsPath();
+        const { scoreEffectColor, currentPlayerColor } = req.body;
+        
+        // バリデーション
+        if (!scoreEffectColor || !currentPlayerColor) {
+          return res.status(400).json({
+            success: false,
+            error: '色設定が無効です'
+          });
+        }
+        
+        const colors = {
+          scoreEffectColor,
+          currentPlayerColor,
+          updatedAt: new Date().toISOString()
+        };
+        
+        // ディレクトリが存在しない場合は作成
+        const colorsDir = path.dirname(colorsPath);
+        if (!fs.existsSync(colorsDir)) {
+          fs.mkdirSync(colorsDir, { recursive: true });
+        }
+        
+        // ファイルに保存
+        fs.writeFileSync(colorsPath, JSON.stringify(colors, null, 2));
+        
+        res.json({
+          success: true,
+          message: '色設定を保存しました'
+        });
+      } catch (error) {
+        console.error('Error saving overlay colors:', error);
         res.status(500).json({
           success: false,
           error: error.message

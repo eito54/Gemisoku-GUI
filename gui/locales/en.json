@@ -38,7 +38,11 @@
   "overlaySettings": {
     "title": "🖥️ Overlay Settings",
     "showRemainingRaces": "Show remaining races on overlay",
-    "showRemainingRacesHelp": "When turned off, remaining race count will not be displayed on the overlay"
+    "showRemainingRacesHelp": "When turned off, remaining race count will not be displayed on the overlay",
+    "scoreEffectColor": "Score Effect Color:",
+    "scoreEffectColorHelp": "Customize the color of the flash effect when team scores increase",
+    "currentPlayerColor": "Current Player Color:",
+    "currentPlayerColorHelp": "Customize the border color to distinguish your own team"
   },
   "usage": {
     "title": "💡 How to Use",
