@@ -625,7 +625,14 @@ async function setupUpdateListeners() {
     // アップデート利用可能時
     window.electronAPI.onUpdateAvailable((event, info) => {
         console.log('アップデートが利用可能:', info);
-        showUpdateAvailableDialog(info);
+        
+        // バックグラウンドチェックの場合は右下通知のみ表示
+        if (info.isBackgroundCheck) {
+            showUpdateNotification(info);
+        } else {
+            // 手動チェックの場合は通常のダイアログを表示
+            showUpdateAvailableDialog(info);
+        }
     });
     
     // ダウンロード進行状況
@@ -982,3 +989,262 @@ function formatBytes(bytes) {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
+
+// アップデート通知機能
+let updateNotificationElement = null;
+
+// 右下からのアニメーション付きアップデート通知を表示
+function showUpdateNotification(updateInfo) {
+    // 既存の通知があれば削除
+    if (updateNotificationElement) {
+        updateNotificationElement.remove();
+    }
+    
+    // 通知要素を作成
+    updateNotificationElement = document.createElement('div');
+    updateNotificationElement.className = 'update-notification';
+    updateNotificationElement.innerHTML = `
+        <div class="update-notification-content">
+            <div class="update-notification-header">
+                <span class="update-icon">🆕</span>
+                <span class="update-title">アップデートが利用可能です</span>
+                <button class="update-notification-close" onclick="hideUpdateNotification()">&times;</button>
+            </div>
+            <div class="update-notification-body">
+                <p><strong>新しいバージョン:</strong> v${updateInfo.version}</p>
+                <p>新機能と改善が含まれています</p>
+            </div>
+            <div class="update-notification-actions">
+                <button class="update-btn update-btn-primary" onclick="handleUpdateAction('download')">
+                    ダウンロード
+                </button>
+                <button class="update-btn update-btn-secondary" onclick="handleUpdateAction('later')">
+                    後で
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // CSSスタイルを追加（まだ存在しない場合）
+    if (!document.getElementById('update-notification-styles')) {
+        const styles = document.createElement('style');
+        styles.id = 'update-notification-styles';
+        styles.innerHTML = `
+            .update-notification {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                width: 350px;
+                background: var(--bg-card);
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                box-shadow: var(--shadow-hover);
+                z-index: 10000;
+                transform: translateX(100%);
+                opacity: 0;
+                transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+                backdrop-filter: blur(20px);
+                overflow: hidden;
+            }
+            
+            .update-notification.show {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            
+            .update-notification::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+            }
+            
+            .update-notification-content {
+                padding: 16px;
+            }
+            
+            .update-notification-header {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 12px;
+            }
+            
+            .update-icon {
+                font-size: 20px;
+                animation: bounce 2s infinite;
+            }
+            
+            @keyframes bounce {
+                0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+                40% { transform: translateY(-10px); }
+                60% { transform: translateY(-5px); }
+            }
+            
+            .update-notification::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+                animation: shimmer 3s infinite;
+            }
+            
+            @keyframes shimmer {
+                0% { left: -100%; }
+                100% { left: 100%; }
+            }
+            
+            .update-notification.show::after {
+                animation-delay: 1s;
+            }
+            
+            .update-title {
+                font-weight: 600;
+                color: var(--text-primary);
+                flex: 1;
+                font-size: 14px;
+            }
+            
+            .update-notification-close {
+                background: none;
+                border: none;
+                font-size: 18px;
+                cursor: pointer;
+                color: var(--text-secondary);
+                padding: 0;
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                transition: all 0.2s ease;
+            }
+            
+            .update-notification-close:hover {
+                background: var(--bg-secondary);
+                color: var(--text-primary);
+            }
+            
+            .update-notification-body {
+                margin-bottom: 16px;
+                color: var(--text-secondary);
+                font-size: 13px;
+                line-height: 1.4;
+            }
+            
+            .update-notification-body p {
+                margin: 4px 0;
+            }
+            
+            .update-notification-actions {
+                display: flex;
+                gap: 8px;
+            }
+            
+            .update-btn {
+                flex: 1;
+                padding: 8px 16px;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 12px;
+                font-weight: 600;
+                transition: all 0.2s ease;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            
+            .update-btn-primary {
+                background: linear-gradient(135deg, var(--accent-blue), #3182ce);
+                color: white;
+            }
+            
+            .update-btn-primary:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
+            }
+            
+            .update-btn-secondary {
+                background: var(--bg-secondary);
+                color: var(--text-secondary);
+                border: 1px solid var(--border);
+            }
+            
+            .update-btn-secondary:hover {
+                background: var(--border);
+                color: var(--text-primary);
+            }
+            
+            /* モバイル対応 */
+            @media (max-width: 768px) {
+                .update-notification {
+                    width: calc(100vw - 40px);
+                    right: 20px;
+                    left: 20px;
+                }
+            }
+        `;
+        document.head.appendChild(styles);
+    }
+    
+    // DOMに追加
+    document.body.appendChild(updateNotificationElement);
+    
+    // アニメーション開始
+    setTimeout(() => {
+        updateNotificationElement.classList.add('show');
+    }, 100);
+    
+    // 10秒後に自動的に非表示（ユーザーが操作しなかった場合）
+    setTimeout(() => {
+        if (updateNotificationElement) {
+            hideUpdateNotification();
+        }
+    }, 10000);
+}
+
+// アップデート通知を非表示
+function hideUpdateNotification() {
+    if (updateNotificationElement) {
+        updateNotificationElement.classList.remove('show');
+        setTimeout(() => {
+            if (updateNotificationElement) {
+                updateNotificationElement.remove();
+                updateNotificationElement = null;
+            }
+        }, 500);
+    }
+}
+
+// アップデートアクションの処理
+function handleUpdateAction(action) {
+    hideUpdateNotification();
+    
+    if (action === 'download') {
+        // 既存のアップデートダウンロード処理を呼び出し
+        if (checkUpdatesBtn) {
+            checkUpdatesBtn.click();
+        }
+    }
+    // 'later'の場合は何もしない（通知を閉じるだけ）
+}
+
+
+// 開発環境用：テスト用アップデート通知（デバッグ用）
+// コンソールで testUpdateNotification() を実行してテスト可能
+window.testUpdateNotification = function() {
+    console.log('Testing update notification...');
+    showUpdateNotification({
+        version: '1.4.0',
+        releaseNotes: 'テスト用のアップデート通知です。'
+    });
+};
+
+console.log('Update notification system loaded. Use testUpdateNotification() to test in development.');

@@ -20,10 +20,8 @@ const { autoUpdater } = require('electron-updater');
 if (process.env.NODE_ENV === 'development') {
   autoUpdater.updateConfigPath = null;
   autoUpdater.checkForUpdatesAndNotify = () => Promise.resolve();
-} else {
-  // プロダクション環境でのみ自動アップデートを有効化
-  autoUpdater.checkForUpdatesAndNotify();
 }
+// プロダクション環境では手動でアップデートチェックを制御
 
 // 設定ストア（後方互換性のため保持）
 const store = new Store();
@@ -189,6 +187,63 @@ async function startEmbeddedServer() {
   }
 }
 
+// バックグラウンドアップデートチェック
+async function startBackgroundUpdateCheck() {
+  try {
+    console.log('Starting background update check...');
+    
+    // 開発環境でもGitHub APIを使用してチェック
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Development mode: using GitHub API for update check');
+    }
+    
+    // 通常のアップデートチェック処理と同じロジックを使用
+    try {
+      // プロダクション環境のみ通常のアップデートチェックを試行
+      if (process.env.NODE_ENV !== 'development') {
+        const result = await autoUpdater.checkForUpdates();
+        console.log('Background auto-updater result:', result);
+      } else {
+        throw new Error('Development mode - skip auto-updater');
+      }
+    } catch (autoUpdaterError) {
+      console.log('Auto-updater failed or skipped, trying manual check:', autoUpdaterError.message);
+      
+      // フォールバック: GitHub APIで手動チェック
+      try {
+        const latestRelease = await checkLatestReleaseManually();
+        const currentVersion = app.getVersion();
+        
+        if (latestRelease) {
+          const versionComparison = compareVersions(currentVersion, latestRelease.version);
+          
+          if (versionComparison < 0) {
+            // 現在のバージョンが古い - アップデート利用可能
+            console.log('Background check: Update available', latestRelease.version);
+            
+            // メインウィンドウにアップデート利用可能を通知（バックグラウンドチェックフラグ付き）
+            if (mainWindow) {
+              mainWindow.webContents.send('update-available', {
+                version: latestRelease.version,
+                releaseNotes: latestRelease.releaseNotes || 'リリースノートを確認してください。',
+                downloadUrl: latestRelease.downloadUrl,
+                currentVersion: currentVersion,
+                isBackgroundCheck: true // バックグラウンドチェックであることを示すフラグ
+              });
+            }
+          } else {
+            console.log('Background check: Already up to date');
+          }
+        }
+      } catch (fallbackError) {
+        console.error('Background manual check also failed:', fallbackError);
+      }
+    }
+  } catch (error) {
+    console.error('Background update check failed:', error);
+  }
+}
+
 // 内蔵サーバーを停止
 async function stopEmbeddedServer() {
   try {
@@ -266,6 +321,11 @@ app.whenReady().then(async () => {
     // サーバー起動を待ってからウィンドウを作成
     setTimeout(() => {
       createWindow();
+      
+      // ウィンドウ作成後、バックグラウンドでアップデートチェックを開始
+      setTimeout(() => {
+        startBackgroundUpdateCheck();
+      }, 3000); // ウィンドウが完全に読み込まれた後に実行
     }, 1500);
   } catch (error) {
     console.error('Failed to initialize app:', error);
