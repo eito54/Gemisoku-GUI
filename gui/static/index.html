@@ -81,6 +81,40 @@
             text-shadow: 0 0 8px var(--score-effect-color-rgba, rgba(34, 197, 94, 0.8));
         }
 
+        /* カウントアップアニメーション中のスコア表示強調 */
+        .score-counting-up {
+            position: relative;
+        }
+
+        .score-counting-up::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 6px;
+            background: linear-gradient(45deg, var(--score-effect-color, #22c55e), transparent, var(--score-effect-color, #22c55e));
+            z-index: -1;
+            opacity: 0.3;
+            animation: countUpPulse 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes countUpPulse {
+            0% {
+                opacity: 0.2;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0.4;
+                transform: scale(1.02);
+            }
+        }
+
+        /* スコア数値のカウントアップ中のフォント強調 */
+        .counting-text {
+            font-weight: 700;
+            text-shadow: 0 0 4px var(--score-effect-color-rgba, rgba(34, 197, 94, 0.6));
+            transition: all 0.1s ease;
+        }
+
         .animated-parallelogram-border::before {
             content: '';
             position: absolute;
@@ -437,12 +471,76 @@
                     container.classList.remove('overlay-fade-out');
                 }
                 
+                // 順位変動がある場合は、レンダリング前にカウントアップ用の前回スコアを保存
+                const preAnimationScores = new Map();
+                if (hasRankingChanged) {
+                    scores.forEach(team => {
+                        const prevScore = previousScores.get(team.team);
+                        if (prevScore !== undefined) {
+                            preAnimationScores.set(team.team, prevScore);
+                        }
+                    });
+                }
+                
+                // カウントアップが必要かどうかを判定
+                const needsCountUp = scores.some(team => {
+                    const prevScore = previousScores.get(team.team);
+                    return prevScore !== undefined && prevScore !== (team.score || 0);
+                });
+                
                 // 順位変動アニメーションの準備
                 if (hasRankingChanged) {
                     await animateRankingChange(currentTeamOrder, scores, container);
                 } else {
-                    // 通常の更新
-                    renderScoreList(scores, container);
+                    // 通常の更新（カウントアップが必要な場合は前回の値で表示）
+                    renderScoreList(scores, container, needsCountUp);
+                }
+                
+                // 順位変動後にカウントアップアニメーションを実行
+                if (hasRankingChanged && preAnimationScores.size > 0) {
+                    const countUpPromises = [];
+                    const rankingTeamsToAnimate = [];
+                    
+                    scores.forEach(team => {
+                        const prevScore = preAnimationScores.get(team.team);
+                        const currentScore = team.score || 0;
+                        
+                        if (prevScore !== undefined && prevScore !== currentScore) {
+                            rankingTeamsToAnimate.push({
+                                team: team.team,
+                                prevScore: prevScore,
+                                currentScore: currentScore,
+                                addedScore: team.addedScore
+                            });
+                        }
+                    });
+                    
+                    // カウントアップアニメーションを実行
+                    rankingTeamsToAnimate.forEach(teamData => {
+                        const scoreElement = document.querySelector(`[data-team="${teamData.team}"]`);
+                        if (scoreElement) {
+                            // フラッシュエフェクト
+                            if (teamData.addedScore > 0) {
+                                scoreElement.classList.add('score-flash-active');
+                                setTimeout(() => {
+                                    scoreElement.classList.remove('score-flash-active');
+                                }, 1200);
+                            }
+                            
+                            // カウントアップアニメーション
+                            const countUpPromise = animateCountUp(scoreElement, teamData.prevScore, teamData.currentScore, 1000);
+                            countUpPromises.push(countUpPromise);
+                        }
+                    });
+                    
+                    // すべてのカウントアップアニメーションを並行実行
+                    if (countUpPromises.length > 0) {
+                        Promise.all(countUpPromises).then(() => {
+                            console.log('All ranking change count-up animations completed');
+                        }).catch(error => {
+                            console.error('Ranking change count-up animation error:', error);
+                        });
+                    }
                 }
                 
                 // フェードイン（初回または合計点計測時）
@@ -467,8 +565,8 @@
             }
         }
 
-        // スコアリストをレンダリングする関数
-        function renderScoreList(scores, container) {
+        // スコアリストをレンダリングする関数（カウントアップ対応版）
+        function renderScoreList(scores, container, useCountUp = false) {
             container.innerHTML = `
                 <div class="space-y-0 w-full max-w-md mx-auto relative">
                     <!-- 残りレース数表示（1位チームの左側に独立配置） -->
@@ -479,6 +577,15 @@
                     ${scores.map((team, index) => {
                         const isTeamSelected = selectedTeamInfo && selectedTeamInfo.name === team.team;
                         const myTeam = selectedTeamInfo ? scores.find(s => s.team === selectedTeamInfo.name) : undefined;
+                        
+                        // カウントアップが必要な場合は前回の値を使用
+                        let displayScore = team.score || 0;
+                        if (useCountUp && previousScores.has(team.team)) {
+                            const prevScore = previousScores.get(team.team);
+                            if (prevScore !== displayScore) {
+                                displayScore = prevScore; // カウントアップ前は前回の値を表示
+                            }
+                        }
                         
                         // 差分計算
                         let diffDisplay = '';
@@ -532,7 +639,7 @@
                                     <div class="relative w-16 h-7 score-box ${isTeamSelected ? 'animated-parallelogram-border' : 'static-parallelogram-border'} overflow-visible" data-team="${escapeHtml(team.team)}">
                                         <div class="relative z-20 w-full h-full flex items-center justify-center">
                                             <span class="text-base text-center font-medium text-white">
-                                                ${team.score || 0}
+                                                ${displayScore}
                                             </span>
                                             <!-- 加算点数表示（スコア枠内の右側） -->
                                             ${team.addedScore && team.addedScore > 0 ? `
@@ -556,7 +663,7 @@
             `;
         }
 
-        // 順位変動アニメーション
+        // 順位変動アニメーション（カウントアップと並行実行対応）
         async function animateRankingChange(newOrder, scores, container) {
             const currentElements = container.querySelectorAll('[data-team-row]');
             const elementMap = new Map();
@@ -603,8 +710,12 @@
                 await Promise.all(animations);
             }
             
-            // アニメーション完了後に新しい内容を描画
-            renderScoreList(scores, container);
+            // アニメーション完了後に新しい内容を描画（カウントアップ対応）
+            const needsCountUp = scores.some(team => {
+                const prevScore = previousScores.get(team.team);
+                return prevScore !== undefined && prevScore !== (team.score || 0);
+            });
+            renderScoreList(scores, container, needsCountUp);
         }
 
         // HTMLエスケープ関数
@@ -621,6 +732,77 @@
 
         let previousScores = new Map(); // 前回のスコアを保存
         let isFirstLoad = true; // 初回読み込みフラグ
+        let countUpAnimations = new Map(); // 進行中のカウントアップアニメーションを管理
+
+        // カウントアップアニメーション関数
+        function animateCountUp(element, startValue, endValue, duration = 1000) {
+            return new Promise((resolve) => {
+                const teamName = element.getAttribute('data-team');
+                
+                // 既存のアニメーションがあれば停止
+                if (countUpAnimations.has(teamName)) {
+                    clearInterval(countUpAnimations.get(teamName));
+                }
+                
+                const startTime = Date.now();
+                const difference = endValue - startValue;
+                
+                // スコア要素内のテキスト要素を取得
+                const scoreTextElement = element.querySelector('span');
+                if (!scoreTextElement) {
+                    resolve();
+                    return;
+                }
+                
+                // カウントアップ中の視覚効果を追加
+                element.classList.add('score-counting-up');
+                scoreTextElement.classList.add('counting-text');
+                
+                const updateScore = () => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    
+                    // イージング関数（accelerated deceleration）
+                    const easeOutQuad = 1 - Math.pow(1 - progress, 2);
+                    const currentValue = Math.floor(startValue + (difference * easeOutQuad));
+                    
+                    // スコア要素内のテキストを更新
+                    scoreTextElement.textContent = currentValue;
+                    
+                    if (progress >= 1) {
+                        // アニメーション完了
+                        scoreTextElement.textContent = endValue;
+                        
+                        // 視覚効果を削除
+                        element.classList.remove('score-counting-up');
+                        scoreTextElement.classList.remove('counting-text');
+                        
+                        countUpAnimations.delete(teamName);
+                        console.log(`Count-up animation completed for ${teamName}: ${startValue} → ${endValue}`);
+                        resolve();
+                    }
+                };
+                
+                // アニメーションを開始
+                const intervalId = setInterval(updateScore, 16); // 約60fps
+                countUpAnimations.set(teamName, intervalId);
+                
+                // 完了時の処理（フェイルセーフ）
+                setTimeout(() => {
+                    clearInterval(intervalId);
+                    countUpAnimations.delete(teamName);
+                    
+                    // 最終値を設定
+                    scoreTextElement.textContent = endValue;
+                    
+                    // 視覚効果を削除
+                    element.classList.remove('score-counting-up');
+                    scoreTextElement.classList.remove('counting-text');
+                    
+                    resolve();
+                }, duration + 100); // 少し余裕を持たせる
+            });
+        }
 
         // 新しいupdateScores関数にスコア変更アニメーション機能を統合
         const baseUpdateScores = updateScores;
@@ -641,22 +823,57 @@
                         // 残りレース数を更新（設定に基づいて制御）
                         updateRemainingRaces(remainingRaces, showRemainingRaces);
                         
-                        // スコア変更アニメーション
+                        // スコア変更とカウントアップアニメーション
+                        const countUpPromises = [];
+                        const teamsToAnimate = [];
+                        
                         scores.forEach(team => {
                             const prevScore = previousScores.get(team.team);
-                            if (prevScore !== undefined && prevScore !== team.score && team.addedScore > 0) {
+                            const currentScore = team.score || 0;
+                            
+                            if (prevScore !== undefined && prevScore !== currentScore) {
                                 hasScoreUpdate = true;
-                                
-                                const scoreElement = document.querySelector(`[data-team="${team.team}"]`);
-                                if (scoreElement) {
+                                teamsToAnimate.push({
+                                    team: team.team,
+                                    prevScore: prevScore,
+                                    currentScore: currentScore,
+                                    addedScore: team.addedScore
+                                });
+                            }
+                        });
+                        
+                        // カウントアップアニメーションを実行
+                        teamsToAnimate.forEach(teamData => {
+                            const scoreElement = document.querySelector(`[data-team="${teamData.team}"]`);
+                            if (scoreElement) {
+                                // フラッシュエフェクト
+                                if (teamData.addedScore > 0) {
                                     scoreElement.classList.add('score-flash-active');
                                     setTimeout(() => {
                                         scoreElement.classList.remove('score-flash-active');
                                     }, 1200);
                                 }
+                                
+                                // カウントアップアニメーション
+                                const countUpPromise = animateCountUp(scoreElement, teamData.prevScore, teamData.currentScore, 1000);
+                                countUpPromises.push(countUpPromise);
                             }
-                            previousScores.set(team.team, team.score);
                         });
+                        
+                        // previousScoresを更新
+                        scores.forEach(team => {
+                            previousScores.set(team.team, team.score || 0);
+                        });
+                        
+                        // 順位変動がある場合は、カウントアップと並行してアニメーションを実行
+                        if (countUpPromises.length > 0) {
+                            // カウントアップアニメーションを並行実行（順位変動アニメーションとは独立）
+                            Promise.all(countUpPromises).then(() => {
+                                console.log('All count-up animations completed');
+                            }).catch(error => {
+                                console.error('Count-up animation error:', error);
+                            });
+                        }
                         
                         // 加算得点アニメーション制御（DOM更新後）
                         setTimeout(() => {
