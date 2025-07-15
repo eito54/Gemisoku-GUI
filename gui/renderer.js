@@ -84,6 +84,7 @@ const fetchRaceBtn = document.getElementById('fetchRaceBtn');
 const fetchOverallBtn = document.getElementById('fetchOverallBtn');
 const openOverlayBtn = document.getElementById('openOverlayBtn');
 const editScoresBtn = document.getElementById('editScoresBtn');
+const showLastScreenshotBtn = document.getElementById('showLastScreenshotBtn');
 const testConnectionBtn = document.getElementById('testConnectionBtn');
 const checkUpdatesBtn = document.getElementById('checkUpdatesBtn');
 const reopenManagerBtn = document.getElementById('reopenManagerBtn');
@@ -278,6 +279,27 @@ editScoresBtn.addEventListener('click', async () => {
         showStatus(operationStatus, 'success', '得点編集ウィンドウを開きました');
     } catch (error) {
         showStatus(operationStatus, 'error', '得点編集ウィンドウの表示に失敗しました: ' + error.message);
+    }
+});
+
+// 最新のスクリーンショットを表示
+showLastScreenshotBtn.addEventListener('click', async () => {
+    try {
+        const screenshot = await window.electronAPI.getLastScreenshot();
+        if (screenshot) {
+            const modal = createModal({
+                title: '最新のスクリーンショット',
+                content: `<img src="${screenshot}" style="max-width: 100%; border-radius: 8px;">`
+            });
+            // モーダルのサイズを調整
+            const modalContent = modal.querySelector('.modal-content');
+            modalContent.style.maxWidth = '80vw';
+            modalContent.style.width = 'auto';
+        } else {
+            showStatus(operationStatus, 'info', '表示できるスクリーンショットがありません。先にレース結果を取得してください。');
+        }
+    } catch (error) {
+        showStatus(operationStatus, 'error', 'スクリーンショットの表示に失敗しました: ' + error.message);
     }
 });
 
@@ -990,19 +1012,24 @@ function createModal({ title, content }) {
             </div>
         </div>
     `;
-    
+
+    const closeModal = () => {
+        modal.classList.add('closing');
+        setTimeout(() => {
+            modal.remove();
+        }, 300); // アニメーションの時間と合わせる
+    };
+
     // 閉じるボタンのイベント
-    modal.querySelector('.modal-close').addEventListener('click', () => {
-        modal.remove();
-    });
-    
+    modal.querySelector('.modal-close').addEventListener('click', closeModal);
+
     // 背景クリックで閉じる
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
-            modal.remove();
+            closeModal();
         }
     });
-    
+
     document.body.appendChild(modal);
     return modal;
 }

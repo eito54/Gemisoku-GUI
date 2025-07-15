@@ -535,6 +535,30 @@
             }
         }
 
+        .modal-overlay.closing {
+            animation: fadeOut 0.3s ease forwards;
+        }
+
+        .modal-overlay.closing .modal-content {
+            animation: slideDown 0.3s ease forwards;
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+        }
+
         .modal-header {
             padding: 24px 24px 0 24px;
             display: flex;
@@ -789,6 +813,9 @@
                 </button>
                 <button id="editScoresBtn" class="button secondary" data-i18n="operations.editScores">
                     ⚙️ 得点編集
+                </button>
+                <button id="showLastScreenshotBtn" class="button">
+                    🖼️ 最新の画像を表示
                 </button>
                 <button id="resetScoresBtn" class="button danger" data-i18n="operations.resetScores">
                     🗑️ スコアをリセット

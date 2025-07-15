@@ -20,6 +20,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   
   // リオープン管理ウィンドウを開く
   openReopenManager: () => ipcRenderer.invoke('open-reopen-manager'),
+
+  // スクリーンショット取得
+  getLastScreenshot: () => ipcRenderer.invoke('get-last-screenshot'),
   
   // スコア取得・保存
   getScores: () => ipcRenderer.invoke('get-scores'),

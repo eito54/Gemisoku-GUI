@@ -34,6 +34,7 @@ let mainWindow;
 let editWindow;
 let reopenManagerWindow;
 let serverPort = 3001;
+let lastScreenshot = null; // 直近のスクリーンショットを保持する変数
 
 // 自動アップデート設定
 autoUpdater.logger = console;
@@ -605,6 +606,7 @@ ipcMain.handle('fetch-race-results', async () => {
     if (!obsData.success) {
       throw new Error(obsData.error || 'OBSエラー');
     }
+    lastScreenshot = obsData.screenshot; // スクリーンショットを保存
     
     // レース結果分析を実行（IPv4で接続）
     const result = await makeHttpRequest(`http://127.0.0.1:${serverPort}/api/fetch-race-results?useTotalScore=false`, {
@@ -643,6 +645,7 @@ ipcMain.handle('fetch-overall-scores', async () => {
     if (!obsData.success) {
       throw new Error(obsData.error || 'OBSエラー');
     }
+    lastScreenshot = obsData.screenshot; // スクリーンショットを保存
     
     // 総合スコア分析を実行（IPv4で接続）
     const result = await makeHttpRequest(`http://127.0.0.1:${serverPort}/api/fetch-race-results?useTotalScore=true`, {
@@ -665,6 +668,10 @@ ipcMain.handle('fetch-overall-scores', async () => {
   } catch (error) {
     return { success: false, error: error.message };
   }
+});
+
+ipcMain.handle('get-last-screenshot', () => {
+  return lastScreenshot;
 });
 
 ipcMain.handle('open-overlay', async () => {
@@ -1288,24 +1295,21 @@ async function saveScores(teamScores, isOverallUpdate = false) {
 function makeHttpRequest(url, options = {}) {
   return new Promise((resolve, reject) => {
     const urlObj = new URL(url);
-    const isHttps = urlObj.protocol === 'https:';
-    const httpModule = isHttps ? https : http;
-    
+    const httpModule = urlObj.protocol === 'https:' ? https : http;
+
     const requestOptions = {
       hostname: urlObj.hostname,
-      port: urlObj.port || (isHttps ? 443 : 80),
+      port: urlObj.port || (urlObj.protocol === 'https:' ? 443 : 80),
       path: urlObj.pathname + urlObj.search,
       method: options.method || 'GET',
       headers: options.headers || {}
     };
-    
+
     const req = httpModule.request(requestOptions, (res) => {
       let data = '';
-      
       res.on('data', (chunk) => {
         data += chunk;
       });
-      
       res.on('end', () => {
         try {
           const result = JSON.parse(data);
@@ -1315,15 +1319,14 @@ function makeHttpRequest(url, options = {}) {
         }
       });
     });
-    
+
     req.on('error', (error) => {
       reject(error);
     });
-    
+
     if (options.body) {
       req.write(options.body);
     }
-    
     req.end();
   });
 }
