@@ -179,10 +179,15 @@ export class EmbeddedServer {
         }
 
         const config = this.configManager.getConfig()
-        const totalScores = scores.reduce((sum: number, team: any) => sum + (team.score || 0), 0)
-        const remainingRaces = Math.max(0, Math.floor(
-          (POINTS_PER_RACE * MAX_RACES - totalScores) / POINTS_PER_RACE
-        ))
+
+        // 残りレース数の計算式は12人×固定配点前提のため、スタンド読取モードでは無意味
+        let remainingRaces: number | null = null
+        if (config.analysisMode !== 'standings24') {
+          const totalScores = scores.reduce((sum: number, team: any) => sum + (team.score || 0), 0)
+          remainingRaces = Math.max(0, Math.floor(
+            (POINTS_PER_RACE * MAX_RACES - totalScores) / POINTS_PER_RACE
+          ))
+        }
 
         res.json({
           scores,
