@@ -901,6 +901,7 @@ function App(): JSX.Element {
     if (hasField('aiProvider')) newConfig.aiProvider = formData.get('aiProvider') as any
     if (hasField('openaiApiKey')) newConfig.openaiApiKey = formData.get('openaiApiKey') as string
     if (hasField('groqApiKey')) newConfig.groqApiKey = formData.get('groqApiKey') as string
+    if (hasField('analysisMode')) newConfig.analysisMode = formData.get('analysisMode') as 'standard12' | 'standings24'
 
     if (hasField('showRemainingRaces')) {
       newConfig.showRemainingRaces = formData.get('showRemainingRaces') === 'on'
@@ -2813,6 +2814,49 @@ function App(): JSX.Element {
                         </h3>
 
                         <input type="hidden" name="aiProvider" value="groq" />
+
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-slate-400">{t('config.analysisModeLabel')}</label>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <label className={cn(
+                              "flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all",
+                              config?.analysisMode !== 'standings24'
+                                ? "bg-blue-600/10 border-blue-500/50"
+                                : "bg-slate-900/50 border-slate-700 hover:border-slate-600"
+                            )}>
+                              <input
+                                type="radio"
+                                name="analysisMode"
+                                value="standard12"
+                                defaultChecked={config?.analysisMode !== 'standings24'}
+                                className="mt-1 accent-blue-500"
+                              />
+                              <span>
+                                <span className="block text-sm font-bold text-white">{t('config.analysisModeStandard')}</span>
+                                <span className="block text-xs text-slate-500 mt-1">{t('config.analysisModeStandardHelp')}</span>
+                              </span>
+                            </label>
+                            <label className={cn(
+                              "flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all",
+                              config?.analysisMode === 'standings24'
+                                ? "bg-green-600/10 border-green-500/50"
+                                : "bg-slate-900/50 border-slate-700 hover:border-slate-600"
+                            )}>
+                              <input
+                                type="radio"
+                                name="analysisMode"
+                                value="standings24"
+                                defaultChecked={config?.analysisMode === 'standings24'}
+                                className="mt-1 accent-green-500"
+                              />
+                              <span>
+                                <span className="block text-sm font-bold text-white">{t('config.analysisModeStandings')}</span>
+                                <span className="block text-xs text-slate-500 mt-1">{t('config.analysisModeStandingsHelp')}</span>
+                              </span>
+                            </label>
+                          </div>
+                          <p className="text-xs text-slate-500">{t('config.analysisModeHelp')}</p>
+                        </div>
 
                         <div className="space-y-4">
                           <div className="space-y-2">

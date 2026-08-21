@@ -36,6 +36,12 @@
     "modelsError": "Failed to fetch model list",
     "modelsEmpty": "No models found",
     "modelsHint": "* Vision support is estimated from model IDs. Check Groq's documentation for the latest availability.",
+    "analysisModeLabel": "Analysis Mode",
+    "analysisModeStandard": "Standard (12-player race results)",
+    "analysisModeStandardHelp": "Calculates points from the rank on the results screen and adds them",
+    "analysisModeStandings": "24-player standings (left-half crop)",
+    "analysisModeStandingsHelp": "Reads cumulative scores directly from the pre-race standings screen",
+    "analysisModeHelp": "* Standings mode analyzes only the left half of the capture and overwrites current scores with the read values. Make sure the correct screen is being captured.",
     "saveButton": "Save Settings",
     "validationError": "OBS settings and Groq API key are required"
   },
