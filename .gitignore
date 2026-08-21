@@ -54,3 +54,6 @@ release/
 # GUI specific
 gui/scores.json
 gui/config.json
+
+# Tool artifacts
+.gstack/
