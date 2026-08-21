@@ -43,6 +43,7 @@
     "title": "Operations",
     "fetchRace": "Fetch Race Results(F1)",
     "fetchOverall": "Get Team Total Score(F2)",
+    "fetchStandings": "Fetch 24-player standings",
     "openOverlay": "🖥️ Open Overlay",
     "editScores": "⚙️ Edit Scores",
     "resetScores": "🗑️ Reset Scores",

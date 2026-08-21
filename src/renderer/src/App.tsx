@@ -453,12 +453,15 @@ function App(): JSX.Element {
     if (status === 'loading') return
     if (!window.electron || !window.electron.ipcRenderer) return
 
+    const isStandingsMode = config?.analysisMode === 'standings24'
+    const effectiveTotal = useTotalScore || isStandingsMode
+
     setStatus('loading')
-    addLog(useTotalScore ? 'チーム合計点を取得中...' : 'レース結果を取得中...', 'info')
+    addLog(isStandingsMode ? '24人スタンドを読み込み中...' : effectiveTotal ? 'チーム合計点を取得中...' : 'レース結果を取得中...', 'info')
 
     try {
       // チーム合計点を取得（useTotalScore）時は、解析前にプレイヤーマッピングをリセット
-      if (useTotalScore) {
+      if (effectiveTotal) {
         await fetch(`http://localhost:${serverPort}/api/player-mapping`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -468,7 +471,7 @@ function App(): JSX.Element {
       }
 
       // @ts-ignore
-      const result = await window.electron.ipcRenderer.invoke('fetch-race-results', useTotalScore)
+      const result = await window.electron.ipcRenderer.invoke('fetch-race-results', effectiveTotal)
 
       if (result.success) {
         setStatus('success')
@@ -523,7 +526,7 @@ function App(): JSX.Element {
 
         let finalScores: any[] = []
 
-        if (useTotalScore) {
+        if (effectiveTotal) {
           // 総合スコアの場合は、既存スコアを無視して新規作成（リセットして上書き）
           const tempMap: Record<string, any> = {}
           raceResults.forEach((res: any) => {
@@ -602,7 +605,7 @@ function App(): JSX.Element {
       setStatus('error')
       addLog(`通信エラー: ${error.message}`, 'error')
     }
-  }, [status, scores, addLog, serverPort, loadScores, loadPlayerMappings, manualCurrentTeam])
+  }, [status, scores, addLog, serverPort, loadScores, loadPlayerMappings, manualCurrentTeam, config])
 
   // Ref for handlers used in Electron listeners to avoid stale closures
   const handleFetchResultsRef = React.useRef(handleFetchResults)
@@ -1804,16 +1807,18 @@ function App(): JSX.Element {
                         className="glass-btn-primary flex items-center gap-2"
                       >
                         {status === 'loading' ? <RefreshCw className="animate-spin" size={20} /> : <Play size={20} />}
-                        {t('operations.fetchRace')}
+                        {config?.analysisMode === 'standings24' ? t('operations.fetchStandings') : t('operations.fetchRace')}
                       </button>
-                      <button
-                        onClick={() => handleFetchResults(true)}
-                        disabled={status === 'loading'}
-                        className="glass-btn bg-purple-600/20 hover:bg-purple-600/30 border-purple-500/30 text-purple-200 hover:text-purple-100 flex items-center gap-2 shadow-[0_0_15px_rgba(147,51,234,0.1)] hover:shadow-[0_0_20px_rgba(147,51,234,0.2)]"
-                      >
-                        <History size={20} />
-                        {t('operations.fetchOverall')}
-                      </button>
+                      {config?.analysisMode !== 'standings24' && (
+                        <button
+                          onClick={() => handleFetchResults(true)}
+                          disabled={status === 'loading'}
+                          className="glass-btn bg-purple-600/20 hover:bg-purple-600/30 border-purple-500/30 text-purple-200 hover:text-purple-100 flex items-center gap-2 shadow-[0_0_15px_rgba(147,51,234,0.1)] hover:shadow-[0_0_20px_rgba(147,51,234,0.2)]"
+                        >
+                          <History size={20} />
+                          {t('operations.fetchOverall')}
+                        </button>
+                      )}
                       <button
                         onClick={handleOpenOverlay}
                         className="glass-btn flex items-center gap-2"
