@@ -588,7 +588,7 @@ function App(): JSX.Element {
           })
         }
 
-        await fetch(`http://localhost:${serverPort}/api/scores?isOverallUpdate=${useTotalScore}`, {
+        await fetch(`http://localhost:${serverPort}/api/scores?isOverallUpdate=${effectiveTotal}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(finalScores)
