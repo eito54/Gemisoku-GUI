@@ -59,7 +59,7 @@ export function registerIpcHandlers(
         ? info.releaseNotes.map(n => typeof n === 'string' ? n : n.note).join('\n')
         : (typeof info.releaseNotes === 'string' ? info.releaseNotes : '')
 
-      configManager.saveConfig(config)
+      configManager.saveConfig(config).catch((e) => console.error('Failed to save release notes:', e))
       mainWindow.webContents.send('update-downloaded', info)
     }
   })
@@ -107,6 +107,10 @@ export function registerIpcHandlers(
   })
 
   ipcMain.handle('open-external', async (_event, url) => {
+    // http/httpsのみ許可（file:// やカスタムプロトコル経由の任意実行を防ぐ）
+    if (typeof url !== 'string' || !/^https?:\/\//i.test(url)) {
+      return { success: false, error: `Blocked non-http(s) URL: ${String(url)}` }
+    }
     await shell.openExternal(url)
     return { success: true }
   })
@@ -184,7 +188,7 @@ export function registerIpcHandlers(
     config.lastSeenVersion = app.getVersion()
     // リリースノートをクリア（表示済みのため）
     config.lastReleaseNotes = ''
-    await configManager.saveConfig(config)
+    await configManager.saveConfig(config).catch((e) => console.error('Failed to mark whats-new seen:', e))
     return { success: true }
   })
 
@@ -195,6 +199,15 @@ export function registerIpcHandlers(
       return result
     } catch (error: any) {
       console.error('Fetch Race Results Error:', error)
+      return { success: false, error: error.message }
+    }
+  })
+
+  // Groqで利用可能なモデル一覧（画像認識対応可否つき）
+  ipcMain.handle('groq-list-models', async () => {
+    try {
+      return await apiManager.listGroqModels()
+    } catch (error: any) {
       return { success: false, error: error.message }
     }
   })

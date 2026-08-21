@@ -2,6 +2,8 @@ import http from 'http'
 import https from 'https'
 import { URL } from 'url'
 
+const DEFAULT_TIMEOUT_MS = 10000
+
 export function makeHttpRequest(url: string, options: any = {}): Promise<any> {
   return new Promise((resolve, reject) => {
     const urlObj = new URL(url)
@@ -22,12 +24,15 @@ export function makeHttpRequest(url: string, options: any = {}): Promise<any> {
       })
       res.on('end', () => {
         try {
-          const result = JSON.parse(data)
-          resolve(result)
-        } catch (error) {
-          resolve({ success: false, error: `Invalid JSON response: ${data}` })
+          resolve(JSON.parse(data))
+        } catch {
+          reject(new Error(`Invalid JSON response from ${url}: ${data.slice(0, 200)}`))
         }
       })
+    })
+
+    req.setTimeout(options.timeoutMs ?? DEFAULT_TIMEOUT_MS, () => {
+      req.destroy(new Error(`Request timed out: ${url}`))
     })
 
     req.on('error', (error) => {
@@ -42,16 +47,15 @@ export function makeHttpRequest(url: string, options: any = {}): Promise<any> {
 }
 
 export function compareVersions(version1: string, version2: string): number {
-  console.log(`Comparing versions: "${version1}" vs "${version2}"`)
   const cleanV1 = (version1 || '').replace(/^v/, '')
   const cleanV2 = (version2 || '').replace(/^v/, '')
   const v1parts = cleanV1.split('.').map(v => parseInt(v, 10))
   const v2parts = cleanV2.split('.').map(v => parseInt(v, 10))
-  
+
   const maxLength = Math.max(v1parts.length, v2parts.length)
   while (v1parts.length < maxLength) v1parts.push(0)
   while (v2parts.length < maxLength) v2parts.push(0)
-  
+
   for (let i = 0; i < maxLength; i++) {
     const p1 = isNaN(v1parts[i]) ? 0 : v1parts[i]
     const p2 = isNaN(v2parts[i]) ? 0 : v2parts[i]

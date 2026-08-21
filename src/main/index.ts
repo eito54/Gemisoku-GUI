@@ -11,6 +11,29 @@ const embeddedServer = new EmbeddedServer(configManager)
 let mainWindow: BrowserWindow | null = null
 let serverPort = 3001
 
+const MAX_PORT_ATTEMPTS = 10
+
+/** ポートが使用中なら +1 ずつ最大10ポート試す。成功したポートは serverPort に反映される */
+async function startServerWithFallback(startPort: number): Promise<void> {
+  let lastError: unknown = null
+  for (let attempt = 0; attempt < MAX_PORT_ATTEMPTS; attempt++) {
+    const port = startPort + attempt
+    try {
+      await embeddedServer.start(port)
+      serverPort = port
+      return
+    } catch (error: any) {
+      lastError = error
+      if (typeof error?.message === 'string' && error.message.includes('already in use')) {
+        console.warn(`[Main] Port ${port} in use, trying next...`)
+        continue
+      }
+      throw error
+    }
+  }
+  throw lastError ?? new Error('No available port')
+}
+
 function createWindow(): void {
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -22,7 +45,7 @@ function createWindow(): void {
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      sandbox: true
     }
   })
 
@@ -69,9 +92,9 @@ app.whenReady().then(async () => {
   // Load config
   await configManager.loadConfig()
 
-  // Start server
+  // Start server (ポートが使用中の場合は代替ポートを探す)
   try {
-    await embeddedServer.start(serverPort)
+    await startServerWithFallback(serverPort)
     console.log(`[Main] Embedded server started on port ${serverPort}`)
   } catch (error) {
     console.error(`[Main] Failed to start embedded server:`, error)

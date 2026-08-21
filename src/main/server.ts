@@ -1,22 +1,43 @@
 import express, { Request, Response, NextFunction } from 'express'
 import path from 'path'
 import http from 'http'
-import { Server } from 'http'
+import fsp from 'fs/promises'
 import fs from 'fs'
 import { app } from 'electron'
-import { ConfigManager } from './config-manager'
+import { ConfigManager, Config } from './config-manager'
 import os from 'os'
 
+/** MK8DX 1レースの合計配点 (15+12+10+9+8+7+6+5+4+3+2+1) */
+export const POINTS_PER_RACE = 82
+/** 1バトルの最大レース数 */
+export const MAX_RACES = 12
+
+/**
+ * オーバーレイに公開してよい設定のみを抽出する。
+ * APIキーやOBSパスワードなどのシークレットは絶対に含めない。
+ */
+function sanitizeConfigForOverlay(config: Config) {
+  return {
+    overlayTheme: config.overlayTheme,
+    overlayColors: config.overlayColors,
+    overlayAnimations: config.overlayAnimations,
+    showRemainingRaces: config.showRemainingRaces
+  }
+}
+
+/** ブラウザからのアクセスを許可するオリジン（Electron本体とローカルページのみ） */
+const ALLOWED_ORIGIN_RE = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/
+
 export class EmbeddedServer {
-  private app: express.Application
-  private server: Server | null = null
+  private expressApp: express.Application
+  private server: http.Server | null = null
   private port: number = 3001
-  private sseClients: Map<any, any> = new Map()
+  private sseClients: Set<http.ServerResponse> = new Set()
   private sseCleanupInterval: NodeJS.Timeout | null = null
   private configManager: ConfigManager
 
   constructor(configManager: ConfigManager) {
-    this.app = express()
+    this.expressApp = express()
     this.configManager = configManager
     this.setupMiddleware()
     this.setupRoutes()
@@ -35,12 +56,23 @@ export class EmbeddedServer {
     return path.join(app.getPath('userData'), 'reopen-slots.json')
   }
 
-  private getOverlayColorsPath(): string {
-    return path.join(app.getPath('userData'), 'overlay-colors.json')
-  }
-
   private getPlayerScoresPath(): string {
     return path.join(app.getPath('userData'), 'player-scores.json')
+  }
+
+  /** JSONファイルを読む。存在しない/壊れている場合はnull */
+  private async readJson<T>(filePath: string): Promise<T | null> {
+    try {
+      return JSON.parse(await fsp.readFile(filePath, 'utf8')) as T
+    } catch {
+      return null
+    }
+  }
+
+  /** JSONファイルを書く（ディレクトリも自動作成） */
+  private async writeJson(filePath: string, data: unknown): Promise<void> {
+    await fsp.mkdir(path.dirname(filePath), { recursive: true })
+    await fsp.writeFile(filePath, JSON.stringify(data, null, 2))
   }
 
   private setupMiddleware(): void {
@@ -50,23 +82,32 @@ export class EmbeddedServer {
     const possibleStaticPaths = [
       path.join(app.getAppPath(), 'public'),
       path.join(process.cwd(), 'public'),
-      path.join(__dirname, '../../public'),
-      path.join(path.dirname(app.getPath('exe')), 'resources/app/public'),
-      path.join(path.dirname(app.getPath('exe')), 'resources/app.asar/public')
+      path.join(__dirname, '../../public')
     ]
 
-    let staticPath = possibleStaticPaths.find(p => fs.existsSync(p)) || possibleStaticPaths[0]
+    const staticPath = possibleStaticPaths.find(p => fs.existsSync(p)) || possibleStaticPaths[0]
 
     console.log(`[EmbeddedServer] Serving static files from: ${staticPath}`)
 
-    this.app.use(express.static(staticPath))
-    this.app.use(express.json({ limit: '50mb' }))
-    this.app.use(express.urlencoded({ extended: true, limit: '50mb' }))
+    this.expressApp.use(express.static(staticPath))
+    // スコアデータは小さいため十分な上限。巨大ボディでのDoSを避けるため50mbから引き下げ。
+    this.expressApp.use(express.json({ limit: '2mb' }))
 
-    this.app.use((_req: Request, res: Response, next: NextFunction) => {
-      res.header('Access-Control-Allow-Origin', '*')
-      res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization')
+    // オリジン制限付きCORS。
+    // サーバー自体がlocalhostバインドのため外部から到達できないが、
+    // 同一マシン上の悪意あるWebページがブラウザ経由でAPIを叩くのを防ぐ（ドラッグバイ防御）。
+    this.expressApp.use((req: Request, res: Response, next: NextFunction) => {
+      const origin = req.headers.origin
+      // Electron本体(file:// → "null")、同一オリジン(origin無し)、localhost系のみ許可
+      if (origin === undefined || origin === 'null' || ALLOWED_ORIGIN_RE.test(origin)) {
+        res.header('Access-Control-Allow-Origin', origin === undefined ? '*' : origin)
+        res.header('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
+        res.header('Access-Control-Allow-Headers', 'Content-Type')
+        if (req.method === 'OPTIONS') {
+          res.sendStatus(204)
+          return
+        }
+      }
       next()
     })
   }
@@ -75,54 +116,43 @@ export class EmbeddedServer {
     const serveOverlay = (req: Request, res: Response) => {
       const possiblePaths = [
         path.join(app.getAppPath(), 'public/overlay/index.html'),
-        path.join(app.getAppPath(), 'out/renderer/overlay/index.html'),
-        path.join(app.getAppPath(), 'overlay/index.html'),
         path.join(process.cwd(), 'public/overlay/index.html'),
-        path.join(process.cwd(), 'overlay/index.html'),
-        path.join(__dirname, '../../public/overlay/index.html'),
-        path.join(__dirname, '../renderer/overlay/index.html'),
-        // Additional paths for packaged app
-        path.join(path.dirname(app.getPath('exe')), 'resources/app/public/overlay/index.html'),
-        path.join(path.dirname(app.getPath('exe')), 'resources/app.asar/public/overlay/index.html')
+        path.join(__dirname, '../../public/overlay/index.html')
       ]
 
-      console.log(`[EmbeddedServer] Request for overlay: ${req.url}`)
-      const overlayPath = possiblePaths.find(p => {
-        const exists = fs.existsSync(p)
-        if (exists) console.log(`[EmbeddedServer] Found overlay at: ${p}`)
-        return exists
-      })
+      const overlayPath = possiblePaths.find(p => fs.existsSync(p))
 
       if (overlayPath) {
         res.sendFile(overlayPath)
       } else {
         console.error(`[EmbeddedServer] Overlay file not found. Tried:`, possiblePaths)
-        res.status(404).send(`Overlay file not found. Tried ${possiblePaths.length} paths. Check logs.`)
+        res.status(404).send(`Overlay file not found. Check logs.`)
       }
     }
 
-    this.app.get('/', serveOverlay)
-    this.app.get('/index.html', serveOverlay)
-    this.app.get('/static', serveOverlay)
-    this.app.get('/static/index.html', serveOverlay)
-    this.app.get('/overlay', serveOverlay)
-    this.app.get('/overlay/index.html', serveOverlay)
+    this.expressApp.get('/', serveOverlay)
+    this.expressApp.get('/index.html', serveOverlay)
+    this.expressApp.get('/static', serveOverlay)
+    this.expressApp.get('/static/index.html', serveOverlay)
+    this.expressApp.get('/overlay', serveOverlay)
+    this.expressApp.get('/overlay/index.html', serveOverlay)
 
     // SSE Endpoint
-    this.app.get('/api/scores/events', (req: Request, res: Response) => {
+    this.expressApp.get('/api/scores/events', (req: Request, res: Response) => {
       res.setHeader('Content-Type', 'text/event-stream')
       res.setHeader('Cache-Control', 'no-cache')
       res.setHeader('Connection', 'keep-alive')
       res.flushHeaders()
 
-      const clientInfo = { lastPing: Date.now() }
-      this.sseClients.set(res, clientInfo)
+      this.sseClients.add(res)
 
       // 接続直後に即座に現在のスコア状態を同期させるための通知を送る
       setTimeout(() => {
         try {
-          res.write(`data: ${JSON.stringify({ type: 'connected', timestamp: Date.now() })}\n\n`)
-        } catch (e) { }
+          if (!res.writableEnded) {
+            res.write(`data: ${JSON.stringify({ type: 'connected', timestamp: Date.now() })}\n\n`)
+          }
+        } catch { /* 接続切断済み */ }
       }, 100)
 
       req.on('close', () => {
@@ -131,31 +161,28 @@ export class EmbeddedServer {
     })
 
     // Scores API
-    this.app.get('/api/scores', (req: Request, res: Response) => {
+    this.expressApp.get('/api/scores', async (_req: Request, res: Response) => {
       try {
         const scoresPath = this.getScoresPath()
         const metaPath = path.join(path.dirname(scoresPath), 'scores-meta.json')
 
-        let scores = []
+        let scores: any[] = []
         let isOverallUpdate = false
 
-        if (fs.existsSync(scoresPath)) {
-          scores = JSON.parse(fs.readFileSync(scoresPath, 'utf8'))
-        }
+        const storedScores = await this.readJson<any[]>(scoresPath)
+        if (Array.isArray(storedScores)) scores = storedScores
 
-        if (fs.existsSync(metaPath)) {
-          try {
-            const meta = JSON.parse(fs.readFileSync(metaPath, 'utf8'))
-            isOverallUpdate = meta.isOverallUpdate || false
-            if (isOverallUpdate) {
-              fs.writeFileSync(metaPath, JSON.stringify({ isOverallUpdate: false }, null, 2))
-            }
-          } catch (e) { }
+        const meta = await this.readJson<{ isOverallUpdate?: boolean }>(metaPath)
+        if (meta?.isOverallUpdate) {
+          isOverallUpdate = true
+          await this.writeJson(metaPath, { isOverallUpdate: false })
         }
 
         const config = this.configManager.getConfig()
         const totalScores = scores.reduce((sum: number, team: any) => sum + (team.score || 0), 0)
-        const remainingRaces = Math.max(0, Math.floor((984 - totalScores) / 82))
+        const remainingRaces = Math.max(0, Math.floor(
+          (POINTS_PER_RACE * MAX_RACES - totalScores) / POINTS_PER_RACE
+        ))
 
         res.json({
           scores,
@@ -168,15 +195,17 @@ export class EmbeddedServer {
       }
     })
 
-    this.app.post('/api/scores', (req, res) => {
+    this.expressApp.post('/api/scores', async (req, res) => {
       try {
         const scoresPath = this.getScoresPath()
         const metaPath = path.join(path.dirname(scoresPath), 'scores-meta.json')
         const scores = req.body
         const isOverallUpdate = req.query.isOverallUpdate === 'true'
 
-        const scoreDir = path.dirname(scoresPath)
-        if (!fs.existsSync(scoreDir)) fs.mkdirSync(scoreDir, { recursive: true })
+        if (!Array.isArray(scores)) {
+          res.status(400).json({ success: false, error: 'scores must be an array' })
+          return
+        }
 
         // 自チーム（マイプレイヤー）の手動設定を記憶
         const currentPlayer = Array.isArray(scores) ? scores.find((s: any) => s.isCurrentPlayer) : null
@@ -184,13 +213,13 @@ export class EmbeddedServer {
           const name = currentPlayer.name || currentPlayer.team
           if (name) {
             const selfPath = path.join(app.getPath('userData'), 'self-player.json')
-            fs.writeFileSync(selfPath, JSON.stringify({ name, timestamp: new Date().toISOString() }))
+            await this.writeJson(selfPath, { name, timestamp: new Date().toISOString() })
           }
         }
 
-        fs.writeFileSync(scoresPath, JSON.stringify(scores, null, 2))
+        await this.writeJson(scoresPath, scores)
         if (isOverallUpdate) {
-          fs.writeFileSync(metaPath, JSON.stringify({ isOverallUpdate: true }, null, 2))
+          await this.writeJson(metaPath, { isOverallUpdate: true })
         }
 
         this.broadcastScoreUpdate()
@@ -200,18 +229,18 @@ export class EmbeddedServer {
       }
     })
 
-    this.app.post('/api/scores/reset', (_req, res) => {
+    this.expressApp.post('/api/scores/reset', async (_req, res) => {
       try {
         const scoresPath = this.getScoresPath()
         const mappingPath = this.getPlayerMappingPath()
         const playerScoresPath = this.getPlayerScoresPath()
 
-        if (fs.existsSync(scoresPath)) fs.writeFileSync(scoresPath, JSON.stringify([], null, 2))
-        if (fs.existsSync(mappingPath)) fs.writeFileSync(mappingPath, JSON.stringify({}, null, 2))
-        if (fs.existsSync(playerScoresPath)) fs.writeFileSync(playerScoresPath, JSON.stringify({}, null, 2))
+        if (fs.existsSync(scoresPath)) await this.writeJson(scoresPath, [])
+        if (fs.existsSync(mappingPath)) await this.writeJson(mappingPath, {})
+        if (fs.existsSync(playerScoresPath)) await this.writeJson(playerScoresPath, {})
 
         const metaPath = path.join(path.dirname(scoresPath), 'scores-meta.json')
-        if (fs.existsSync(metaPath)) fs.unlinkSync(metaPath)
+        if (fs.existsSync(metaPath)) await fsp.unlink(metaPath)
 
         this.broadcastScoreUpdate()
         res.json({ success: true })
@@ -220,24 +249,14 @@ export class EmbeddedServer {
       }
     })
 
-    // Config API
-    this.app.get('/api/config', (_req: Request, res: Response) => {
+    // Config API — オーバーレイ用にサニタイズした設定のみ返す（シークレットは含めない）
+    this.expressApp.get('/api/config', (_req: Request, res: Response) => {
       res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
-      res.json(this.configManager.getConfig())
-    })
-
-    this.app.post('/api/config', (req: Request, res: Response) => {
-      try {
-        this.configManager.saveConfig(req.body)
-        this.broadcastScoreUpdate('config-updated')
-        res.json({ success: true })
-      } catch (error: any) {
-        res.status(500).json({ success: false, error: error.message })
-      }
+      res.json(sanitizeConfigForOverlay(this.configManager.getConfig()))
     })
 
     // Local IP API
-    this.app.get('/api/localIp', (_req: Request, res: Response) => {
+    this.expressApp.get('/api/localIp', (_req: Request, res: Response) => {
       const interfaces = os.networkInterfaces()
       let localIP = 'localhost'
       for (const name of Object.keys(interfaces)) {
@@ -252,36 +271,34 @@ export class EmbeddedServer {
     })
 
     // Reopen Slots API
-    this.app.get('/api/reopen-slots', (_req: Request, res: Response) => {
+    this.expressApp.get('/api/reopen-slots', async (_req: Request, res: Response) => {
       try {
-        const slotsPath = this.getReopenSlotsPath()
-        if (fs.existsSync(slotsPath)) {
-          res.json(JSON.parse(fs.readFileSync(slotsPath, 'utf8')))
-        } else {
-          res.json([])
-        }
+        const slots = await this.readJson<any[]>(this.getReopenSlotsPath())
+        res.json(Array.isArray(slots) ? slots : [])
       } catch (error: any) {
         res.status(500).json({ error: error.message })
       }
     })
 
-    this.app.post('/api/reopen-slots', (req: Request, res: Response) => {
+    this.expressApp.post('/api/reopen-slots', async (req, res) => {
       try {
         const slotsPath = this.getReopenSlotsPath()
-        let slots = []
-        if (fs.existsSync(slotsPath)) {
-          slots = JSON.parse(fs.readFileSync(slotsPath, 'utf8'))
+        const slots = (await this.readJson<any[]>(slotsPath)) ?? []
+        const newSlot = req.body
+
+        if (!newSlot || typeof newSlot.slotId !== 'number') {
+          res.status(400).json({ success: false, error: 'slotId is required' })
+          return
         }
 
-        const newSlot = req.body
-        const index = slots.findIndex((s: any) => s.slotId === newSlot.slotId)
+        const index = slots.findIndex(s => s.slotId === newSlot.slotId)
         if (index !== -1) {
           slots[index] = newSlot
         } else {
           slots.push(newSlot)
         }
 
-        fs.writeFileSync(slotsPath, JSON.stringify(slots, null, 2))
+        await this.writeJson(slotsPath, slots)
         this.broadcastScoreUpdate()
         res.json({ success: true })
       } catch (error: any) {
@@ -289,42 +306,15 @@ export class EmbeddedServer {
       }
     })
 
-    this.app.delete('/api/reopen-slots/:slotId', (req: Request, res: Response) => {
+    this.expressApp.delete('/api/reopen-slots/:slotId', async (req, res) => {
       try {
         const slotId = parseInt(req.params.slotId)
         const slotsPath = this.getReopenSlotsPath()
-        if (fs.existsSync(slotsPath)) {
-          let slots = JSON.parse(fs.readFileSync(slotsPath, 'utf8'))
-          slots = slots.filter((s: any) => s.slotId !== slotId)
-          fs.writeFileSync(slotsPath, JSON.stringify(slots, null, 2))
-          this.broadcastScoreUpdate()
-          res.json({ success: true })
-        } else {
-          res.json({ success: true })
+        const slots = await this.readJson<any[]>(slotsPath)
+        if (slots) {
+          const filtered = slots.filter(s => s.slotId !== slotId)
+          await this.writeJson(slotsPath, filtered)
         }
-      } catch (error: any) {
-        res.status(500).json({ success: false, error: error.message })
-      }
-    })
-
-    // Overlay Colors API
-    this.app.get('/api/overlay-colors', (_req: Request, res: Response) => {
-      try {
-        const colorsPath = this.getOverlayColorsPath()
-        let colors = { scoreEffectColor: '#22c55e', currentPlayerColor: '#fbbf24' }
-        if (fs.existsSync(colorsPath)) {
-          colors = { ...colors, ...JSON.parse(fs.readFileSync(colorsPath, 'utf8')) }
-        }
-        res.json(colors)
-      } catch (error: any) {
-        res.status(500).json({ error: error.message })
-      }
-    })
-
-    this.app.post('/api/overlay-colors', (req: Request, res: Response) => {
-      try {
-        const colorsPath = this.getOverlayColorsPath()
-        fs.writeFileSync(colorsPath, JSON.stringify(req.body, null, 2))
         this.broadcastScoreUpdate()
         res.json({ success: true })
       } catch (error: any) {
@@ -333,26 +323,22 @@ export class EmbeddedServer {
     })
 
     // Player Mapping API
-    this.app.get('/api/player-mapping', (_req: Request, res: Response) => {
+    this.expressApp.get('/api/player-mapping', async (_req: Request, res: Response) => {
       try {
-        const mappingPath = this.getPlayerMappingPath()
-        if (fs.existsSync(mappingPath)) {
-          res.json(JSON.parse(fs.readFileSync(mappingPath, 'utf8')))
-        } else {
-          res.json({})
-        }
+        const mapping = await this.readJson<Record<string, string>>(this.getPlayerMappingPath())
+        res.json(mapping ?? {})
       } catch (error: any) {
         res.status(500).json({ error: error.message })
       }
     })
 
-    this.app.post('/api/player-mapping', (req: Request, res: Response) => {
+    this.expressApp.post('/api/player-mapping', async (req, res) => {
       try {
-        const mappingPath = this.getPlayerMappingPath()
-        const mappingDir = path.dirname(mappingPath)
-        if (!fs.existsSync(mappingDir)) fs.mkdirSync(mappingDir, { recursive: true })
-
-        fs.writeFileSync(mappingPath, JSON.stringify(req.body, null, 2))
+        if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+          res.status(400).json({ success: false, error: 'mapping must be an object' })
+          return
+        }
+        await this.writeJson(this.getPlayerMappingPath(), req.body)
         this.broadcastScoreUpdate()
         res.json({ success: true })
       } catch (error: any) {
@@ -361,23 +347,18 @@ export class EmbeddedServer {
     })
 
     // Player Scores API
-    this.app.get('/api/player-scores', (_req: Request, res: Response) => {
+    this.expressApp.get('/api/player-scores', async (_req: Request, res: Response) => {
       try {
-        const scoresPath = this.getPlayerScoresPath()
-        if (fs.existsSync(scoresPath)) {
-          res.json(JSON.parse(fs.readFileSync(scoresPath, 'utf8')))
-        } else {
-          res.json({})
-        }
+        const scores = await this.readJson<Record<string, unknown>>(this.getPlayerScoresPath())
+        res.json(scores ?? {})
       } catch (error: any) {
         res.status(500).json({ error: error.message })
       }
     })
 
-    this.app.post('/api/player-scores', (req: Request, res: Response) => {
+    this.expressApp.post('/api/player-scores', async (req, res) => {
       try {
-        const scoresPath = this.getPlayerScoresPath()
-        fs.writeFileSync(scoresPath, JSON.stringify(req.body, null, 2))
+        await this.writeJson(this.getPlayerScoresPath(), req.body)
         this.broadcastScoreUpdate()
         res.json({ success: true })
       } catch (error: any) {
@@ -397,21 +378,20 @@ export class EmbeddedServer {
 
     // Check if we should reset scores on start
     const config = this.configManager.getConfig()
-    if (config.scoreSettings && config.scoreSettings.keepScoreOnRestart === false) {
+    if (config.scoreSettings?.keepScoreOnRestart === false) {
       const scoresPath = this.getScoresPath()
       if (fs.existsSync(scoresPath)) {
-        try {
-          fs.writeFileSync(scoresPath, JSON.stringify([], null, 2))
-          console.log('Scores reset on startup as per config')
-        } catch (e) {
-          console.error('Failed to reset scores on startup:', e)
-        }
+        this.writeJson(scoresPath, [])
+          .then(() => console.log('Scores reset on startup as per config'))
+          .catch(e => console.error('Failed to reset scores on startup:', e))
       }
     }
 
     return new Promise((resolve, reject) => {
       try {
-        this.server = this.app.listen(this.port, '0.0.0.0', () => {
+        // ループバックのみでリッスン。LAN上の他デバイスからAPIキー等に
+        // アクセスされることを構造的に防ぐ（オーバーレイも同一PC前提）。
+        this.server = this.expressApp.listen(this.port, '127.0.0.1', () => {
           console.log(`[EmbeddedServer] Running on http://localhost:${this.port}`)
           resolve()
         })
@@ -434,8 +414,8 @@ export class EmbeddedServer {
 
   public stop(): Promise<void> {
     return new Promise((resolve) => {
+      if (this.sseCleanupInterval) clearInterval(this.sseCleanupInterval)
       if (this.server) {
-        if (this.sseCleanupInterval) clearInterval(this.sseCleanupInterval)
         this.server.close(() => {
           console.log('Embedded server stopped')
           resolve()
@@ -448,11 +428,15 @@ export class EmbeddedServer {
 
   public broadcastScoreUpdate(type: string = 'scores-updated'): void {
     const message = JSON.stringify({ type, timestamp: Date.now() })
-    this.sseClients.forEach((clientInfo, res) => {
+    this.sseClients.forEach((res) => {
       try {
-        res.write(`data: ${message}\n\n`)
-      } catch (error) {
-        console.error('Error sending SSE message:', error)
+        if (!res.writableEnded) {
+          res.write(`data: ${message}\n\n`)
+        } else {
+          this.sseClients.delete(res)
+        }
+      } catch {
+        this.sseClients.delete(res)
       }
     })
   }
