@@ -2,7 +2,7 @@ import { ObsManager } from './obs-manager'
 import { ConfigManager } from './config-manager'
 import fs from 'fs'
 import path from 'path'
-import { app } from 'electron'
+import { app, nativeImage } from 'electron'
 import crypto from 'crypto'
 
 export interface RaceResult {
@@ -208,6 +208,27 @@ export class ApiManager {
     }
   }
 
+  /**
+   * スクリーンショットの左半分を切り出す（standings24モード用）。
+   * デコード失敗時はフルフレームをそのまま返す（フォールバック）。
+   */
+  private cropLeftHalf(imageUrl: string): string {
+    try {
+      const base64Data = imageUrl.includes('base64,') ? imageUrl.split('base64,')[1] : imageUrl
+      const image = nativeImage.createFromBuffer(Buffer.from(base64Data, 'base64'))
+      if (image.isEmpty()) {
+        console.error('[ApiManager] cropLeftHalf: image decode failed, using full frame')
+        return imageUrl
+      }
+      const { width, height } = image.getSize()
+      const cropped = image.crop({ x: 0, y: 0, width: Math.floor(width / 2), height })
+      return `data:image/jpeg;base64,${cropped.toJPEG(90).toString('base64')}`
+    } catch (error) {
+      console.error('[ApiManager] cropLeftHalf failed:', error)
+      return imageUrl
+    }
+  }
+
   async getObsScreenshot(): Promise<string> {
     const config = this.configManager.getConfig()
     const obsManager = ObsManager.getInstance()
@@ -227,12 +248,17 @@ export class ApiManager {
   async analyzeRace(imageUrl: string, useTotalScore: boolean = false): Promise<AnalyzeRaceResponse> {
     const config = this.configManager.getConfig()
 
-    // Always use Groq for now as other providers are removed/hidden
-    if (config.groqApiKey) {
-      return this.analyzeRaceGroq(imageUrl, useTotalScore)
+    if (!config.groqApiKey) {
+      throw new Error('AI解析用のAPIキー（Groq）が設定されていません')
     }
 
-    throw new Error('AI解析用のAPIキー（Groq）が設定されていません')
+    // 24人スタンドモード: 常に左半分クロップ＋累計値の直接読取（rendererがfalseを渡しても強制）
+    if (config.analysisMode === 'standings24') {
+      return this.analyzeStandingsGroq(this.cropLeftHalf(imageUrl))
+    }
+
+    // Always use Groq for now as other providers are removed/hidden
+    return this.analyzeRaceGroq(imageUrl, useTotalScore)
   }
 
   /**
@@ -277,6 +303,94 @@ export class ApiManager {
       return { success: true, models, currentModel: CURRENT_VISION_MODEL }
     } catch (error: any) {
       return { success: false, error: error.message || String(error) }
+    }
+  }
+
+  /**
+   * 24人スタンド画面（レース開始前のプレイヤー情報）を解析する。
+   * 表示値は累計ポイントのため、rank→配点の計算は行わず読み取った値をそのまま返す。
+   */
+  private async analyzeStandingsGroq(imageUrl: string): Promise<AnalyzeRaceResponse> {
+    const config = this.configManager.getConfig()
+    if (!config.groqApiKey) {
+      throw new Error('Groq APIキーが設定されていません')
+    }
+
+    if (this.isAnalyzing) {
+      throw new Error('現在解析中です...')
+    }
+
+    this.isAnalyzing = true
+
+    try {
+      const base64Data = imageUrl.includes('base64,') ? imageUrl.split('base64,')[1] : imageUrl
+      const existingMappings = this.getAllPlayerMappings()
+      const existingMappingsText = Object.keys(existingMappings).length > 0
+        ? `\nFixed Teams: ${Object.entries(existingMappings).map(([p, t]) => `${p}=${t}`).join(',')}`
+        : ''
+
+      const prompt = `You are an expert OCR system reading a Mario Kart 8 Deluxe lounge/tournament standings screen shown BEFORE a race starts.
+The screen lists up to 24 players, one row per player, each showing the player name and their CUMULATIVE score (points).
+Rules:
+1. Extract ALL visible rows (up to 24).
+2. "name": The player name text exactly as readable.
+3. "score": The cumulative points number shown on the row. Use the displayed value exactly as-is; do NOT calculate anything.
+4. "isCurrentPlayer": Set true only for a row clearly highlighted as the local player; otherwise false for every row.
+${existingMappingsText}
+Return ONLY valid JSON matching this schema: { results: [{ name: string, score: number, isCurrentPlayer: boolean }] }`
+
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${config.groqApiKey}`
+        },
+        body: JSON.stringify({
+          model: CURRENT_VISION_MODEL,
+          messages: [
+            {
+              role: 'user',
+              content: [
+                { type: 'text', text: prompt },
+                {
+                  type: 'image_url',
+                  image_url: {
+                    url: `data:image/jpeg;base64,${base64Data}`
+                  }
+                }
+              ]
+            }
+          ],
+          response_format: { type: 'json_object' },
+          reasoning_effort: 'none',
+          temperature: 0.1
+        })
+      })
+
+      if (!response.ok) {
+        let message = response.statusText
+        try {
+          const errorData = await response.json()
+          message = errorData?.error?.message || message
+        } catch { /* ボディがJSONでない場合 */ }
+        throw new Error(`Groq API Error: ${message}`)
+      }
+
+      const data = await response.json()
+      const content = data.choices[0].message.content
+      const parsedResponse = JSON.parse(content)
+
+      if (parsedResponse.results && Array.isArray(parsedResponse.results)) {
+        const normalized = parsedResponse.results
+          .slice(0, 24)
+          .map((r: any) => ({ ...r, score: Number(r?.score) || 0 }))
+        const results = this.processRaceResults(normalized)
+        return { success: true, results }
+      }
+
+      throw new Error('Groqからのレスポンスを解析できませんでした')
+    } finally {
+      this.isAnalyzing = false
     }
   }
 
