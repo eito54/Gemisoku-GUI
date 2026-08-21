@@ -3,12 +3,13 @@ import path from 'path'
 import { app } from 'electron'
 
 export interface OverlayColors {
-  background: string
-  text: string
-  accent: string
+  /** スコア加算時のフラッシュ/カウントアップの光の色 (#rrggbb) */
   scoreEffect: string
+  /** 自チーム枠の強調スタイル */
   ownTeamStyle: 'solid' | 'rainbow' | 'gradient'
+  /** 単色スタイル時の自チーム枠の色 (#rrggbb) */
   ownTeamColor: string
+  /** グラデーションスタイル時のバリエーション */
   ownTeamGradient: string
 }
 
@@ -24,6 +25,8 @@ export interface Config {
   obsPassword: string
   obsSourceName: string
   aiProvider: 'groq'
+  /** 解析モード: standard12 = 従来の12人レース結果解析 / standings24 = 24人スタンド読取(左半分クロップ) */
+  analysisMode: 'standard12' | 'standings24'
   groqApiKey: string
   theme: 'light' | 'dark'
   showRemainingRaces: boolean
@@ -93,6 +96,7 @@ export class ConfigManager {
       obsPassword: '',
       obsSourceName: '映像キャプチャデバイス',
       aiProvider: 'groq',
+      analysisMode: 'standard12',
       groqApiKey: '',
       theme: 'light',
       showRemainingRaces: true,
@@ -101,9 +105,6 @@ export class ConfigManager {
       lastReleaseNotes: '',
       overlayTheme: 'default',
       overlayColors: {
-        background: 'rgba(15, 23, 42, 0.9)',
-        text: '#f8fafc',
-        accent: '#3b82f6',
         scoreEffect: '#22c55e',
         ownTeamStyle: 'rainbow',
         ownTeamColor: '#fbbf24',
