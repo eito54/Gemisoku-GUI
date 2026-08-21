@@ -44,6 +44,7 @@ import { ConfirmModal } from './components/ConfirmModal'
 import { SlotModal } from './components/SlotModal'
 import { WhatsNewModal } from './components/WhatsNewModal'
 import { ScoreItem } from './components/ScoreItem'
+import { GroqModelList } from './components/GroqModelList'
 import { LogEntry, SlotData } from './types'
 import { cn, calculateRaceScore } from './utils'
 import { BackgroundEffect } from './components/BackgroundEffect'
@@ -372,62 +373,30 @@ function App(): JSX.Element {
         return
       }
       // @ts-ignore
-      let cfg = await window.electron.ipcRenderer.invoke('get-config')
+      const cfg = await window.electron.ipcRenderer.invoke('get-config')
 
-      // 完全に新規の場合のデフォルト値
-      const defaults = {
-        obsIp: '127.0.0.1',
-        obsPort: 4455,
-        obsSourceName: '映像キャプチャデバイス',
-        aiProvider: 'groq',
-        theme: 'light',
-        language: 'ja',
-        overlayTheme: 'default',
-        overlayColors: {
-          background: 'rgba(15, 23, 42, 0.9)',
-          text: '#f8fafc',
-          accent: '#3b82f6',
-          scoreEffect: '#22c55e',
-          ownTeamStyle: 'rainbow',
-          ownTeamColor: '#fbbf24',
-          ownTeamGradient: 'blue'
-        },
-        groqApiKey: '',
-        showRemainingRaces: true,
-        scoreSettings: {
-          keepScoreOnRestart: true
-        },
-        overlayAnimations: {
-          speed: 1.0,
-          rankAnim: true,
-          flash: true
-        }
-      }
-
-      // 既存の設定がある場合はデフォルトとマージし、特定の値を正規化
-      let finalConfig = defaults;
+      // デフォルト値の補完・深いマージはメインプロセス(ConfigManager)側で行われるため、
+      // ここではネットワーク系の正規化のみ行う
       if (cfg) {
-        finalConfig = { ...defaults, ...cfg }
-        // 空文字や特定のデフォルト無視値を補正
-        if (!finalConfig.obsIp || finalConfig.obsIp === 'localhost') {
-          finalConfig.obsIp = '127.0.0.1'
+        if (!cfg.obsIp || cfg.obsIp === 'localhost') {
+          cfg.obsIp = '127.0.0.1'
         }
-        if (!finalConfig.obsPort) {
-          finalConfig.obsPort = 4455
+        if (!cfg.obsPort) {
+          cfg.obsPort = 4455
         }
-        if (!finalConfig.obsSourceName) {
-          finalConfig.obsSourceName = '映像キャプチャデバイス'
+        if (!cfg.obsSourceName) {
+          cfg.obsSourceName = '映像キャプチャデバイス'
         }
       }
 
-      setConfig(finalConfig)
-      setIsConfigInvalid(!finalConfig?.obsIp || !finalConfig?.obsPort || !finalConfig?.obsSourceName || !finalConfig?.groqApiKey)
+      setConfig(cfg)
+      setIsConfigInvalid(!cfg?.obsIp || !cfg?.obsPort || !cfg?.obsSourceName || !cfg?.groqApiKey)
 
 
       // Auto-connect to OBS on startup if configured
-      if (finalConfig.obsIp && finalConfig.obsPort) {
+      if (cfg?.obsIp && cfg?.obsPort) {
         // @ts-ignore
-        window.electron.ipcRenderer.invoke('obs-connect', finalConfig)
+        window.electron.ipcRenderer.invoke('obs-connect', cfg)
       }
 
       if (cfg) {
@@ -633,7 +602,7 @@ function App(): JSX.Element {
       setStatus('error')
       addLog(`通信エラー: ${error.message}`, 'error')
     }
-  }, [status, scores, addLog, serverPort, loadScores, loadPlayerMappings])
+  }, [status, scores, addLog, serverPort, loadScores, loadPlayerMappings, manualCurrentTeam])
 
   // Ref for handlers used in Electron listeners to avoid stale closures
   const handleFetchResultsRef = React.useRef(handleFetchResults)
@@ -2853,7 +2822,7 @@ function App(): JSX.Element {
                               className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all font-mono"
                             />
                             <p className="text-xs text-slate-500 italic">
-                              ※ 現在は爆速かつ無料で利用可能な Groq (Llama 4 Scout) のみを使用します。
+                              ※ 現在は爆速かつ無料で利用可能な Groq (Qwen 3.6 27B) のみを使用します。
                             </p>
                           </div>
 
@@ -2909,6 +2878,9 @@ function App(): JSX.Element {
                               )}
                             </AnimatePresence>
                           </div>
+
+                          {/* 利用可能なモデル一覧（画像認識対応判定つき） */}
+                          <GroqModelList hasApiKey={!!config?.groqApiKey} />
                         </div>
                       </motion.section>
                     )}

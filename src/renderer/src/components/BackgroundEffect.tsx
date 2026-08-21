@@ -191,12 +191,12 @@ export function BackgroundEffect({ liteMode = false, style = 'planetarium' }: Ba
         }
 
         class ShootingStar {
-            x: number
-            y: number
-            length: number
-            speed: number
-            angle: number
-            opacity: number
+            x!: number
+            y!: number
+            length!: number
+            speed!: number
+            angle!: number
+            opacity!: number
             active: boolean
 
             constructor() {

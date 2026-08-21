@@ -20,6 +20,33 @@ export interface AnalyzeRaceResponse {
   error?: string
 }
 
+export interface GroqModelInfo {
+  id: string
+  vision: boolean
+  active: boolean
+  contextWindow?: number
+}
+
+/** 現在の解析で使用しているモデル（Groq公式ビジョン対応・JSON mode/OCR用途を推奨） */
+export const CURRENT_VISION_MODEL = 'qwen/qwen3.6-27b'
+
+/**
+ * Groq公開のビジョン（画像入力）対応モデルファミリー。
+ * /modelsレスポンスには画像対応フラグが無いため、IDパターンで判定する。
+ * 出典: https://console.groq.com/docs/vision (2026-08時点)
+ */
+const VISION_MODEL_PATTERNS = [
+  /llama-4-scout/i,
+  /llama-4-maverick/i,
+  /gemma-3-\d+b-it/i,
+  /qwen.*vl/i,
+  /qwen3\.6/i
+]
+
+export function isVisionModelId(id: string): boolean {
+  return VISION_MODEL_PATTERNS.some(pattern => pattern.test(id))
+}
+
 export class ApiManager {
   private configManager: ConfigManager
   private lastAnalysisHash: string | null = null
@@ -207,6 +234,52 @@ export class ApiManager {
 
     throw new Error('AI解析用のAPIキー（Groq）が設定されていません')
   }
+
+  /**
+   * Groqアカウントで利用可能なモデル一覧を取得し、
+   * 画像認識（ビジョン）対応の可別に分類して返す。
+   */
+  async listGroqModels(): Promise<{ success: boolean; models?: GroqModelInfo[]; currentModel?: string; error?: string }> {
+    const config = this.configManager.getConfig()
+    if (!config.groqApiKey) {
+      return { success: false, error: 'Groq APIキーが設定されていません' }
+    }
+
+    try {
+      const response = await fetch('https://api.groq.com/openai/v1/models', {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${config.groqApiKey}` }
+      })
+
+      if (!response.ok) {
+        let message = response.statusText
+        try {
+          const errorData = await response.json()
+          message = errorData?.error?.message || message
+        } catch { /* ボディがJSONでない場合 */ }
+        return { success: false, error: `Groq API Error: ${message}` }
+      }
+
+      const data = await response.json()
+      const rawModels: any[] = Array.isArray(data?.data) ? data.data : []
+
+      const models: GroqModelInfo[] = rawModels
+        .filter(m => typeof m?.id === 'string')
+        .map(m => ({
+          id: m.id as string,
+          vision: isVisionModelId(m.id),
+          active: m.active !== false,
+          contextWindow: typeof m.context_window === 'number' ? m.context_window : undefined
+        }))
+        // 画像認識対応モデルを先頭に、以降はID順
+        .sort((a, b) => (a.vision === b.vision ? a.id.localeCompare(b.id) : a.vision ? -1 : 1))
+
+      return { success: true, models, currentModel: CURRENT_VISION_MODEL }
+    } catch (error: any) {
+      return { success: false, error: error.message || String(error) }
+    }
+  }
+
   private async analyzeRaceGroq(imageUrl: string, useTotalScore: boolean = false): Promise<AnalyzeRaceResponse> {
     const config = this.configManager.getConfig()
     if (!config.groqApiKey) {
@@ -263,7 +336,7 @@ Return ONLY valid JSON matching this schema: { results: [{ rank: number, name: s
           'Authorization': `Bearer ${config.groqApiKey}`
         },
         body: JSON.stringify({
-          model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+          model: CURRENT_VISION_MODEL,
           messages: [
             {
               role: 'user',
@@ -279,6 +352,8 @@ Return ONLY valid JSON matching this schema: { results: [{ rank: number, name: s
             }
           ],
           response_format: { type: 'json_object' },
+          // Qwen 3.6 27B専用: OCR抽出では思考トークン不要のため無効化（高速化）
+          reasoning_effort: 'none',
           temperature: 0.1
         })
       })
