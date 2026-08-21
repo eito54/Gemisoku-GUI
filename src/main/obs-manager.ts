@@ -4,6 +4,15 @@ import { EventEmitter } from 'events';
 import fs from 'fs';
 import path from 'path';
 
+/**
+ * スクリーンショットの正規化サイズ。
+ * OBS GetSourceScreenshot の imageWidth/imageHeight により、ソース解像度
+ * （Switch 2 の WQHD/4K 出力を含む）に関係なく常にこのサイズにスケールされる。
+ * ビジョンモデルは内部でダウンスケールするため、これ以上大きくしても精度は向上しない。
+ */
+export const CAPTURE_WIDTH = 1920
+export const CAPTURE_HEIGHT = 1080
+
 export class ObsManager extends EventEmitter {
   private static instance: ObsManager;
   private obs: OBSWebSocket;
@@ -95,8 +104,8 @@ export class ObsManager extends EventEmitter {
     const response = await this.obs.call('GetSourceScreenshot', {
       sourceName,
       imageFormat: 'jpg',
-      imageWidth: 1920,
-      imageHeight: 1080,
+      imageWidth: CAPTURE_WIDTH,
+      imageHeight: CAPTURE_HEIGHT,
     });
     return response.imageData;
   }
