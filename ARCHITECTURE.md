@@ -2,230 +2,96 @@
 
 ## 概要
 
-Grosoqは、マリオカート8デラックスのレース結果を自動取得・管理するElectronアプリケーションです。このドキュメントでは、改良されたアーキテクチャの詳細を説明します。
+Grosoqは、マリオカート8デラックス（MK8DX）のレース結果をAI-OCRで自動取得し、配信オーバーレイに表示するElectronアプリケーションです。electron-vite + TypeScriptで構成されています。
 
-## アーキテクチャ改善のポイント
+## 技術スタック
 
-### 1. モジュール分離
-- **責任の明確化**: 各クラスが単一の責任を持つように設計
-- **依存関係の最小化**: 疎結合な設計でテストと保守性を向上
-- **再利用性の向上**: 共通機能をユーティリティクラスとして分離
+| レイヤー | 技術 |
+|---|---|
+| アプリシェル | Electron 39（sandbox有効・contextIsolation有効） |
+| ビルド | electron-vite 5 / Vite 7 |
+| UI | React 19 + Tailwind CSS 3 + framer-motion |
+| 国際化 | i18next / react-i18next |
+| OBS連携 | obs-websocket-js 5 |
+| 内蔵サーバー | Express 4（localhost限定） |
+| AI解析 | Groq API（OpenAI互換エンドポイント） |
 
-### 2. ディレクトリ構造の改善
+## プロセス構成
+
 ```
-gui/
-├── src/                     # ソースコード
-│   ├── main.js             # メインプロセスのエントリーポイント
-│   ├── preload.js          # プリロードスクリプト
-│   ├── config/             # 設定管理
-│   ├── managers/           # 各種マネージャー
-│   ├── server/             # サーバー関連
-│   ├── ui/                 # UI関連
-│   └── utils/              # ユーティリティ
-├── views/                  # HTMLテンプレート
-├── static/                 # 静的ファイル
-└── locales/               # 国際化ファイル
+┌─────────────────────────────────────────────────┐
+│ Main Process (src/main)                          │
+│  ├─ index.ts         起動・ウィンドウ・ショートカット │
+│  ├─ config-manager.ts 設定の読み書き(深いマージ)     │
+│  ├─ api-manager.ts   Groq OCR解析・モデル一覧       │
+│  ├─ obs-manager.ts   OBS WebSocket接続(シングルトン) │
+│  ├─ server.ts        Express(SSE/スコアAPI/静的配信) │
+│  └─ ipc-handlers.ts  IPCハンドラ登録・自動更新       │
+├─────────────────────────────────────────────────┤
+│ Preload (src/preload)                            │
+│  └─ index.ts  IPCチャンネルホワイトリスト橋渡し        │
+├─────────────────────────────────────────────────┤
+│ Renderer (src/renderer)                          │
+│  └─ App.tsx + components/*  GUI                  │
+├─────────────────────────────────────────────────┤
+│ Overlay (public/overlay/index.html)              │
+│  └─ OBSブラウザソース用バニラJSページ               │
+│     (内蔵サーバーのSSEでリアルタイム更新)            │
+└─────────────────────────────────────────────────┘
 ```
-
-### 3. クラス設計
-
-#### MainProcess層
-- **AppManager**: アプリケーション全体のライフサイクル管理
-- **WindowManager**: ウィンドウの作成・管理
-- **ConfigManager**: 設定ファイルの読み書き・バリデーション
-- **UpdateManager**: アプリケーションの自動更新機能
-- **ApiManager**: API呼び出しとデータ処理
-- **EmbeddedServer**: 内蔵Expressサーバー
-
-#### Renderer層
-- **I18n**: 国際化機能
-- **ThemeManager**: テーマ管理
-- **NotificationManager**: 通知システム
-- **ModalManager**: モーダルダイアログ管理
-- **FormManager**: フォーム処理
-- **AppController**: メインウィンドウのコントローラー
-- **EditWindowController**: 編集ウィンドウのコントローラー
-
-#### Utils層
-- **Logger**: ログ管理システム
-
-## 主要な改善点
-
-### 1. ログ管理システム
-```javascript
-const logger = new Logger('ModuleName');
-logger.info('Information message');
-logger.error('Error message', errorObject);
-```
-
-- **ファイル出力**: 日付別のログファイル自動生成
-- **レベル管理**: debug, info, warn, error
-- **自動クリーンアップ**: 古いログファイルの自動削除
-
-### 2. 設定管理の改善
-- **型安全性**: 設定値のバリデーションと型チェック
-- **デフォルト値**: 安全なフォールバック機能
-- **深いマージ**: オブジェクトの階層的設定管理
-- **環境変数連携**: .envファイルとの自動同期
-
-### 3. エラーハンドリング
-- **統一されたエラー処理**: 全モジュールで一貫したエラーハンドリング
-- **ユーザーフレンドリーなメッセージ**: 技術的なエラーを分かりやすく変換
-- **回復可能なエラー**: 自動復旧機能の実装
-
-### 4. セキュリティ強化
-- **Context Isolation**: レンダラープロセスの分離
-- **IPC通信の最小化**: 必要最小限のAPI公開
-- **入力値検証**: すべての入力に対するバリデーション
 
 ## データフロー
 
-### 設定管理フロー
+### レース結果取得フロー
 ```
-User Input → FormManager → IPC → ConfigManager → File System
-                                      ↓
-User Interface ← AppController ← IPC ← Config Validation
-```
-
-### レース結果処理フロー
-```
-OBS Screenshot → Groq AI → Result Processing → Score Calculation → File Save
-                                    ↓
-UI Update ← NotificationManager ← ApiManager ← Score Validation
+F1/F2キー or GUIボタン
+  → IPC fetch-race-results
+  → ObsManager.getScreenshot()   (OBS WebSocket)
+  → ApiManager.analyzeRaceGroq() (Groq Vision OCR)
+  → チーム推論(共通プレフィックス) + スコア加算
+  → POST /api/scores             (内蔵サーバー経由で永続化)
+  → SSE broadcast → オーバーレイ & GUI が即時更新
 ```
 
-## 国際化システム
-
-### 翻訳ファイル構造
-```json
-{
-  "app": {
-    "title": "アプリケーション名",
-    "loading": "読み込み中..."
-  },
-  "config": {
-    "title": "設定",
-    "save": "保存"
-  }
-}
+### オーバーレイ更新フロー
+```
+OBS Browser Source (http://localhost:{port}/?overlay=true)
+  → EventSource /api/scores/events  (変更通知のみ)
+  → GET /api/scores                 (実データ)
+  → アニメーション付き再描画
 ```
 
-### 使用方法
-```javascript
-// HTMLでの使用
-<span data-i18n="app.title">Default Text</span>
+## セキュリティ設計
 
-// JavaScriptでの使用
-const text = i18n.t('app.title', { param: 'value' });
+1. **内蔵サーバーは `127.0.0.1` のみリッスン** — LAN上の他デバイスからAPIに到達不可
+2. **`GET /api/config`はサニタイズ済み** — オーバーレイに必要なテーマ/色のみ返却し、APIキー・OBSパスワードは含めない
+3. **CORSオリジン制限** — Electron本体(file://)とlocalhost系オリジンのみ許可し、同一マシン上の悪意あるWebページからのアクセスを遮断
+4. **IPCチャンネルホワイトリスト** — preloadで呼び出し可能チャンネルを列挙し、レンダラ侵害時の被害を最小化
+5. **`open-external`はhttp(s)のみ** — `shell.openExternal`への任意プロトコル渡しを禁止
+6. **sandbox: true** — レンダラプロセスのサンドボックス有効
+
+## 設定管理
+
+- `ConfigManager`が単一の真実の源（Single Source of Truth）
+- `userData/config.json` に保存、**深いマージ**によりネストした設定（overlayColors等）の一部欠損でもデフォルト値で補完
+- レンダラ側にデフォルト値のコピーを持たない
+
+## ビルド・配布
+
+```bash
+pnpm install          # 依存解決 (pnpm使用)
+npm run dev           # 開発起動
+npm run typecheck     # 型チェック (main/preload/renderer)
+npm run build:overlay # オーバーレイ用Tailwind CSS生成
+npm run build         # overlay CSS + electron-vite build
+npm run build-win     # Windows NSISインストーラ
 ```
 
-## テーマシステム
+- オーバーレイはTailwind Play CDNに依存しない（ビルド済みCSSを同梱、オフライン配信でも動作）
+- 配布はGitHub Releases + electron-updater（差分アップデート対応）
 
-### ダークモード対応
-- CSS変数を使用した動的テーマ切り替え
-- システム設定の自動検出
-- ユーザー設定の永続化
+## 今後の改善候補
 
-```css
-:root[data-theme="dark"] {
-  --bg-color: #1a1a1a;
-  --text-color: #ffffff;
-}
-```
-
-## パフォーマンス最適化
-
-### 1. 遅延読み込み
-- 翻訳ファイルのオンデマンド読み込み
-- 大きなモジュールの分割読み込み
-
-### 2. メモリ管理
-- イベントリスナーの適切なクリーンアップ
-- 不要なオブジェクトの解放
-
-### 3. レンダリング最適化
-- Virtual DOMライクなバッチ更新
-- 不要な再描画の防止
-
-## テスト戦略
-
-### 単体テスト
-- 各クラスの独立したテスト
-- モックを使用した依存関係の分離
-
-### 統合テスト
-- マネージャー間の連携テスト
-- IPC通信のテスト
-
-### E2Eテスト
-- ユーザーシナリオベースのテスト
-- 自動化されたUIテスト
-
-## デプロイメント
-
-### ビルドプロセス
-1. TypeScript（将来的な移行に備えて）コンパイル
-2. 静的アセットの最適化
-3. Electronパッケージング
-4. コード署名
-
-### 配布
-- GitHub Releasesを使用した自動配布
-- 自動更新機能による差分更新
-
-## セキュリティ考慮事項
-
-### 1. APIキー管理
-- メモリ内での暗号化
-- 設定ファイルでの安全な保存
-
-### 2. ネットワーク通信
-- HTTPS/WSS使用の強制
-- 証明書検証
-
-### 3. ファイルアクセス
-- サンドボックス化されたファイルアクセス
-- 権限の最小化
-
-## 今後の拡張予定
-
-### 1. プラグインシステム
-- 外部プラグインのサポート
-- API拡張機能
-
-### 2. データベース統合
-- SQLiteによるデータ永続化
-- 高速検索機能
-
-### 3. クラウド連携
-- リモートバックアップ
-- チーム間でのデータ共有
-
-## 開発者向けガイド
-
-### 新機能の追加手順
-1. 適切なディレクトリにクラスを作成
-2. Loggerを使用したログ出力の実装
-3. エラーハンドリングの実装
-4. 国際化対応の実装
-5. テストの作成
-
-### コーディング規約
-- ESLintの設定に従う
-- JSDocコメントの必須記載
-- 非同期処理はasync/awaitを使用
-- エラーは必ずログ出力
-
-## トラブルシューティング
-
-### よくある問題
-1. **ログファイルが作成されない**: 権限設定を確認
-2. **翻訳が適用されない**: ファイルパスとキーを確認
-3. **設定が保存されない**: 設定ファイルの権限を確認
-
-### デバッグ方法
-- 開発者ツールでのコンソール確認
-- ログファイルの内容確認
-- IPCメッセージの監視
-
-このアーキテクチャにより、保守性、拡張性、そしてユーザビリティが大幅に向上しています。
+- App.tsx（約3,000行）のタブ単位コンポーネント分割
+- ESLint/Prettier導入とCI整備
+- 単体テスト（特にチーム推論ロジック）

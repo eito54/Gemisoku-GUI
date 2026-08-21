@@ -4,8 +4,8 @@
   <p><strong>マリオカート8デラックス レース結果自動取得・分析GUIアプリケーション</strong></p>
   
   [![GitHub](https://img.shields.io/github/license/eito54/Grosoq)](LICENSE)
-  [![Electron](https://img.shields.io/badge/Electron-Latest-blue)](https://www.electronjs.org/)
-  [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
+  [![Electron](https://img.shields.io/badge/Electron-39-blue)](https://www.electronjs.org/)
+  [![React](https://img.shields.io/badge/React-19-61dafb)](https://react.dev/)
   [![Groq](https://img.shields.io/badge/Groq-AI-orange)](https://groq.com/)
 </div>
 
@@ -43,11 +43,11 @@ OBS配信とAI画像解析を組み合わせ、簡単な操作でリアルタイ
 - **チーム別表示**: チーム名と総合得点を分かりやすく表示
 - **差分表示**: 他チームとの得点差を自動計算・表示
 
-#### **新機能（v1.2.3）**
-- **改良されたアーキテクチャ**: モジュラー設計による保守性向上
-- **高度なログ管理**: 詳細なログ記録と自動クリーンアップ
-- **セキュリティ強化**: Context Isolation による安全性向上
-- **自動更新機能**: アプリケーションの自動アップデート
+#### **新機能（v3.2.0）**
+- **モデル一覧表示**: Groqで利用可能なモデルと画像認識対応の確認
+- **解析モデル更新**: Qwen 3.6 27B（マルチモーダル・JSON mode対応）に切り替え
+- **セキュリティ強化**: 内蔵サーバーのループバック限定、APIキー非公開化、IPCホワイトリスト、サンドボックス有効化
+- **オフライン配信対応**: オーバーレイのTailwind CDN依存を排除（ビルド済みCSS同梱）
 - **エラー回復**: 堅牢なエラーハンドリングと自動復旧
 - **設定管理**: より詳細で安全な設定システム
 
@@ -365,13 +365,11 @@ A: はい。新しいバージョンが利用可能になると自動的に通�
 詳細な技術仕様や開発に関する情報は以下のドキュメントをご覧ください：
 
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** - アーキテクチャの詳細設計
-- **[MIGRATION-GUIDE.md](./MIGRATION-GUIDE.md)** - 旧バージョンからの移行ガイド
-- **[REFACTORING-SUMMARY.md](./REFACTORING-SUMMARY.md)** - リファクタリングの完全サマリー
+- **[FILE_STRUCTURE.md](./FILE_STRUCTURE.md)** - ファイル構成と役割
 
 ### 技術的特徴
-- **モジュラー設計**: 保守性と拡張性を重視した設計
-- **セキュリティ重視**: Context Isolationによる安全な実装
-- **ログ管理**: 詳細なログ記録と自動管理
+- **electron-vite + TypeScript**: メイン/プリロード/レンダラすべてTypeScript
+- **セキュリティ重視**: Context Isolation + サンドボックス + IPCホワイトリスト
 - **国際化対応**: 多言語サポートの完全実装
 - **エラー処理**: 堅牢なエラーハンドリングシステム
 
@@ -390,17 +388,22 @@ MIT License - 詳細は[LICENSE](LICENSE)ファイルをご覧ください。
 
 ## 📝 更新履歴
 
-- **v1.2.3**: アーキテクチャ大幅改善
-  - モジュラー設計への完全リファクタリング
-  - セキュリティ強化（Context Isolation実装）
-  - 高度なログ管理システム
-  - 自動更新機能
-  - 改良された設定管理システム
-  - エラーハンドリングと自動復旧機能
+- **v3.2.0**: セキュリティ強化とモデル管理
+  - 内蔵サーバーをループバック限定に（LANからのAPIキー漏洩を構造的に防止）
+  - `/api/config`からシークレット除去、CORSオリジン制限、IPCチャンネルホワイトリスト、サンドボックス有効化
+  - Groqモデル一覧表示機能（画像認識対応判定つき）
+  - 解析モデルをQwen 3.6 27Bに切り替え（思考モード無効化で高速化）
+  - オーバーレイのTailwind CDN依存排除（オフライン配信対応）
+  - 設定の深いマージ導入、ポート競合時の自動フォールバック、非同期ファイルI/O化
 
-- **v1.2.2**: 安定性向上
-  - バグ修正と最適化
-  - UI/UX改善
+- **v3.0.0**: electron-vite + TypeScript完全移行
+  - セキュリティ強化（IPCホワイトリスト、サンドボックス、サーバーlocalhost限定）
+  - Groqモデル一覧表示機能
+  - オーバーレイのCDN依存排除
+
+- **v1.2.3**: アーキテクチャ改善
+  - モジュラー設計へのリファクタリング
+  - 自動更新機能
 
 - **v1.0.0**: 初回リリース
   - デスクトップGUIアプリケーション

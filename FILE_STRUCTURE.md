@@ -2,71 +2,37 @@
 
 ## ルートディレクトリ
 
-- **package.json**  
-  プロジェクトの依存関係・スクリプト・ビルド設定などを管理。
+- **package.json** — 依存関係・スクリプト・electron-builder設定
+- **pnpm-lock.yaml** — 依存のバージョン固定（パッケージマネージャはpnpm）
+- **electron.vite.config.ts** — electron-vite設定（main/preload/renderer）
+- **tailwind.config.js** — GUI用Tailwind設定
+- **tailwind.overlay.config.js** — オーバーレイ用Tailwind設定（`npm run build:overlay`で使用）
+- **postcss.config.js** — PostCSS設定
+- **tsconfig.json** — TypeScriptソリューションファイル（各プロセスのtsconfigへの参照）
+- **start-gui.bat** — Windows用開発起動バッチ（`pnpm dev`）
+- **grosoq.code-workspace** — VS Codeワークスペース設定
+- **README.md / ARCHITECTURE.md / FILE_STRUCTURE.md / DISTRIBUTION-README.md / GUI-README.md** — ドキュメント
+- **.env.example** — 環境変数サンプル
+- **assets/** — ロゴ等の静的アセット
+- **public/overlay/** — OBSブラウザソース用オーバーレイ（index.html + ビルド済みtailwind.css + フォント）
 
-- **package-lock.json / pnpm-lock.yaml**  
-  依存パッケージのバージョン固定ファイル。
+## src/main/ （Electronメインプロセス）
 
-- **README.md / GUI-README.md / ARCHITECTURE.md / MIGRATION-GUIDE.md / REFACTORING-SUMMARY.md / DISTRIBUTION-README.md**  
-  各種ドキュメント。プロジェクト概要、設計、移行手順、配布方法など。
+- **index.ts** — エントリポイント。ウィンドウ生成、グローバルショートカット(F1/F2)、サーバー起動（ポート競合時は代替ポートを自動探索）、IPC登録
+- **config-manager.ts** — 設定の型定義・デフォルト値・深いマージによる読み書き（`userData/config.json`）
+- **api-manager.ts** — Groq API呼び出し。OCR解析プロンプト、チーム推論、モデル一覧取得（画像認識対応判定つき）
+- **obs-manager.ts** — OBS WebSocket接続管理（シングルトン）。スクリーンショット取得、ソース検出、オーバーレイ自動セットアップ
+- **server.ts** — Express内蔵サーバー。SSE配信、スコア/マッピング/スロットAPI、オーバーレイ静的配信。**localhost限定リッスン**
+- **ipc-handlers.ts** — 全IPCハンドラ。設定入出力、OBS操作、自動更新(electron-updater)
+- **utils.ts** — HTTPクライアント(タイムアウト付き)、バージョン比較
 
-- **LICENSE**  
-  ライセンス情報。
+## src/preload/
 
-- **.env.example**  
-  環境変数のサンプル。
+- **index.ts** — contextBridgeでIPCチャンネルホワイトリストのみを公開
 
-- **start-gui.bat**  
-  Windows用GUI起動バッチ。
+## src/renderer/src/ （GUI・React）
 
-- **assets/**  
-  画像・アイコン等の静的アセット。
-
----
-
-## gui/ ディレクトリ
-
-- **main.js**  
-  Electronのメインプロセス。ウィンドウ生成、IPC、サーバ起動、アプリ全体の制御。
-
-- **preload.js**  
-  レンダラープロセスとメインプロセス間の安全な橋渡し（contextBridge等）。
-
-- **renderer.js**  
-  レンダラープロセス（UI側）のロジック。ボタン操作、設定管理、オーバーレイ起動、UIイベント処理。
-
-- **server.js**  
-  内蔵Webサーバ。オーバーレイやAPIの提供、OBS連携等のバックエンド処理。
-
-- **config-manager.js**  
-  設定ファイルの読み書き・管理。
-
-- **i18n.js**  
-  多言語対応（国際化）処理。
-
-- **index.html / edit-window.html**  
-  メインウィンドウ・得点編集ウィンドウのHTML。
-
-- **locales/**  
-  多言語リソース（en.json, ja.json）。
-
-- **static/index.html**  
-  オーバーレイ用のHTML。配信ソフトのブラウザソースで利用。
-
-- **views/**  
-  追加のHTMLビュー（edit-window.html, index.html等）。
-
----
-
-## assets/
-
-- **a.png, b.png, ex.gif, logo.jpeg**  
-  アプリやオーバーレイで使用する画像・ロゴ。
-
----
-
-### 備考
-
-- 各JS/HTMLファイルは役割ごとに分離されており、Electronアプリの構成・配信・オーバーレイ表示・OBS連携・設定管理・多言語対応などを担っています。
-- 詳細な処理内容は各ファイルの先頭コメントやドキュメントも参照してください。
+- **main.tsx / App.tsx** — エントリとメイン画面（ダッシュボード/リオープン/マッピング/オーバーレイ/設定/Aboutタブ）
+- **components/** — UI部品（モーダル類、ScoreItem、GroqModelList、BackgroundEffect ほか）
+- **i18n.ts / locales/{ja,en}.json** — 国際化
+- **types/index.ts, utils.ts** — 共有型・ユーティリティ
