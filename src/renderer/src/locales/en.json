@@ -4,7 +4,8 @@
     "subtitle": "Mario Kart 8 Deluxe Race Result Automatic Acquisition & Analysis Application"
   },
   "theme": {
-    "toggle": "Toggle Dark Mode"
+    "toggle": "Toggle Dark Mode",
+    "toggleLight": "Switch to Light Mode"
   },
   "config": {
     "title": "Settings",
@@ -86,9 +87,5 @@
     "connectionTest": "Connection Test",
     "testPassed": "Test completed",
     "testFailed": "Test failed"
-  },
-  "theme": {
-    "toggle": "Toggle Dark Mode",
-    "toggleLight": "Switch to Light Mode"
   }
 }

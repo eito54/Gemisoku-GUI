@@ -910,9 +910,6 @@ function App(): JSX.Element {
     // カラー設定の更新
     if (!newConfig.overlayColors) {
       newConfig.overlayColors = {
-        background: 'rgba(15, 23, 42, 0.9)',
-        text: '#f8fafc',
-        accent: '#3b82f6',
         scoreEffect: '#22c55e',
         ownTeamStyle: 'rainbow',
         ownTeamColor: '#fbbf24',
@@ -2455,6 +2452,7 @@ function App(): JSX.Element {
                                         <select
                                           name="ownTeamGradient"
                                           defaultValue={config?.overlayColors?.ownTeamGradient || 'blue'}
+                                          onChange={() => setIsDirty(true)}
                                           className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-sans"
                                         >
                                           <option value="blue">ブルー（青〜水色）</option>

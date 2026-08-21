@@ -4,7 +4,8 @@
     "subtitle": "マリオカート8デラックス レース結果自動取得・分析アプリケーション"
   },
   "theme": {
-    "toggle": "ダークモード切り替え"
+    "toggle": "ダークモード切り替え",
+    "toggleLight": "ライトモードに切り替え"
   },
   "config": {
     "title": "設定",
@@ -86,9 +87,5 @@
     "connectionTest": "接続テスト",
     "testPassed": "テストが完了しました",
     "testFailed": "テストに失敗しました"
-  },
-  "theme": {
-    "toggle": "ダークモード切り替え",
-    "toggleLight": "ライトモードに切り替え"
   }
 }
