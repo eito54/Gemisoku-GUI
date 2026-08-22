@@ -90,7 +90,7 @@ export function GroqModelList({ hasApiKey }: { hasApiKey: boolean }): JSX.Elemen
           </div>
         </div>
       ) : (
-        <ul className="divide-y divide-slate-800/60 max-h-64 overflow-y-auto">
+        <ul className="divide-y divide-slate-800/60">
           {models.length === 0 && !loading && (
             <li className="p-4 text-sm text-slate-500">{t('config.modelsEmpty')}</li>
           )}

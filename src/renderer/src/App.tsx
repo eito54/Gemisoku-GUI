@@ -2124,7 +2124,7 @@ function App(): JSX.Element {
                           アクティビティログ
                         </h3>
                       </div>
-                      <div className="p-6 space-y-4 flex-1 overflow-y-auto max-h-[400px] scrollbar-thin scrollbar-thumb-slate-700">
+                      <div className="p-6 space-y-4">
                         {logs.length > 0 ? logs.map((log, i) => (
                           <div key={i} className="flex gap-4 items-start animate-in fade-in slide-in-from-left-2 duration-300">
                             <div className={cn(
@@ -2410,9 +2410,9 @@ function App(): JSX.Element {
                     ))}
                   </div>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-[600px]">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                     {/* Left Column: Settings */}
-                    <div className="space-y-6 overflow-y-auto pr-2 custom-scrollbar">
+                    <div className="space-y-6">
                       <div className="glass-panel rounded-3xl p-8 border-none bg-slate-800/50">
 
                         <form
@@ -2647,7 +2647,7 @@ function App(): JSX.Element {
                     </div>
 
                     {/* Right Column: Preview */}
-                    <div className="space-y-4 flex flex-col h-full">
+                    <div className="space-y-4">
                       <div className="flex justify-between items-center">
                         <h3 className="font-bold text-white flex items-center gap-2">
                           <Monitor size={20} className="text-emerald-400" />
@@ -2663,7 +2663,7 @@ function App(): JSX.Element {
                         </button>
                       </div>
 
-                      <div className="flex-1 bg-black/40 rounded-2xl border border-slate-700 overflow-hidden relative backdrop-blur-sm group">
+                      <div className="w-full aspect-video bg-black/40 rounded-2xl border border-slate-700 overflow-hidden relative backdrop-blur-sm group">
                         <iframe
                           ref={previewIframeRef}
                           src={previewUrl}
