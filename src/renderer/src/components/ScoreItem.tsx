@@ -10,11 +10,15 @@ export function ScoreItem({
     isEditing,
     onRemove,
     onChange,
-    onSetCurrentPlayer
+    onSetCurrentPlayer,
+    absent,
+    absentLabel
 }: {
     team: any;
     index: number;
     isEditing: boolean;
+    absent?: boolean;
+    absentLabel?: string;
     onRemove: (i: number) => void;
     onChange: (i: number, field: string, value: any) => void;
     onSetCurrentPlayer?: () => void;
@@ -25,6 +29,10 @@ export function ScoreItem({
     const isCurrentPlayer = team.isCurrentPlayer
 
     useEffect(() => {
+        if (absent) {
+            setPrevScore(team.score)
+            return undefined
+        }
         if (team.score > prevScore) {
             setIsFlashing(true)
             setShowAdded(true)
@@ -44,7 +52,7 @@ export function ScoreItem({
         <motion.tr
             layout
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={{ opacity: absent ? 0.5 : 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className={cn(
@@ -57,7 +65,8 @@ export function ScoreItem({
 
                 // Active flash and specific borders
                 isFlashing && "animate-score-flash",
-                isCurrentPlayer && "bg-blue-600/10"
+                isCurrentPlayer && "bg-blue-600/10",
+                absent && "opacity-50"
             )}
         >
             <td className="px-6 py-4 font-medium text-slate-200 relative">
@@ -110,6 +119,9 @@ export function ScoreItem({
                                 )}>
                                     {team.name || team.team}
                                 </span>
+                                {absent && (
+                                    <span className="ml-2 text-[10px] font-bold text-slate-500 border border-slate-600 rounded px-1 py-px align-middle">{absentLabel}</span>
+                                )}
                                 {isCurrentPlayer && (
                                     <span className="flex-shrink-0 text-[10px] bg-blue-500 text-white px-2 py-0.5 rounded-full font-bold shadow-lg shadow-blue-500/30">YOU</span>
                                 )}

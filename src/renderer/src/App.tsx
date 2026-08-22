@@ -567,6 +567,7 @@ function App(): JSX.Element {
             if (!tempMap[teamName]) {
               tempMap[teamName] = { name: teamName, score: 0, addedScore: 0, isCurrentPlayer: false }
             }
+            delete tempMap[teamName].absent // B-3 欠席保持: 今回の読取に現れたチームは通常表示に戻す
             tempMap[teamName].score += score
             tempMap[teamName].addedScore += score // 今回の加算分を記録
             tempMap[teamName].isCurrentPlayer = tempMap[teamName].isCurrentPlayer || res.isCurrentPlayer
@@ -627,6 +628,14 @@ function App(): JSX.Element {
             })
           }
           applyDeltas(finalScores)
+
+          // B-3 欠席保持: 前回存在したが今回の読取にないチームを最終値のまま残す
+          const presentKeys = new Set(finalScores.map(keyOf))
+          prevList.forEach((o: any) => {
+            if ((o.score || 0) > 0 && !presentKeys.has(keyOf(o))) {
+              finalScores.push({ ...o, absent: true, addedScore: 0 })
+            }
+          })
 
           if (candidates.length > 0) {
             pendingFinalRef.current = { finalScores, prevList }
@@ -2076,6 +2085,8 @@ function App(): JSX.Element {
                                   team={team}
                                   index={i}
                                   isEditing={isEditing}
+                                  absent={team.absent === true}
+                                  absentLabel={t('dc.absent')}
                                   onRemove={handleRemoveTeam}
                                   onChange={handleScoreChange}
                                   onSetCurrentPlayer={() => {

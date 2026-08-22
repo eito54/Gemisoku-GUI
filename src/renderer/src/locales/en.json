@@ -96,6 +96,7 @@
     "hint": "The following players' scores decreased since last time. A disconnect/rejoin may have occurred.",
     "previous": "Previous",
     "candidate": "Read now",
+    "absent": "Absent",
     "restore": "Restore from previous (recommended)",
     "keep": "Use read values"
   },

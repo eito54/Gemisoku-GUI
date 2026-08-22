@@ -826,6 +826,7 @@
 
                 const countUpPromises = [];
                 scores.forEach(team => {
+                    if (team.absent === true) return; // B-3 欠席: カウントアップ/フラッシュ対象外
                     const teamName = team.team || team.name || '';
                     const prevScore = previousScores.get(teamName);
                     const currentScore = team.score || 0;
@@ -897,6 +898,7 @@
         // 加算点数フロート演出の実行
         function triggerAddedScoreEffects(scores) {
             scores.forEach(team => {
+                if (team.absent === true) return; // B-3 欠席: 加算フロート対象外
                 const teamName = team.team || team.name || '';
                 const currentScore = team.score || 0;
                 const lastAnimatedScore = lastAnimatedTotalScores.get(teamName);
@@ -938,6 +940,8 @@
                 // DOM構造が一致するため、要素を破棄せず中身だけ更新する（アニメーション維持のため）
                 scores.forEach((team, index) => {
                     const row = currentRows[index];
+                    const isAbsent = team.absent === true;
+                    row.style.opacity = isAbsent ? '0.45' : '';
                     const teamName = team.team || team.name || '';
                     const isCurrentPlayer = team.isCurrentPlayer === true;
                     const isTeamSelected = (selectedTeamInfo && selectedTeamInfo.name === teamName);
@@ -1157,7 +1161,8 @@
 
                 return `
                             <div class="${isMKW ? 'h-9' : 'h-12'} flex items-center gap-1 px-2 border-0 rounded-lg transition-all duration-200 cursor-pointer relative"
-                                 data-team-row="${escapeHtml(teamName)}">
+                                 data-team-row="${escapeHtml(teamName)}"
+                                 style="${team.absent ? 'opacity: 0.45;' : ''}">
                                 
                                 <!-- チーム名 -->
                                 <div class="relative w-20 h-7 ${borderClass} overflow-visible">
