@@ -60,6 +60,10 @@ export class EmbeddedServer {
     return path.join(app.getPath('userData'), 'player-scores.json')
   }
 
+  private getReconnectOffsetsPath(): string {
+    return path.join(app.getPath('userData'), 'reconnect-offsets.json')
+  }
+
   /** JSONファイルを読む。存在しない/壊れている場合はnull */
   private async readJson<T>(filePath: string): Promise<T | null> {
     try {
@@ -247,6 +251,9 @@ export class EmbeddedServer {
         const metaPath = path.join(path.dirname(scoresPath), 'scores-meta.json')
         if (fs.existsSync(metaPath)) await fsp.unlink(metaPath)
 
+        const offsetsPath = this.getReconnectOffsetsPath()
+        if (fs.existsSync(offsetsPath)) await fsp.unlink(offsetsPath)
+
         this.broadcastScoreUpdate()
         res.json({ success: true })
       } catch (error: any) {
@@ -365,6 +372,30 @@ export class EmbeddedServer {
       try {
         await this.writeJson(this.getPlayerScoresPath(), req.body)
         this.broadcastScoreUpdate()
+        res.json({ success: true })
+      } catch (error: any) {
+        res.status(500).json({ success: false, error: error.message })
+      }
+    })
+
+    // DC対策オフセット API（name -> オフセット値のマップ）
+    this.expressApp.get('/api/reconnect-offsets', async (_req: Request, res: Response) => {
+      try {
+        const offsets = await this.readJson<Record<string, number>>(this.getReconnectOffsetsPath())
+        res.json(offsets ?? {})
+      } catch (error: any) {
+        res.status(500).json({ error: error.message })
+      }
+    })
+
+    this.expressApp.post('/api/reconnect-offsets', async (req, res) => {
+      try {
+        const body = req.body
+        if (!body || typeof body !== 'object' || Array.isArray(body)) {
+          res.status(400).json({ success: false, error: 'offsets must be an object of name->number' })
+          return
+        }
+        await this.writeJson(this.getReconnectOffsetsPath(), body)
         res.json({ success: true })
       } catch (error: any) {
         res.status(500).json({ success: false, error: error.message })

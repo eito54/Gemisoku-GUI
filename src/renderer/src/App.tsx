@@ -41,6 +41,7 @@ import { ScanningOverlay } from './components/ScanningOverlay'
 import { ColorPicker } from './components/ColorPicker'
 import { MessageModal } from './components/MessageModal'
 import { ConfirmModal } from './components/ConfirmModal'
+import { ReconnectModal } from './components/ReconnectModal'
 import { SlotModal } from './components/SlotModal'
 import { WhatsNewModal } from './components/WhatsNewModal'
 import { ScoreItem } from './components/ScoreItem'
@@ -130,6 +131,11 @@ function App(): JSX.Element {
   const [slotNameInput, setSlotNameInput] = useState('')
   const [slotModalType, setSlotModalType] = useState<'load' | 'add' | 'delete'>('load')
   const [showResetConfirmModal, setShowResetConfirmModal] = useState(false)
+
+  // DC対策モーダル状態
+  const [reconnectCandidates, setReconnectCandidates] = useState<Array<{ name: string; previous: number; candidate: number }>>([])
+  const [showReconnectModal, setShowReconnectModal] = useState(false)
+  const pendingFinalRef = React.useRef<any[] | null>(null)
 
   // Overlay preview states
   const [selectedOverlayTheme, setSelectedOverlayTheme] = useState<string>('default')
@@ -589,6 +595,45 @@ function App(): JSX.Element {
           })
         }
 
+        // DC対策: 前回保存値との比較で減少(再入室)を検出
+        if (effectiveTotal) {
+          let offsets: Record<string, number> = {}
+          try {
+            const offRes = await fetch(`http://localhost:${serverPort}/api/reconnect-offsets`)
+            offsets = await offRes.json()
+          } catch { /* 初回はファイルなし */ }
+          const prevRes = await fetch(`http://localhost:${serverPort}/api/scores`)
+          const prevData = await prevRes.json()
+          const prevList: any[] = Array.isArray(prevData.scores) ? prevData.scores : []
+
+          const keyOf = (e: any) => e.name || e.team
+          finalScores.forEach((s: any) => {
+            s.score = (s.score || 0) + (offsets[keyOf(s)] || 0)
+          })
+          const candidates = finalScores
+            .map((s: any) => {
+              const prev = prevList.find((o: any) => keyOf(o) === keyOf(s))
+              return prev && (prev.score || 0) > 0 && s.score < prev.score
+                ? { name: keyOf(s), previous: prev.score, candidate: s.score }
+                : null
+            })
+            .filter(Boolean) as Array<{ name: string; previous: number; candidate: number }>
+
+          if (candidates.length > 0) {
+            pendingFinalRef.current = finalScores
+            setReconnectCandidates(candidates)
+            setShowReconnectModal(true)
+            setStatus('idle')
+            return
+          }
+
+          await fetch(`http://localhost:${serverPort}/api/reconnect-offsets`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(offsets)
+          })
+        }
+
         await fetch(`http://localhost:${serverPort}/api/scores?isOverallUpdate=${effectiveTotal}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -607,6 +652,42 @@ function App(): JSX.Element {
       addLog(`通信エラー: ${error.message}`, 'error')
     }
   }, [status, scores, addLog, serverPort, loadScores, loadPlayerMappings, manualCurrentTeam, config])
+
+  const resolveReconnect = useCallback(async (restore: boolean) => {
+    const finalScores = pendingFinalRef.current
+    if (!finalScores) { setShowReconnectModal(false); return }
+    try {
+      const offRes = await fetch(`http://localhost:${serverPort}/api/reconnect-offsets`)
+      const offsets: Record<string, number> = await offRes.json()
+      reconnectCandidates.forEach((c) => {
+        if (restore) {
+          offsets[c.name] = (offsets[c.name] || 0) + (c.previous - c.candidate)
+          const target = finalScores.find((s: any) => (s.name || s.team) === c.name)
+          if (target) target.score = c.previous
+        } else {
+          offsets[c.name] = 0
+        }
+      })
+      await fetch(`http://localhost:${serverPort}/api/reconnect-offsets`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(offsets)
+      })
+      await fetch(`http://localhost:${serverPort}/api/scores?isOverallUpdate=${config?.analysisMode === 'standings24'}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(finalScores)
+      })
+      loadScores()
+      addLog(restore ? 'dc対策: 前回値から復元しました' : '読み取った値をそのまま保存しました', restore ? 'success' : 'info')
+    } catch (error: any) {
+      addLog(`保存に失敗しました: ${error.message}`, 'error')
+    } finally {
+      pendingFinalRef.current = null
+      setReconnectCandidates([])
+      setShowReconnectModal(false)
+    }
+  }, [reconnectCandidates, serverPort, loadScores, addLog, config])
 
   // Ref for handlers used in Electron listeners to avoid stale closures
   const handleFetchResultsRef = React.useRef(handleFetchResults)
@@ -3053,6 +3134,13 @@ function App(): JSX.Element {
           title="スコアリセット"
           message="すべてのチームのスコアとプレイヤーマッピングをリセットします。この操作は取り消せません。よろしいですか？"
           confirmText="リセットする"
+        />
+
+        <ReconnectModal
+          isOpen={showReconnectModal}
+          players={reconnectCandidates}
+          onRestore={() => resolveReconnect(true)}
+          onKeep={() => resolveReconnect(false)}
         />
       </div>
       <div className="fixed inset-0 -z-50 bg-[#020617]" />
