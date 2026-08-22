@@ -376,6 +376,29 @@ function App(): JSX.Element {
     }
   }
 
+  // 操作画面から解析モード（標準12人 / 24人スタンド）を切り替える
+  const handleAnalysisModeChange = async (mode: 'standard12' | 'standings24') => {
+    if (!config || config.analysisMode === mode) return
+
+    const newConfig = { ...config, analysisMode: mode }
+    setConfig(newConfig)
+
+    try {
+      if (!window.electron || !window.electron.ipcRenderer) return
+      // @ts-ignore
+      const result = await window.electron.ipcRenderer.invoke('save-config', newConfig)
+      if (result.success) {
+        addLog(mode === 'standings24'
+          ? t('config.analysisModeStandings') + t('messages.analysisModeSwitchedSuffix')
+          : t('config.analysisModeStandard') + t('messages.analysisModeSwitchedSuffix'), 'success')
+      } else {
+        addLog(t('messages.configSaveError'), 'error')
+      }
+    } catch (error) {
+      addLog(t('messages.configSaveError'), 'error')
+    }
+  }
+
   const loadConfig = useCallback(async () => {
     try {
       if (!window.electron || !window.electron.ipcRenderer) {
@@ -1973,6 +1996,37 @@ function App(): JSX.Element {
                     </div>
                   </header>
 
+                  {/* Analysis Mode Selector */}
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">{t('config.analysisModeLabel')}</span>
+                    <div className="flex gap-1 bg-slate-900/50 p-1 rounded-xl border border-slate-800">
+                      <button
+                        onClick={() => handleAnalysisModeChange('standard12')}
+                        disabled={status === 'loading'}
+                        className={cn(
+                          "px-4 py-1.5 rounded-lg text-sm font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed",
+                          config?.analysisMode !== 'standings24'
+                            ? "bg-accent-600 text-white shadow-lg"
+                            : "text-slate-400 hover:text-white hover:bg-slate-800"
+                        )}
+                      >
+                        {t('config.analysisModeStandard')}
+                      </button>
+                      <button
+                        onClick={() => handleAnalysisModeChange('standings24')}
+                        disabled={status === 'loading'}
+                        className={cn(
+                          "px-4 py-1.5 rounded-lg text-sm font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed",
+                          config?.analysisMode === 'standings24'
+                            ? "bg-green-600 text-white shadow-lg"
+                            : "text-slate-400 hover:text-white hover:bg-slate-800"
+                        )}
+                      >
+                        {t('config.analysisModeStandings')}
+                      </button>
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                     <div className="bg-raised p-6 rounded-2xl border border-slate-800 shadow-xl relative overflow-hidden group">
                       <div className="absolute top-0 left-0 w-full h-1 bg-emerald-500/30" />
@@ -2142,7 +2196,7 @@ function App(): JSX.Element {
                                   key="empty"
                                 >
                                   <td colSpan={isEditing ? 3 : 2} className="px-6 py-12 text-center text-slate-400 italic">
-                                    データがありません
+                                    {t('dash.noData')}
                                   </td>
                                 </motion.tr>
                               )}
@@ -2157,7 +2211,7 @@ function App(): JSX.Element {
                       <div className="p-6 border-b border-slate-800 flex justify-between items-center">
                         <h3 className="font-bold text-lg flex items-center gap-2">
                           <History size={20} className="text-purple-500" />
-                          アクティビティログ
+                          {t('dash.activityLog')}
                         </h3>
                       </div>
                       <div className="p-6 space-y-4">
@@ -2175,7 +2229,7 @@ function App(): JSX.Element {
                             </div>
                           </div>
                         )) : (
-                          <p className="text-center text-slate-400 py-8 italic">ログはありません</p>
+                          <p className="text-center text-slate-400 py-8 italic">{t('dash.noLogs')}</p>
                         )}
                       </div>
                     </div>
@@ -2687,7 +2741,7 @@ function App(): JSX.Element {
                       <div className="flex justify-between items-center">
                         <h3 className="font-bold text-white flex items-center gap-2">
                           <Monitor size={20} className="text-emerald-400" />
-                          リアルタイムプレビュー
+                          {t('overlaySettings.previewTitle')}
                         </h3>
                         <button
                           type="button"
@@ -2695,7 +2749,7 @@ function App(): JSX.Element {
                           className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-lg shadow-emerald-900/20 active:scale-95 flex items-center gap-1"
                         >
                           <Play size={14} />
-                          アニメーション再生
+                          {t('overlaySettings.playDemo')}
                         </button>
                       </div>
 
@@ -2711,7 +2765,7 @@ function App(): JSX.Element {
                         <div className="absolute inset-0 pointer-events-none border-2 border-slate-700/50 rounded-2xl group-hover:border-slate-600/50 transition-colors"></div>
                       </div>
                       <p className="text-center text-xs text-slate-400">
-                        ※ プレビューは60%に縮小表示されています
+                        {t('overlaySettings.previewScaled')}
                       </p>
                     </div>
                   </div>
@@ -2932,7 +2986,7 @@ function App(): JSX.Element {
                             className="flex items-center justify-center gap-2 bg-slate-800/50 hover:bg-slate-800 text-slate-300 py-3 rounded-xl font-medium transition-all border border-slate-700 active:scale-[0.98]"
                           >
                             <RefreshCw size={16} />
-                            ソースをリフレッシュ
+                            {t('settings.refreshSources')}
                           </button>
                           <button
                             type="button"
@@ -3111,7 +3165,7 @@ function App(): JSX.Element {
                     {t('app.subtitle')}
                   </p>
                   <div className="bg-raised p-8 rounded-2xl border border-slate-800 shadow-xl text-left space-y-4">
-                    <h3 className="font-bold text-lg border-b border-slate-800 pb-2 mb-4">開発者情報 (Developer)</h3>
+                    <h3 className="font-bold text-lg border-b border-slate-800 pb-2 mb-4">{t('about.developer')}</h3>
                     <div className="grid grid-cols-2 gap-4">
                       {/* GitHub Link */}
                       <button
@@ -3163,8 +3217,8 @@ function App(): JSX.Element {
           isOpen={showConfirmModal}
           onConfirm={confirmTabChange}
           onCancel={() => setShowConfirmModal(false)}
-          title="未保存の変更"
-          message="編集中のデータがあります。保存せずに移動しますか？変更内容は破棄されます。"
+          title={t('modal.unsavedTitle')}
+          message={t('modal.unsavedMessage')}
         />
 
         <WhatsNewModal
@@ -3194,9 +3248,9 @@ function App(): JSX.Element {
           isOpen={showResetConfirmModal}
           onConfirm={executeResetScores}
           onCancel={() => setShowResetConfirmModal(false)}
-          title="スコアリセット"
-          message="すべてのチームのスコアとプレイヤーマッピングをリセットします。この操作は取り消せません。よろしいですか？"
-          confirmText="リセットする"
+          title={t('modal.resetTitle')}
+          message={t('modal.resetMessage')}
+          confirmText={t('modal.resetConfirm')}
         />
 
         <ReconnectModal

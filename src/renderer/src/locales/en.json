@@ -9,7 +9,11 @@
     "overlay": "Overlay Settings",
     "about": "About"
   },
+  "about": {
+    "developer": "Developer"
+  },
   "settings": {
+    "refreshSources": "Refresh Sources",
     "tabs": {
       "system": "System",
       "obs": "OBS",
@@ -22,6 +26,18 @@
       "theme": "Theme",
       "animation": "Animation"
     }
+  },
+  "dash": {
+    "activityLog": "Activity Log",
+    "noLogs": "No logs yet",
+    "noData": "No data"
+  },
+  "modal": {
+    "unsavedTitle": "Unsaved Changes",
+    "unsavedMessage": "You have unsaved edits. Move without saving? Your changes will be discarded.",
+    "resetTitle": "Reset Scores",
+    "resetMessage": "This resets all team scores and player mappings. This cannot be undone. Are you sure?",
+    "resetConfirm": "Reset"
   },
   "theme": {
     "toggle": "Toggle Dark Mode",
@@ -95,6 +111,9 @@
   },
   "overlaySettings": {
     "title": "Overlay Settings",
+    "previewTitle": "Live Preview",
+    "playDemo": "Play Demo",
+    "previewScaled": "* Preview is scaled down to 60%",
     "showRemainingRaces": "Show remaining races on overlay",
     "showRemainingRacesHelp": "When turned off, remaining race count will not be displayed on the overlay",
     "scoreEffectColor": "Score Effect Color:",
@@ -127,6 +146,7 @@
     "configLoadError": "Failed to load configuration",
     "configSaved": "Configuration saved",
     "configSaveError": "Failed to save configuration",
+    "analysisModeSwitchedSuffix": " mode selected",
     "connecting": "Connecting...",
     "fetchingResults": "Fetching results...",
     "success": "Success",

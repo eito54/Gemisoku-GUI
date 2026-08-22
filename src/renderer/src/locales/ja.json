@@ -9,7 +9,11 @@
     "overlay": "オーバーレイ設定",
     "about": "About"
   },
+  "about": {
+    "developer": "開発者情報 (Developer)"
+  },
   "settings": {
+    "refreshSources": "ソースをリフレッシュ",
     "tabs": {
       "system": "システム (System)",
       "obs": "OBS設定",
@@ -22,6 +26,18 @@
       "theme": "テーマ (Theme)",
       "animation": "アニメーション"
     }
+  },
+  "dash": {
+    "activityLog": "アクティビティログ",
+    "noLogs": "ログはありません",
+    "noData": "データがありません"
+  },
+  "modal": {
+    "unsavedTitle": "未保存の変更",
+    "unsavedMessage": "編集中のデータがあります。保存せずに移動しますか？変更内容は破棄されます。",
+    "resetTitle": "スコアリセット",
+    "resetMessage": "すべてのチームのスコアとプレイヤーマッピングをリセットします。この操作は取り消せません。よろしいですか？",
+    "resetConfirm": "リセットする"
   },
   "theme": {
     "toggle": "ダークモード切り替え",
@@ -95,6 +111,9 @@
   },
   "overlaySettings": {
     "title": "オーバーレイ設定",
+    "previewTitle": "リアルタイムプレビュー",
+    "playDemo": "アニメーション再生",
+    "previewScaled": "※ プレビューは60%に縮小表示されています",
     "showRemainingRaces": "オーバーレイで残りレース数を表示する",
     "showRemainingRacesHelp": "スイッチをオフにすると、オーバーレイで残りレース数が表示されなくなります",
     "scoreEffectColor": "点数変動エフェクト色:",
@@ -127,6 +146,7 @@
     "configLoadError": "設定の読み込みに失敗しました",
     "configSaved": "設定が保存されました",
     "configSaveError": "設定の保存に失敗しました",
+    "analysisModeSwitchedSuffix": "に切り替えました",
     "connecting": "接続中...",
     "fetchingResults": "結果を取得中...",
     "success": "成功",
