@@ -379,10 +379,10 @@ body.lite-mode::after {
   }
 }
 
-/* レーシングHUD風ディスプレイ書体（見出しの英字がRusso One、日本語は丸ゴシックにフォールバック） */
+/* モータースポーツHUD風ディスプレイ書体（英字はChakra Petch、日本語は新ゴシックにフォールバック） */
 h2, h3 {
-  font-family: 'Russo One', 'M PLUS Rounded 1c', sans-serif;
-  letter-spacing: 0.01em;
+  font-family: 'Chakra Petch', 'Zen Kaku Gothic New', sans-serif;
+  letter-spacing: 0.02em;
 }
 
 /* キーボードフォーカスの可視化（マウスクリックでは表示されない） */

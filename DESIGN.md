@@ -26,11 +26,12 @@ MK8DXの大会運営ツールという性質から、**密度高く・速度感�
 
 | 役割 | フォント | 用途 |
 |---|---|---|
-| display | Russo One（JP fallback: M PLUS Rounded 1c） | h2/h3見出し・スコア数値・ブランド表記 |
-| sans(既定) | M PLUS Rounded 1c → system-ui | UI本文 |
+| display | Chakra Petch（JP fallback: Zen Kaku Gothic New） | h2/h3見出し・スコア数値・ブランド表記 |
+| sans(既定) | Zen Kaku Gothic New → system-ui | UI本文 |
 
 - 自己ホスト必須（@fontsource）。CDN読み込みは禁止
 - 12px未満のテキストは禁止（バッジも12px）
+- 丸ゴシック系・Russo One等の「玩具っぽい/安っぽい」書体は採用しない（2026-08-22フィードバック）
 
 ## スペース / 半径
 

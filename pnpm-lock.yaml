@@ -14,10 +14,10 @@ importers:
       '@electron-toolkit/utils':
         specifier: ^4.0.0
         version: 4.0.0(electron@39.2.7)
-      '@fontsource/m-plus-rounded-1c':
+      '@fontsource/chakra-petch':
         specifier: ^5.3.0
         version: 5.3.0
-      '@fontsource/russo-one':
+      '@fontsource/zen-kaku-gothic-new':
         specifier: ^5.3.0
         version: 5.3.0
       clsx:
@@ -574,11 +574,11 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@fontsource/m-plus-rounded-1c@5.3.0':
-    resolution: {integrity: sha512-eB/JxJBRXLdfTsBDElsAZDMtHXM58Hf1tKkHoDVZAaUN7a+qYfwNKh4Q2f7Fk9YNg4xPFjTwooVlQyqbhi8CWQ==}
+  '@fontsource/chakra-petch@5.3.0':
+    resolution: {integrity: sha512-QZvbM/q2R6n1pg2x+TJPftZmBNS+ADU37L4Z4L/6UJIz+JZ/SRaEf8usPFRiP7Ht28sIideMu/Bm1SnGlSrwNw==}
 
-  '@fontsource/russo-one@5.3.0':
-    resolution: {integrity: sha512-loHnqTq6D+H2WQdOB2pnAeCHbbsGqobmxnxU79MNFKjPWV2TPXdc78dbbkOAcWuKWDEY+FNXZFZ1nhaQvCWNAw==}
+  '@fontsource/zen-kaku-gothic-new@5.3.0':
+    resolution: {integrity: sha512-2t88gAaUkqIAFARfO8GkT1x57QBRx8A0pWeB0CIrIahnzdanWjcV4thPCSv9BJmpeRndq6qbFx1KYglHykiPhw==}
 
   '@gar/promisify@1.1.3':
     resolution: {integrity: sha512-k2Ty1JcVojjJFwrg/ThKi2ujJ7XNLYaFGNB/bWT9wGR+oSMJHMa5w+CUq6p/pVrKeNNgA7pCqEcjSnHVoqJQFw==}
@@ -3152,9 +3152,9 @@ snapshots:
   '@esbuild/win32-x64@0.27.2':
     optional: true
 
-  '@fontsource/m-plus-rounded-1c@5.3.0': {}
+  '@fontsource/chakra-petch@5.3.0': {}
 
-  '@fontsource/russo-one@5.3.0': {}
+  '@fontsource/zen-kaku-gothic-new@5.3.0': {}
 
   '@gar/promisify@1.1.3': {}
 

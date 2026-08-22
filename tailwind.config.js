@@ -7,8 +7,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"M PLUS Rounded 1c"', 'system-ui', 'sans-serif'],
-        display: ['"Russo One"', '"M PLUS Rounded 1c"', 'sans-serif']
+        sans: ['"Zen Kaku Gothic New"', 'system-ui', 'sans-serif'],
+        display: ['"Chakra Petch"', '"Zen Kaku Gothic New"', 'sans-serif']
       },
       colors: {
         surface: {
