@@ -56,7 +56,7 @@
     "vite": "^7.3.0"
   },
   "main": "./out/main/index.js",
-  "description": "Grosoq - MK8DXレース結果自動取得アプリ (Powered by Groq)",
+  "description": "Grosoq - MK8DX・MKWorld即時集計ツール (Powered by Groq)",
   "author": "eito54",
   "build": {
     "appId": "com.gemisoku.gui",
