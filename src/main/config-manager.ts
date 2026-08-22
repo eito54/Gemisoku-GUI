@@ -19,6 +19,13 @@ export interface OverlayAnimations {
   flash: boolean
 }
 
+export interface StandingsCalibration {
+  colAStartX: number
+  colAEndX: number
+  colBStartX: number
+  colBEndX: number
+}
+
 export interface Config {
   obsIp: string
   obsPort: number
@@ -36,6 +43,8 @@ export interface Config {
   overlayTheme: 'default' | 'mkw'
   overlayColors: OverlayColors
   overlayAnimations: OverlayAnimations
+  /** スタンド24モードの列ごとクロップ範囲（全幅に対する%）。列A=左列, 列B=右列 */
+  standingsCalibration: StandingsCalibration
   scoreSettings: {
     maxRaces: number
     points: number[]
@@ -114,6 +123,13 @@ export class ConfigManager {
         speed: 1.0,
         rankAnim: true,
         flash: true
+      },
+      standingsCalibration: {
+        // 既定値: 左半分(0〜50%)をほぼ全覆盖え。ユーザーが校正UIで狭める
+        colAStartX: 0,
+        colAEndX: 24,
+        colBStartX: 25,
+        colBEndX: 50
       },
       scoreSettings: {
         maxRaces: 12,

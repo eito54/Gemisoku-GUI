@@ -19,6 +19,7 @@ const INVOKE_CHANNELS = new Set([
   'obs-disconnect',
   'obs-get-status',
   'obs-get-inputs',
+  'obs-get-screenshot',
   'obs-detect-settings',
   'obs-find-best-source',
   'obs-auto-setup',

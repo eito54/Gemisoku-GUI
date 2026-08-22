@@ -251,6 +251,16 @@ export function registerIpcHandlers(
     }
   })
 
+  // 校正UI用: 現在のOBSスクリーンショットを返す
+  ipcMain.handle('obs-get-screenshot', async () => {
+    try {
+      const imageData = await apiManager.getObsScreenshot()
+      return { success: true, imageData }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  })
+
   ipcMain.handle('obs-detect-settings', async () => {
     try {
       const result = await obsManager.detectLocalSettings()

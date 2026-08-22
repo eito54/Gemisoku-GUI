@@ -209,23 +209,36 @@ export class ApiManager {
   }
 
   /**
-   * スクリーンショットの左半分を切り出す（standings24モード用）。
-   * デコード失敗時はフルフレームをそのまま返す（フォールバック）。
+   * スタンド24モード用: 設定された校正範囲で2列分を切り出す。
+   * 戻り値は1〜2枚のdata URL配列（デコード失敗列はスキップ、全滅時はフルフレーム1枚）。
    */
-  private cropLeftHalf(imageUrl: string): string {
+  private cropStandingsColumns(imageUrl: string): string[] {
+    const cal = this.configManager.getConfig().standingsCalibration
+    const ranges: Array<{ startPct: number; endPct: number }> = [
+      { startPct: cal.colAStartX, endPct: cal.colAEndX },
+      { startPct: cal.colBStartX, endPct: cal.colBEndX }
+    ]
     try {
       const base64Data = imageUrl.includes('base64,') ? imageUrl.split('base64,')[1] : imageUrl
       const image = nativeImage.createFromBuffer(Buffer.from(base64Data, 'base64'))
       if (image.isEmpty()) {
-        console.error('[ApiManager] cropLeftHalf: image decode failed, using full frame')
-        return imageUrl
+        console.error('[ApiManager] cropStandingsColumns: decode failed, using full frame')
+        return [imageUrl]
       }
       const { width, height } = image.getSize()
-      const cropped = image.crop({ x: 0, y: 0, width: Math.floor(width / 2), height })
-      return `data:image/jpeg;base64,${cropped.toJPEG(90).toString('base64')}`
+      const out: string[] = []
+      for (const r of ranges) {
+        const x = Math.max(0, Math.min(width - 1, Math.floor((width * r.startPct) / 100)))
+        const w = Math.max(1, Math.floor((width * Math.max(0, r.endPct - r.startPct)) / 100))
+        const cropped = image.crop({ x, y: 0, width: Math.min(w, width - x), height })
+        if (!cropped.isEmpty()) {
+          out.push(`data:image/jpeg;base64,${cropped.toJPEG(90).toString('base64')}`)
+        }
+      }
+      return out.length > 0 ? out : [imageUrl]
     } catch (error) {
-      console.error('[ApiManager] cropLeftHalf failed:', error)
-      return imageUrl
+      console.error('[ApiManager] cropStandingsColumns failed:', error)
+      return [imageUrl]
     }
   }
 
@@ -252,9 +265,9 @@ export class ApiManager {
       throw new Error('AI解析用のAPIキー（Groq）が設定されていません')
     }
 
-    // 24人スタンドモード: 常に左半分クロップ＋累計値の直接読取（rendererがfalseを渡しても強制）
+    // 24人スタンドモード: 常に2列クロップ＋累計値の直接読取（rendererがfalseを渡しても強制）
     if (config.analysisMode === 'standings24') {
-      return this.analyzeStandingsGroq(this.cropLeftHalf(imageUrl))
+      return this.analyzeStandingsGroq(this.cropStandingsColumns(imageUrl))
     }
 
     // Always use Groq for now as other providers are removed/hidden
@@ -310,7 +323,7 @@ export class ApiManager {
    * 24人スタンド画面（レース開始前のプレイヤー情報）を解析する。
    * 表示値は累計ポイントのため、rank→配点の計算は行わず読み取った値をそのまま返す。
    */
-  private async analyzeStandingsGroq(imageUrl: string): Promise<AnalyzeRaceResponse> {
+  private async analyzeStandingsGroq(images: string[]): Promise<AnalyzeRaceResponse> {
     const config = this.configManager.getConfig()
     if (!config.groqApiKey) {
       throw new Error('Groq APIキーが設定されていません')
@@ -323,21 +336,32 @@ export class ApiManager {
     this.isAnalyzing = true
 
     try {
-      const base64Data = imageUrl.includes('base64,') ? imageUrl.split('base64,')[1] : imageUrl
       const existingMappings = this.getAllPlayerMappings()
       const existingMappingsText = Object.keys(existingMappings).length > 0
         ? `\nFixed Teams: ${Object.entries(existingMappings).map(([p, t]) => `${p}=${t}`).join(',')}`
         : ''
 
       const prompt = `You are an expert OCR system reading a Mario Kart 8 Deluxe lounge/tournament standings screen shown BEFORE a race starts.
-The screen lists up to 24 players, one row per player, each showing the player name and their CUMULATIVE score (points).
+The screen shows 24 players arranged as TWO vertical columns of 12 rows each.
+Each row shows: a decorative player badge/sticker, then the player NAME starting at a consistent horizontal position, then their CUMULATIVE score right-aligned at a fixed column.
 Rules:
-1. Extract ALL visible rows (up to 24).
-2. "name": The player name text exactly as readable.
-3. "score": The cumulative points number shown on the row. Use the displayed value exactly as-is; do NOT calculate anything.
-4. "isCurrentPlayer": Set true only for a row clearly highlighted as the local player; otherwise false for every row.
+1. Extract ALL visible rows from BOTH columns (up to 24 total). Column order first (left column top-to-bottom, then right column).
+2. IGNORE any numbers or text inside the decorative badge/sticker graphics — they are NOT part of the name or score.
+3. "name": The player name text exactly as readable. Never include badge digits.
+4. "score": The cumulative points number in the score column. Use the displayed value exactly as-is; do NOT calculate anything.
+5. "isCurrentPlayer": true only for a row clearly highlighted as the local player; otherwise false.
 ${existingMappingsText}
 Return ONLY valid JSON matching this schema: { results: [{ name: string, score: number, isCurrentPlayer: boolean }] }`
+
+      const contentParts: any[] = [
+        { type: 'text', text: prompt + `\nThe following ${images.length} image(s) are column crops of the standings screen. Image 1 = LEFT column, Image 2 = RIGHT column (only present when 2 images). Each column lists 12 players vertically.` },
+        ...images.map(img => ({
+          type: 'image_url' as const,
+          image_url: {
+            url: img.includes('base64,') ? img : `data:image/jpeg;base64,${img}`
+          }
+        }))
+      ]
 
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
@@ -350,15 +374,7 @@ Return ONLY valid JSON matching this schema: { results: [{ name: string, score: 
           messages: [
             {
               role: 'user',
-              content: [
-                { type: 'text', text: prompt },
-                {
-                  type: 'image_url',
-                  image_url: {
-                    url: `data:image/jpeg;base64,${base64Data}`
-                  }
-                }
-              ]
+              content: contentParts
             }
           ],
           response_format: { type: 'json_object' },
