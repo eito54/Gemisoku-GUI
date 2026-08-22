@@ -1412,9 +1412,9 @@ function App(): JSX.Element {
                 <div>
                   <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                     <Zap className="text-accent-400" size={24} />
-                    初期設定ガイド
+                    {t('wizard.title')}
                   </h2>
-                  <p className="text-slate-400 text-sm mt-1">Grosoqを使い始めるための必須設定を行います</p>
+                  <p className="text-slate-400 text-sm mt-1">{t('wizard.subtitle')}</p>
                 </div>
                 <div className="flex gap-1">
                   {[0, 1, 2, 3].map((step) => (
@@ -1443,16 +1443,16 @@ function App(): JSX.Element {
                       <div className="w-20 h-20 bg-accent-600/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
                         <Monitor className="text-accent-400" size={40} />
                       </div>
-                      <h3 className="text-3xl font-bold text-white">ようこそ、Grosoqへ</h3>
+                      <h3 className="text-3xl font-bold text-white">{t('wizard.welcomeTitle')}</h3>
                       <p className="text-slate-300 leading-relaxed max-w-md mx-auto">
-                        Grosoqは、Groqの超高速なAIを使用してマリオカート8DXのレース結果を瞬時に分析するツールです。<br />
-                        使い始めるために、2つの簡単な設定を行いましょう。
+                        {t('wizard.welcomeDesc1')}<br />
+                        {t('wizard.welcomeDesc2')}
                       </p>
                       <button
                         onClick={() => setWizardStep(1)}
                         className="mt-8 bg-accent-600 hover:bg-accent-500 text-white px-10 py-4 rounded-2xl font-black text-lg transition-all shadow-xl shadow-accent-900/40 active:scale-95"
                       >
-                        設定を開始する
+                        {t('wizard.start')}
                       </button>
                     </motion.div>
                   )}
@@ -1467,10 +1467,10 @@ function App(): JSX.Element {
                     >
                       <h3 className="text-xl font-bold text-white flex items-center gap-2">
                         <Zap className="text-green-400" size={20} />
-                        1. Groq APIキーの設定
+                        {t('wizard.step1Title')}
                       </h3>
                       <p className="text-slate-400 text-sm">
-                        解析に使用するGroqのAPIキーを入力してください。無料で取得可能です。
+                        {t('wizard.step1Desc')}
                       </p>
 
                       <div className="space-y-4">
@@ -1486,23 +1486,23 @@ function App(): JSX.Element {
                         </div>
 
                         <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-800 space-y-3">
-                          <h4 className="text-sm font-bold text-slate-300">取得方法:</h4>
+                          <h4 className="text-sm font-bold text-slate-300">{t('wizard.howToGet')}</h4>
                           <ol className="text-xs text-slate-400 space-y-2 list-decimal list-inside">
-                            <li><a href="https://console.groq.com/keys" target="_blank" className="text-accent-400 hover:underline">Groq Console</a>にアクセスしてログイン</li>
-                            <li>「Create API Key」からキーを作成してコピー</li>
-                            <li>上の入力欄に貼り付け</li>
+                            <li><a href="https://console.groq.com/keys" target="_blank" className="text-accent-400 hover:underline">{t('wizard.groqConsole')}</a>{t('wizard.how1Suffix')}</li>
+                            <li>{t('wizard.how2')}</li>
+                            <li>{t('wizard.how3')}</li>
                           </ol>
                         </div>
                       </div>
 
                       <div className="flex justify-between pt-6">
-                        <button onClick={() => setWizardStep(0)} className="text-slate-400 hover:text-slate-300 font-medium">戻る</button>
+                        <button onClick={() => setWizardStep(0)} className="text-slate-400 hover:text-slate-300 font-medium">{t('wizard.back')}</button>
                         <button
                           disabled={!config?.groqApiKey}
                           onClick={() => setWizardStep(2)}
                           className="bg-accent-600 hover:bg-accent-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg"
                         >
-                          次へ進む
+                          {t('wizard.next')}
                         </button>
                       </div>
                     </motion.div>
@@ -1519,7 +1519,7 @@ function App(): JSX.Element {
                       <div className="flex items-center justify-between">
                         <h3 className="text-xl font-bold text-white flex items-center gap-2">
                           <Monitor className="text-accent-400" size={20} />
-                          2. OBS WebSocket 設定
+                          {t('wizard.step2Title')}
                         </h3>
                         <button
                           type="button"
@@ -1533,12 +1533,12 @@ function App(): JSX.Element {
                         </button>
                       </div>
                       <p className="text-slate-400 text-sm">
-                        マリオカートの画面を取得するためにOBSに接続します。
+                        {t('wizard.step2Desc')}
                       </p>
 
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <label className="text-xs font-bold text-slate-400">IPアドレス</label>
+                          <label className="text-xs font-bold text-slate-400">{t('wizard.ipLabel')}</label>
                           <input
                             type="text"
                             value={config?.obsIp || ''}
@@ -1548,7 +1548,7 @@ function App(): JSX.Element {
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-xs font-bold text-slate-400">ポート</label>
+                          <label className="text-xs font-bold text-slate-400">{t('wizard.portLabel')}</label>
                           <input
                             type="number"
                             value={config?.obsPort || ''}
@@ -1562,19 +1562,19 @@ function App(): JSX.Element {
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-400">WebSocket パスワード (任意)</label>
+                        <label className="text-xs font-bold text-slate-400">{t('wizard.passwordLabel')}</label>
                         <input
                           type="password"
                           value={config?.obsPassword || ''}
                           onChange={(e) => setConfig({ ...config, obsPassword: e.target.value })}
-                          placeholder="パスワードなし"
+                          placeholder={t('wizard.passwordPlaceholder')}
                           className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-all"
                         />
                       </div>
 
                       <div className="space-y-4">
                         <div className="space-y-2 relative">
-                          <label className="text-xs font-bold text-slate-400">キャプチャソース名</label>
+                          <label className="text-xs font-bold text-slate-400">{t('wizard.sourceLabel')}</label>
                           <div className="flex gap-2">
                             <div className="relative flex-1">
                               {obsInputs && obsInputs.length > 0 ? (
@@ -1583,7 +1583,7 @@ function App(): JSX.Element {
                                   onChange={(e) => setConfig({ ...config, obsSourceName: e.target.value })}
                                   className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-all font-sans"
                                 >
-                                  <option value="" disabled>ソースを選択してください</option>
+                                  <option value="" disabled>{t('wizard.selectSource')}</option>
                                   {obsInputs.map((input: any) => (
                                     <option key={input.inputName} value={input.inputName}>
                                       {input.inputName} ({input.inputKind.replace('_', ' ')})
@@ -1595,7 +1595,7 @@ function App(): JSX.Element {
                                   type="text"
                                   value={config?.obsSourceName || ''}
                                   onChange={(e) => setConfig({ ...config, obsSourceName: e.target.value })}
-                                  placeholder="キャプチャソース名を入力または接続テスト"
+                                  placeholder={t('wizard.sourcePlaceholder')}
                                   className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-all"
                                 />
                               )}
@@ -1634,25 +1634,25 @@ function App(): JSX.Element {
                               )}
                             >
                               {isObsConnecting ? <RefreshCw size={14} className="animate-spin" /> : <Zap size={14} />}
-                              {obsStatus ? "接続済み" : "接続テスト"}
+                              {obsStatus ? t('config.obsStatusConnected') : t('config.obsConnect')}
                             </button>
                           </div>
                           {!obsStatus && !obsInputs.length && (
                             <p className="text-xs text-slate-400 italic ml-1">
-                              ※ 接続テストに成功すると、OBS内のソース一覧が自動取得されます。
+                              {t('wizard.sourceHint')}
                             </p>
                           )}
                         </div>
                       </div>
 
                       <div className="flex justify-between pt-6">
-                        <button onClick={() => setWizardStep(1)} className="text-slate-400 hover:text-slate-300 font-medium">戻る</button>
+                        <button onClick={() => setWizardStep(1)} className="text-slate-400 hover:text-slate-300 font-medium">{t('wizard.back')}</button>
                         <button
                           disabled={!config?.obsIp || !config?.obsPort || !config?.obsSourceName}
                           onClick={() => setWizardStep(3)}
                           className="bg-accent-600 hover:bg-accent-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg"
                         >
-                          最後へ進む
+                          {t('wizard.lastStep')}
                         </button>
                       </div>
                     </motion.div>
@@ -1669,9 +1669,9 @@ function App(): JSX.Element {
                       <div className="w-20 h-20 bg-emerald-600/20 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-emerald-500/30">
                         <CheckCircle2 className="text-emerald-500" size={40} />
                       </div>
-                      <h3 className="text-3xl font-bold text-white">準備完了！</h3>
+                      <h3 className="text-3xl font-bold text-white">{t('wizard.readyTitle')}</h3>
                       <p className="text-slate-300 leading-relaxed max-w-md mx-auto">
-                        すべての設定が完了しました。これから「Grosoq」の超高速解析を体験しましょう。
+                        {t('wizard.readyDesc')}
                       </p>
 
                       <div className="pt-8 flex flex-col gap-4">
@@ -1681,7 +1681,7 @@ function App(): JSX.Element {
                             className="bg-accent-600/20 hover:bg-accent-600/30 text-accent-400 px-8 py-3 rounded-xl font-bold transition-all border border-accent-500/30 flex items-center gap-2 mx-auto text-sm"
                           >
                             <ExternalLink size={16} />
-                            OBSにオーバーレイを自動追加する
+                            {t('wizard.autoAddOverlay')}
                           </button>
                         )}
                         <button
@@ -1698,7 +1698,7 @@ function App(): JSX.Element {
                           }}
                           className="bg-emerald-600 hover:bg-emerald-500 text-white px-10 py-4 rounded-2xl font-black text-lg transition-all shadow-xl shadow-emerald-900/40 active:scale-95 flex items-center gap-2 mx-auto"
                         >
-                          Grosoqを使い始める
+                          {t('wizard.getStarted')}
                         </button>
                       </div>
                     </motion.div>
