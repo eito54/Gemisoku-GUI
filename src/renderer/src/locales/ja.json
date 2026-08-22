@@ -3,6 +3,26 @@
     "title": "Grosoq",
     "subtitle": "MK8DX・MKWorld即時集計"
   },
+  "nav": {
+    "reopen": "リオープンマネージャー",
+    "mappings": "プレイヤーマッピング",
+    "overlay": "オーバーレイ設定",
+    "about": "About"
+  },
+  "settings": {
+    "tabs": {
+      "system": "システム (System)",
+      "obs": "OBS設定",
+      "ai": "AI解析 (Groq)"
+    }
+  },
+  "overlay": {
+    "tab": {
+      "general": "一般 (General)",
+      "theme": "テーマ (Theme)",
+      "animation": "アニメーション"
+    }
+  },
   "theme": {
     "toggle": "ダークモード切り替え",
     "toggleLight": "ライトモードに切り替え"

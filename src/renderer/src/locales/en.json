@@ -3,6 +3,26 @@
     "title": "Grosoq",
     "subtitle": "Instant Standings for MK8DX & MK World"
   },
+  "nav": {
+    "reopen": "Reopen Manager",
+    "mappings": "Player Mappings",
+    "overlay": "Overlay Settings",
+    "about": "About"
+  },
+  "settings": {
+    "tabs": {
+      "system": "System",
+      "obs": "OBS",
+      "ai": "AI Analysis (Groq)"
+    }
+  },
+  "overlay": {
+    "tab": {
+      "general": "General",
+      "theme": "Theme",
+      "animation": "Animation"
+    }
+  },
   "theme": {
     "toggle": "Toggle Dark Mode",
     "toggleLight": "Switch to Light Mode"

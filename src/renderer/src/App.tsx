@@ -87,6 +87,8 @@ function App(): JSX.Element {
   const [isDownloadingUpdate, setIsDownloadingUpdate] = useState(false)
   const [isBooting, setIsBooting] = useState(true)
   const isBootingRef = React.useRef(true)
+  const saveButtonRef = React.useRef<HTMLDivElement | null>(null)
+  const scrollToSaveTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null)
   const [showWizard, setShowWizard] = useState(false)
   const [obsStatus, setObsStatus] = useState(false)
   const [obsInputs, setObsInputs] = useState<any[]>([])
@@ -985,6 +987,31 @@ function App(): JSX.Element {
     setEditingMappings(newMappings)
   }
 
+  // 設定変更時に、保存ボタンが画面外なら自動でスクロールして見えるようにする
+  const handleOverlayFormChange = () => {
+    setIsDirty(true)
+
+    // テキスト入力中の連続スクロールを避けるためデバウンスする
+    if (scrollToSaveTimerRef.current) {
+      clearTimeout(scrollToSaveTimerRef.current)
+    }
+    scrollToSaveTimerRef.current = setTimeout(() => {
+      const el = saveButtonRef.current
+      if (!el) return
+      const rect = el.getBoundingClientRect()
+      const isVisible = rect.top >= 0 && rect.bottom <= window.innerHeight
+      if (!isVisible) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      }
+    }, 500)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (scrollToSaveTimerRef.current) clearTimeout(scrollToSaveTimerRef.current)
+    }
+  }, [])
+
   const handleSaveConfig = async (e: React.FormEvent) => {
     e.preventDefault()
     const form = e.target as HTMLFormElement
@@ -1712,11 +1739,11 @@ function App(): JSX.Element {
           <nav className="flex-1 px-4 space-y-2 overflow-y-auto custom-scrollbar">
             {[
               { id: 'dashboard', icon: BarChart3, label: t('operations.title') },
-              { id: 'reopen', icon: History, label: 'リオープンマネージャー' },
-              { id: 'mappings', icon: Users, label: 'プレイヤーマッピング' },
-              { id: 'overlay', icon: Layout, label: 'オーバーレイ設定' },
+              { id: 'reopen', icon: History, label: t('nav.reopen') },
+              { id: 'mappings', icon: Users, label: t('nav.mappings') },
+              { id: 'overlay', icon: Layout, label: t('nav.overlay') },
               { id: 'settings', icon: Settings, label: t('config.title') },
-              { id: 'about', icon: Info, label: 'About' }
+              { id: 'about', icon: Info, label: t('nav.about') }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -2412,9 +2439,9 @@ function App(): JSX.Element {
                             : "text-slate-400 hover:text-white hover:bg-slate-800"
                         )}
                       >
-                        {tab === 'general' && "一般 (General)"}
-                        {tab === 'theme' && "テーマ (Theme)"}
-                        {tab === 'animation' && "アニメーション"}
+                        {tab === 'general' && t('overlay.tab.general')}
+                        {tab === 'theme' && t('overlay.tab.theme')}
+                        {tab === 'animation' && t('overlay.tab.animation')}
                       </button>
                     ))}
                   </div>
@@ -2426,7 +2453,7 @@ function App(): JSX.Element {
 
                         <form
                           onSubmit={handleSaveConfig}
-                          onChange={() => setIsDirty(true)}
+                          onChange={handleOverlayFormChange}
                           className="space-y-6"
                         >
                           {/* GENERAL TAB */}
@@ -2642,7 +2669,7 @@ function App(): JSX.Element {
                             </motion.div>
                           )}
 
-                          <div className="pt-4 border-t border-slate-700/50 mt-6">
+                          <div className="pt-4 border-t border-slate-700/50 mt-6" ref={saveButtonRef}>
                             <button
                               type="submit"
                               className="w-full bg-accent-600 hover:bg-accent-500 text-white px-6 py-3 rounded-xl font-semibold transition-all shadow-lg shadow-accent-900/20 active:scale-95 flex justify-center items-center gap-2"
@@ -2723,9 +2750,9 @@ function App(): JSX.Element {
                             : "text-slate-400 hover:text-white hover:bg-slate-800"
                         )}
                       >
-                        {tab === 'system' && "システム (System)"}
-                        {tab === 'obs' && "OBS設定"}
-                        {tab === 'ai' && "AI解析 (Groq)"}
+                        {tab === 'system' && t('settings.tabs.system')}
+                        {tab === 'obs' && t('settings.tabs.obs')}
+                        {tab === 'ai' && t('settings.tabs.ai')}
                       </button>
                     ))}
                   </div>
