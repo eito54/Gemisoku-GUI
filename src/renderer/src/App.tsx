@@ -135,7 +135,7 @@ function App(): JSX.Element {
   // DC対策モーダル状態
   const [reconnectCandidates, setReconnectCandidates] = useState<Array<{ name: string; previous: number; candidate: number }>>([])
   const [showReconnectModal, setShowReconnectModal] = useState(false)
-  const pendingFinalRef = React.useRef<any[] | null>(null)
+  const pendingFinalRef = React.useRef<{ finalScores: any[]; prevList: any[] } | null>(null)
 
   // Overlay preview states
   const [selectedOverlayTheme, setSelectedOverlayTheme] = useState<string>('default')
@@ -619,8 +619,17 @@ function App(): JSX.Element {
             })
             .filter(Boolean) as Array<{ name: string; previous: number; candidate: number }>
 
+          // 変化ハイライト: dc補正後の値と前回保存値の差分を addedScore に記録
+          const applyDeltas = (list: any[]) => {
+            list.forEach((s: any) => {
+              const prev = prevList.find((o: any) => keyOf(o) === keyOf(s))
+              s.addedScore = prev ? Math.max(0, (s.score || 0) - (prev.score || 0)) : 0
+            })
+          }
+          applyDeltas(finalScores)
+
           if (candidates.length > 0) {
-            pendingFinalRef.current = finalScores
+            pendingFinalRef.current = { finalScores, prevList }
             setReconnectCandidates(candidates)
             setShowReconnectModal(true)
             setStatus('idle')
@@ -654,9 +663,11 @@ function App(): JSX.Element {
   }, [status, scores, addLog, serverPort, loadScores, loadPlayerMappings, manualCurrentTeam, config])
 
   const resolveReconnect = useCallback(async (restore: boolean) => {
-    const finalScores = pendingFinalRef.current
-    if (!finalScores) { setShowReconnectModal(false); return }
+    const pendingSave = pendingFinalRef.current
+    if (!pendingSave) { setShowReconnectModal(false); return }
+    const { finalScores, prevList } = pendingSave
     try {
+      const keyOf = (e: any) => e.name || e.team
       const offRes = await fetch(`http://localhost:${serverPort}/api/reconnect-offsets`)
       const offsets: Record<string, number> = await offRes.json()
       reconnectCandidates.forEach((c) => {
@@ -667,6 +678,11 @@ function App(): JSX.Element {
         } else {
           offsets[c.name] = 0
         }
+      })
+      // 変化ハイライト: 復元/維持調整後の値で差分を再計算
+      finalScores.forEach((s: any) => {
+        const prev = prevList.find((o: any) => keyOf(o) === keyOf(s))
+        s.addedScore = prev ? Math.max(0, (s.score || 0) - (prev.score || 0)) : 0
       })
       await fetch(`http://localhost:${serverPort}/api/reconnect-offsets`, {
         method: 'POST',
