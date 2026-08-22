@@ -1803,14 +1803,14 @@ function App(): JSX.Element {
                   ) : (
                     <button
                       onClick={() => window.electron.ipcRenderer.invoke('open-external', updateInfo.url)}
-                      className="bg-white text-blue-600 px-3 py-1 rounded-lg text-xs font-bold hover:bg-blue-50 transition-colors"
+                      className="min-h-[32px] bg-white text-blue-600 px-3 py-1 rounded-lg text-xs font-bold hover:bg-blue-50 transition-colors"
                     >
                       詳細
                     </button>
                   )}
                   <button
                     onClick={() => setShowUpdateToast(false)}
-                    className="bg-blue-500 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-blue-400 transition-colors"
+                    className="min-h-[32px] bg-blue-500 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-blue-400 transition-colors"
                   >
                     閉じる
                   </button>
@@ -1882,7 +1882,7 @@ function App(): JSX.Element {
                   <div className="p-6 bg-slate-800/30 border-t border-slate-800 flex justify-end">
                     <button
                       onClick={() => setShowReleaseNotes(false)}
-                      className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-xl font-bold transition-all active:scale-95"
+                      className="min-h-[32px] bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-xl font-bold transition-all active:scale-95"
                     >
                       閉じる
                     </button>
@@ -2053,13 +2053,13 @@ function App(): JSX.Element {
                             <>
                               <button
                                 onClick={handleStartEdit}
-                                className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1 transition-colors"
+                                className="min-h-[32px] text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1 transition-colors"
                               >
                                 編集
                               </button>
                               <button
                                 onClick={handleResetScores}
-                                className="text-sm text-red-400 hover:text-red-300 flex items-center gap-1 transition-colors"
+                                className="min-h-[32px] text-sm text-red-400 hover:text-red-300 flex items-center gap-1 transition-colors"
                               >
                                 <Trash2 size={14} />
                                 リセット
@@ -2301,7 +2301,7 @@ function App(): JSX.Element {
                         ) : (
                           <button
                             onClick={handleStartEditMappings}
-                            className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                            className="min-h-[32px] bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                           >
                             編集
                           </button>
