@@ -53,7 +53,7 @@
     "calStartY": "開始Y(%)",
     "calEndY": "終了Y(%)",
     "calLoading": "取得中...",
-    "saveButton": "💾 設定を保存",
+    "saveButton": "設定を保存",
     "validationError": "OBS設定とGroq APIキーは必須です"
   },
   "operations": {
@@ -62,19 +62,19 @@
     "fetchOverall": "チーム合計点を取得(F2)",
     "fetchStandings": "24人スタンドを取得",
     "openOverlay": "オーバーレイを開く",
-    "editScores": "⚙️ 得点編集",
-    "resetScores": "🗑️ スコアをリセット",
-    "testConnection": "🔗 接続テスト",
-    "checkUpdates": "🔄 アップデートチェック",
-    "reopenManager": "🔄 リオープンマネージャー"
+    "editScores": "得点編集",
+    "resetScores": "スコアをリセット",
+    "testConnection": "接続テスト",
+    "checkUpdates": "アップデートチェック",
+    "reopenManager": "リオープンマネージャー"
   },
   "scoreSettings": {
-    "title": "⚙️ スコア設定",
+    "title": "スコア設定",
     "keepScoresOnRestart": "アプリ再起動時にスコアを保持する",
     "keepScoresHelp": "スイッチをオフにすると、アプリ起動時にスコアが自動的にリセットされます"
   },
   "overlaySettings": {
-    "title": "🖥️ オーバーレイ設定",
+    "title": "オーバーレイ設定",
     "showRemainingRaces": "オーバーレイで残りレース数を表示する",
     "showRemainingRacesHelp": "スイッチをオフにすると、オーバーレイで残りレース数が表示されなくなります",
     "scoreEffectColor": "点数変動エフェクト色:",
@@ -83,7 +83,7 @@
     "currentPlayerColorHelp": "自分のチームを区別するための外枠線の色を変更できます"
   },
   "usage": {
-    "title": "💡 使用方法",
+    "title": "使用方法",
     "steps": "1. 上記の設定を入力して保存してください<br>2. 「オーバーレイを開く」でブラウザが開きます<br>3. そのURLをOBSのブラウザソースに設定してください<br>4. レース結果画面で「レース結果を取得」ボタンを押してください"
   },
   "footer": {

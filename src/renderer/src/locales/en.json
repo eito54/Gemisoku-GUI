@@ -61,20 +61,20 @@
     "fetchRace": "Fetch Race Results(F1)",
     "fetchOverall": "Get Team Total Score(F2)",
     "fetchStandings": "Fetch 24-player standings",
-    "openOverlay": "🖥️ Open Overlay",
-    "editScores": "⚙️ Edit Scores",
-    "resetScores": "🗑️ Reset Scores",
-    "testConnection": "🔗 Test Connection",
-    "checkUpdates": "🔄 Check for Updates",
-    "reopenManager": "🔄 Reopen Manager"
+    "openOverlay": "Open Overlay",
+    "editScores": "Edit Scores",
+    "resetScores": "Reset Scores",
+    "testConnection": "Test Connection",
+    "checkUpdates": "Check for Updates",
+    "reopenManager": "Reopen Manager"
   },
   "scoreSettings": {
-    "title": "⚙️ Score Settings",
+    "title": "Score Settings",
     "keepScoresOnRestart": "Keep scores on app restart",
     "keepScoresHelp": "When turned off, scores will be automatically reset when the app starts"
   },
   "overlaySettings": {
-    "title": "🖥️ Overlay Settings",
+    "title": "Overlay Settings",
     "showRemainingRaces": "Show remaining races on overlay",
     "showRemainingRacesHelp": "When turned off, remaining race count will not be displayed on the overlay",
     "scoreEffectColor": "Score Effect Color:",
@@ -83,7 +83,7 @@
     "currentPlayerColorHelp": "Customize the border color to distinguish your own team"
   },
   "usage": {
-    "title": "💡 How to Use",
+    "title": "How to Use",
     "steps": "1. Enter and save the settings above<br>2. Click 'Open Overlay' to open browser<br>3. Set that URL as OBS browser source<br>4. Click 'Fetch Race Results' button on the race result screen"
   },
   "footer": {

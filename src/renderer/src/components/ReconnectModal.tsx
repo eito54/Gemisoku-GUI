@@ -36,7 +36,7 @@ export function ReconnectModal({
                                 <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center border border-amber-500/30">
                                     <AlertTriangle className="text-amber-400" size={24} />
                                 </div>
-                                <h3 className="text-xl font-black text-slate-100 uppercase tracking-tight">⚠️ {t('dc.title')}</h3>
+                                <h3 className="text-xl font-black text-slate-100 uppercase tracking-tight">{t('dc.title')}</h3>
                             </div>
                             <p className="text-slate-400 mb-6 leading-relaxed">
                                 {t('dc.hint')}
