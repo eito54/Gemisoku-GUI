@@ -105,7 +105,7 @@ export function ScoreItem({
                             type="text"
                             value={team.name || team.team || ''}
                             onChange={(e) => onChange(index, 'name', e.target.value)}
-                            className="bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold"
+                            className="bg-surface border border-slate-700 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-bold"
                         />
                     ) : (
                         <div className="flex flex-col min-w-0 flex-1">
@@ -146,7 +146,7 @@ export function ScoreItem({
                             type="number"
                             value={team.score}
                             onChange={(e) => onChange(index, 'score', e.target.value)}
-                            className="bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2 w-24 text-right focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-mono font-bold"
+                            className="bg-surface border border-slate-700 rounded-lg px-3 py-2 w-24 text-right focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-mono font-bold"
                         />
                     ) : (
                         <div className="flex flex-col items-end w-full">

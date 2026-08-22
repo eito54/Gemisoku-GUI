@@ -1141,7 +1141,7 @@ function App(): JSX.Element {
     }, [defaultChecked])
 
     return (
-      <div className="flex items-center justify-between p-4 bg-[#0f172a] rounded-xl border border-slate-700">
+      <div className="flex items-center justify-between p-4 bg-surface rounded-xl border border-slate-700">
         <div>
           <p className="font-medium text-slate-200">{label}</p>
           {help && <p className="text-xs text-slate-400">{help}</p>}
@@ -1299,7 +1299,7 @@ function App(): JSX.Element {
             initial={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
             transition={{ duration: 0.8, ease: "easeInOut" }}
-            className="fixed inset-0 z-[999] bg-[#0f172a] flex flex-col items-center justify-center pointer-events-none"
+            className="fixed inset-0 z-[999] bg-surface flex flex-col items-center justify-center pointer-events-none"
           >
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
@@ -1341,12 +1341,12 @@ function App(): JSX.Element {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[800] bg-[#0f172a]/95 backdrop-blur-xl flex items-center justify-center p-6"
+            className="fixed inset-0 z-[800] bg-surface/95 backdrop-blur-xl flex items-center justify-center p-6"
           >
             <motion.div
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
-              className="bg-[#1e293b] w-full max-w-2xl rounded-3xl border border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+              className="bg-raised w-full max-w-2xl rounded-3xl border border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
             >
               {/* Wizard Header */}
               <div className="p-8 border-b border-slate-800 bg-slate-800/30 flex justify-between items-center">
@@ -1422,7 +1422,7 @@ function App(): JSX.Element {
                             placeholder="gsk_..."
                             value={config?.groqApiKey || ''}
                             onChange={(e) => setConfig({ ...config, groqApiKey: e.target.value })}
-                            className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-mono"
+                            className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-mono"
                           />
                         </div>
 
@@ -1484,7 +1484,7 @@ function App(): JSX.Element {
                             type="text"
                             value={config?.obsIp || ''}
                             onChange={(e) => setConfig({ ...config, obsIp: e.target.value })}
-                            className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                            className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
                             placeholder="127.0.0.1"
                           />
                         </div>
@@ -1497,7 +1497,7 @@ function App(): JSX.Element {
                               const val = e.target.value === '' ? 0 : parseInt(e.target.value)
                               setConfig({ ...config, obsPort: val })
                             }}
-                            className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                            className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
                           />
                         </div>
                       </div>
@@ -1509,7 +1509,7 @@ function App(): JSX.Element {
                           value={config?.obsPassword || ''}
                           onChange={(e) => setConfig({ ...config, obsPassword: e.target.value })}
                           placeholder="パスワードなし"
-                          className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                          className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
                         />
                       </div>
 
@@ -1522,7 +1522,7 @@ function App(): JSX.Element {
                                 <select
                                   value={config?.obsSourceName || ''}
                                   onChange={(e) => setConfig({ ...config, obsSourceName: e.target.value })}
-                                  className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-sans"
+                                  className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-sans"
                                 >
                                   <option value="" disabled>ソースを選択してください</option>
                                   {obsInputs.map((input: any) => (
@@ -1537,7 +1537,7 @@ function App(): JSX.Element {
                                   value={config?.obsSourceName || ''}
                                   onChange={(e) => setConfig({ ...config, obsSourceName: e.target.value })}
                                   placeholder="キャプチャソース名を入力または接続テスト"
-                                  className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                                  className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
                                 />
                               )}
                             </div>
@@ -1834,7 +1834,7 @@ function App(): JSX.Element {
                   initial={{ opacity: 0, scale: 0.95, y: 20 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                  className="relative w-full max-w-xl bg-[#1e293b] border border-slate-700 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
+                  className="relative w-full max-w-xl bg-raised border border-slate-700 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
                 >
                   <div className="p-6 border-b border-slate-800 flex items-center justify-between bg-slate-800/50">
                     <div className="flex items-center gap-3">
@@ -1854,7 +1854,7 @@ function App(): JSX.Element {
                     </button>
                   </div>
 
-                  <div className="p-8 overflow-y-auto custom-scrollbar flex-1 bg-[#0f172a]">
+                  <div className="p-8 overflow-y-auto custom-scrollbar flex-1 bg-surface">
                     <div className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">
                       {typeof updateInfo.releaseNotes === 'string' ? (
                         <div dangerouslySetInnerHTML={{
@@ -1938,7 +1938,7 @@ function App(): JSX.Element {
                   </header>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                    <div className="bg-[#1e293b] p-6 rounded-2xl border border-slate-800 shadow-xl relative overflow-hidden group">
+                    <div className="bg-raised p-6 rounded-2xl border border-slate-800 shadow-xl relative overflow-hidden group">
                       <div className="absolute top-0 left-0 w-full h-1 bg-emerald-500/30" />
                       <div className="flex items-center justify-between mb-4">
                         <div className="p-3 bg-emerald-500/10 rounded-xl group-hover:scale-110 transition-transform">
@@ -1953,7 +1953,7 @@ function App(): JSX.Element {
                       <p className="text-2xl font-bold text-white font-mono tracking-tight">Port {serverPort}</p>
                     </div>
 
-                    <div className="bg-[#1e293b] p-6 rounded-2xl border border-slate-800 shadow-xl relative overflow-hidden group">
+                    <div className="bg-raised p-6 rounded-2xl border border-slate-800 shadow-xl relative overflow-hidden group">
                       <div className="absolute top-0 left-0 w-full h-1 bg-blue-500/30" />
                       <div className="flex items-center justify-between mb-4">
                         <div className="p-3 bg-blue-500/10 rounded-xl group-hover:scale-110 transition-transform">
@@ -1972,7 +1972,7 @@ function App(): JSX.Element {
                       <p className="text-2xl font-bold text-white font-mono tracking-tight">{config?.obsIp || '未設定'}</p>
                     </div>
 
-                    <div className="bg-[#1e293b] p-6 rounded-2xl border border-slate-800 shadow-xl relative overflow-hidden group">
+                    <div className="bg-raised p-6 rounded-2xl border border-slate-800 shadow-xl relative overflow-hidden group">
                       <div className="absolute top-0 left-0 w-full h-1 bg-purple-500/30" />
                       <div className="flex items-center justify-between mb-4">
                         <div className="p-3 bg-purple-500/10 rounded-xl group-hover:scale-110 transition-transform">
@@ -2490,7 +2490,7 @@ function App(): JSX.Element {
                                 テーマ & 配色
                               </h3>
 
-                              <div className="space-y-2 p-4 bg-[#0f172a] rounded-xl border border-slate-700">
+                              <div className="space-y-2 p-4 bg-surface rounded-xl border border-slate-700">
                                 <label className="text-sm font-medium text-slate-200">オーバーレイテーマ</label>
                                 <select
                                   name="overlayTheme"
@@ -2514,7 +2514,7 @@ function App(): JSX.Element {
                                 </h4>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  <div className="space-y-2 p-4 bg-[#0f172a] rounded-xl border border-slate-700">
+                                  <div className="space-y-2 p-4 bg-surface rounded-xl border border-slate-700">
                                     <label className="text-sm font-medium text-slate-200">スコア加算エフェクト色</label>
                                     <div className="flex flex-col gap-2">
                                       <ColorPicker
@@ -2526,7 +2526,7 @@ function App(): JSX.Element {
                                     <p className="text-xs text-slate-400">点数が加算された時の光の色を変更します。</p>
                                   </div>
 
-                                  <div className="space-y-2 p-4 bg-[#0f172a] rounded-xl border border-slate-700">
+                                  <div className="space-y-2 p-4 bg-surface rounded-xl border border-slate-700">
                                     <label className="text-sm font-medium text-slate-200">自チームの強調スタイル</label>
                                     <select
                                       name="ownTeamStyle"
@@ -2550,7 +2550,7 @@ function App(): JSX.Element {
                                   <motion.div
                                     initial={{ opacity: 0, y: -10 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className="p-4 bg-[#0f172a] rounded-xl border border-slate-700 grid grid-cols-1 md:grid-cols-2 gap-6"
+                                    className="p-4 bg-surface rounded-xl border border-slate-700 grid grid-cols-1 md:grid-cols-2 gap-6"
                                   >
                                     <div className="space-y-2">
                                       <label className="text-sm font-medium text-slate-200">自チームの色 (単色)</label>
@@ -2728,7 +2728,7 @@ function App(): JSX.Element {
                       <motion.section
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="bg-[#1e293b] p-8 rounded-2xl border border-slate-800 shadow-xl space-y-6"
+                        className="bg-raised p-8 rounded-2xl border border-slate-800 shadow-xl space-y-6"
                       >
                         <h3 className="text-lg font-bold flex items-center gap-2 text-purple-400">
                           <Monitor size={20} />
@@ -2815,7 +2815,7 @@ function App(): JSX.Element {
                       <motion.section
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="bg-[#1e293b] p-8 rounded-2xl border border-slate-800 shadow-xl space-y-6"
+                        className="bg-raised p-8 rounded-2xl border border-slate-800 shadow-xl space-y-6"
                       >
                         <h3 className="text-lg font-bold flex items-center gap-2 text-blue-400">
                           <Radio size={20} />
@@ -2830,7 +2830,7 @@ function App(): JSX.Element {
                               type="text"
                               defaultValue={config?.obsIp || '127.0.0.1'}
                               placeholder="127.0.0.1"
-                              className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-mono"
+                              className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-mono"
                             />
                           </div>
                           <div className="space-y-2">
@@ -2840,7 +2840,7 @@ function App(): JSX.Element {
                               type="text"
                               defaultValue={config?.obsPort || '4455'}
                               placeholder="4455"
-                              className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-mono"
+                              className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-mono"
                             />
                           </div>
                           <div className="space-y-2 md:col-span-2">
@@ -2850,7 +2850,7 @@ function App(): JSX.Element {
                               type="password"
                               defaultValue={config?.obsPassword}
                               placeholder="OBS WebSocket Password"
-                              className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-mono"
+                              className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-mono"
                             />
                           </div>
                         </div>
@@ -2871,7 +2871,7 @@ function App(): JSX.Element {
                                 type="text"
                                 defaultValue={config?.obsSourceName}
                                 placeholder={t('config.obsSourceNamePlaceholder')}
-                                className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-3 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                                className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
                               />
                               <datalist id="obs-source-list">
                                 {obsInputs && obsInputs.map((input: any) => (
@@ -2915,7 +2915,7 @@ function App(): JSX.Element {
                       <motion.section
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="bg-[#1e293b] p-8 rounded-2xl border border-slate-800 shadow-xl space-y-6"
+                        className="bg-raised p-8 rounded-2xl border border-slate-800 shadow-xl space-y-6"
                       >
                         <h3 className="text-lg font-bold flex items-center gap-2 text-green-400">
                           <Zap size={20} />
@@ -2979,7 +2979,7 @@ function App(): JSX.Element {
                               type="password"
                               defaultValue={config?.groqApiKey}
                               placeholder={t('config.groqApiKeyPlaceholder')}
-                              className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all font-mono"
+                              className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all font-mono"
                             />
                             <p className="text-xs text-slate-400 italic">
                               ※ 現在は爆速かつ無料で利用可能な Groq (Qwen 3.6 27B) のみを使用します。
@@ -3074,7 +3074,7 @@ function App(): JSX.Element {
                   <p className="text-xl text-slate-400 leading-relaxed">
                     {t('app.subtitle')}
                   </p>
-                  <div className="bg-[#1e293b] p-8 rounded-2xl border border-slate-800 shadow-xl text-left space-y-4">
+                  <div className="bg-raised p-8 rounded-2xl border border-slate-800 shadow-xl text-left space-y-4">
                     <h3 className="font-bold text-lg border-b border-slate-800 pb-2 mb-4">開発者情報 (Developer)</h3>
                     <div className="grid grid-cols-2 gap-4">
                       {/* GitHub Link */}
@@ -3170,7 +3170,7 @@ function App(): JSX.Element {
           onKeep={() => resolveReconnect(false)}
         />
       </div>
-      <div className="fixed inset-0 -z-50 bg-[#020617]" />
+      <div className="fixed inset-0 -z-50 bg-surface-deep" />
       <div className="noise-overlay" />
       <BackgroundEffect liteMode={liteMode} style={bgStyle} />
     </>

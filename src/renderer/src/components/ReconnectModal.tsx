@@ -29,7 +29,7 @@ export function ReconnectModal({
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="relative w-full max-w-md bg-[#1e293b] border border-slate-700 rounded-2xl overflow-hidden shadow-2xl"
+                        className="relative w-full max-w-md bg-raised border border-slate-700 rounded-2xl overflow-hidden shadow-2xl"
                     >
                         <div className="p-6">
                             <div className="flex items-center gap-3 mb-4">

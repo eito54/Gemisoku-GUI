@@ -122,7 +122,7 @@ export function StandingsCalibrationPanel({ config, setConfig }: Props): JSX.Ele
               name="startY"
               value={cal.startY}
               onChange={(e) => update('startY', parseFloat(e.target.value))}
-              className="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+              className="w-full bg-surface border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50"
             />
           </div>
           <div className="space-y-1">
@@ -136,7 +136,7 @@ export function StandingsCalibrationPanel({ config, setConfig }: Props): JSX.Ele
               name="endY"
               value={cal.endY}
               onChange={(e) => update('endY', parseFloat(e.target.value))}
-              className="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+              className="w-full bg-surface border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/50"
             />
           </div>
         </div>
@@ -157,7 +157,7 @@ export function StandingsCalibrationPanel({ config, setConfig }: Props): JSX.Ele
                 name="colAStartX"
                 value={cal.colAStartX}
                 onChange={(e) => update('colAStartX', parseFloat(e.target.value))}
-                className="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                className="w-full bg-surface border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
               />
             </div>
             <div className="space-y-1">
@@ -171,7 +171,7 @@ export function StandingsCalibrationPanel({ config, setConfig }: Props): JSX.Ele
                 name="colAEndX"
                 value={cal.colAEndX}
                 onChange={(e) => update('colAEndX', parseFloat(e.target.value))}
-                className="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                className="w-full bg-surface border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
               />
             </div>
           </div>
@@ -190,7 +190,7 @@ export function StandingsCalibrationPanel({ config, setConfig }: Props): JSX.Ele
                 name="colBStartX"
                 value={cal.colBStartX}
                 onChange={(e) => update('colBStartX', parseFloat(e.target.value))}
-                className="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50"
+                className="w-full bg-surface border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50"
               />
             </div>
             <div className="space-y-1">
@@ -204,7 +204,7 @@ export function StandingsCalibrationPanel({ config, setConfig }: Props): JSX.Ele
                 name="colBEndX"
                 value={cal.colBEndX}
                 onChange={(e) => update('colBEndX', parseFloat(e.target.value))}
-                className="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50"
+                className="w-full bg-surface border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50"
               />
             </div>
           </div>
