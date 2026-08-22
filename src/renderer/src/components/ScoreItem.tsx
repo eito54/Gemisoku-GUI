@@ -151,7 +151,7 @@ export function ScoreItem({
                     ) : (
                         <div className="flex flex-col items-end w-full">
                             <div className={cn(
-                                "text-3xl font-black font-mono tracking-tight",
+                                "text-3xl font-display font-black font-mono tracking-tight",
                                 index === 0 ? "text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.3)]" :
                                     index === 1 ? "text-slate-200 drop-shadow-[0_0_10px_rgba(226,232,240,0.3)]" :
                                         index === 2 ? "text-amber-500 drop-shadow-[0_0_10px_rgba(245,158,11,0.3)]" :

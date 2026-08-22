@@ -378,3 +378,9 @@ body.lite-mode::after {
     background: #475569;
   }
 }
+
+/* レーシングHUD風ディスプレイ書体（見出しの英字がRusso One、日本語は丸ゴシックにフォールバック） */
+h2, h3 {
+  font-family: 'Russo One', 'M PLUS Rounded 1c', sans-serif;
+  letter-spacing: 0.01em;
+}

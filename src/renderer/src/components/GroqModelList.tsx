@@ -116,7 +116,7 @@ export function GroqModelList({ hasApiKey }: { hasApiKey: boolean }): JSX.Elemen
               <span className="font-mono text-xs text-slate-300 truncate flex-1" title={model.id}>
                 {model.id}
                 {model.id === currentModel && (
-                  <span className="ml-2 text-xs font-bold text-blue-400">● {t('config.modelsCurrent')}</span>
+                  <span className="ml-2 text-xs font-bold text-accent-400">● {t('config.modelsCurrent')}</span>
                 )}
               </span>
               {model.contextWindow && (

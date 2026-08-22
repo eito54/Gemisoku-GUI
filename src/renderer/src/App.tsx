@@ -1154,7 +1154,7 @@ function App(): JSX.Element {
             onChange={(e) => setChecked(e.target.checked)}
             className="sr-only peer"
           />
-          <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+          <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-accent-800 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-600"></div>
         </label>
       </div>
     )
@@ -1320,14 +1320,14 @@ function App(): JSX.Element {
                 initial={{ width: 0 }}
                 animate={{ width: "100%" }}
                 transition={{ duration: 2, ease: "easeInOut", delay: 0.5 }}
-                className="absolute -bottom-8 left-0 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full shadow-[0_0_15px_rgba(59,130,246,0.8)]"
+                className="absolute -bottom-8 left-0 h-1 bg-gradient-to-r from-transparent via-accent-500 to-transparent rounded-full shadow-[0_0_15px_rgba(59,130,246,0.8)]"
               />
             </motion.div>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1, duration: 0.8 }}
-              className="mt-12 text-blue-400 font-black tracking-[0.2em] text-sm uppercase"
+              className="mt-12 text-accent-400 font-black tracking-[0.2em] text-sm uppercase"
             >
               Initializing Grosoq System
             </motion.p>
@@ -1352,7 +1352,7 @@ function App(): JSX.Element {
               <div className="p-8 border-b border-slate-800 bg-slate-800/30 flex justify-between items-center">
                 <div>
                   <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                    <Zap className="text-blue-400" size={24} />
+                    <Zap className="text-accent-400" size={24} />
                     初期設定ガイド
                   </h2>
                   <p className="text-slate-400 text-sm mt-1">Grosoqを使い始めるための必須設定を行います</p>
@@ -1363,7 +1363,7 @@ function App(): JSX.Element {
                       key={step}
                       className={cn(
                         "w-8 h-1.5 rounded-full transition-all duration-500",
-                        wizardStep >= step ? "bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" : "bg-slate-700"
+                        wizardStep >= step ? "bg-accent-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" : "bg-slate-700"
                       )}
                     />
                   ))}
@@ -1381,8 +1381,8 @@ function App(): JSX.Element {
                       exit={{ x: -20, opacity: 0 }}
                       className="space-y-6 text-center py-8"
                     >
-                      <div className="w-20 h-20 bg-blue-600/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                        <Monitor className="text-blue-400" size={40} />
+                      <div className="w-20 h-20 bg-accent-600/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <Monitor className="text-accent-400" size={40} />
                       </div>
                       <h3 className="text-3xl font-bold text-white">ようこそ、Grosoqへ</h3>
                       <p className="text-slate-300 leading-relaxed max-w-md mx-auto">
@@ -1391,7 +1391,7 @@ function App(): JSX.Element {
                       </p>
                       <button
                         onClick={() => setWizardStep(1)}
-                        className="mt-8 bg-blue-600 hover:bg-blue-500 text-white px-10 py-4 rounded-2xl font-black text-lg transition-all shadow-xl shadow-blue-900/40 active:scale-95"
+                        className="mt-8 bg-accent-600 hover:bg-accent-500 text-white px-10 py-4 rounded-2xl font-black text-lg transition-all shadow-xl shadow-accent-900/40 active:scale-95"
                       >
                         設定を開始する
                       </button>
@@ -1422,14 +1422,14 @@ function App(): JSX.Element {
                             placeholder="gsk_..."
                             value={config?.groqApiKey || ''}
                             onChange={(e) => setConfig({ ...config, groqApiKey: e.target.value })}
-                            className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-mono"
+                            className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-4 text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-all font-mono"
                           />
                         </div>
 
                         <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-800 space-y-3">
                           <h4 className="text-sm font-bold text-slate-300">取得方法:</h4>
                           <ol className="text-xs text-slate-400 space-y-2 list-decimal list-inside">
-                            <li><a href="https://console.groq.com/keys" target="_blank" className="text-blue-400 hover:underline">Groq Console</a>にアクセスしてログイン</li>
+                            <li><a href="https://console.groq.com/keys" target="_blank" className="text-accent-400 hover:underline">Groq Console</a>にアクセスしてログイン</li>
                             <li>「Create API Key」からキーを作成してコピー</li>
                             <li>上の入力欄に貼り付け</li>
                           </ol>
@@ -1441,7 +1441,7 @@ function App(): JSX.Element {
                         <button
                           disabled={!config?.groqApiKey}
                           onClick={() => setWizardStep(2)}
-                          className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg"
+                          className="bg-accent-600 hover:bg-accent-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg"
                         >
                           次へ進む
                         </button>
@@ -1459,7 +1459,7 @@ function App(): JSX.Element {
                     >
                       <div className="flex items-center justify-between">
                         <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                          <Monitor className="text-blue-400" size={20} />
+                          <Monitor className="text-accent-400" size={20} />
                           2. OBS WebSocket 設定
                         </h3>
                         <button
@@ -1484,7 +1484,7 @@ function App(): JSX.Element {
                             type="text"
                             value={config?.obsIp || ''}
                             onChange={(e) => setConfig({ ...config, obsIp: e.target.value })}
-                            className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                            className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-all"
                             placeholder="127.0.0.1"
                           />
                         </div>
@@ -1497,7 +1497,7 @@ function App(): JSX.Element {
                               const val = e.target.value === '' ? 0 : parseInt(e.target.value)
                               setConfig({ ...config, obsPort: val })
                             }}
-                            className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                            className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-all"
                           />
                         </div>
                       </div>
@@ -1509,7 +1509,7 @@ function App(): JSX.Element {
                           value={config?.obsPassword || ''}
                           onChange={(e) => setConfig({ ...config, obsPassword: e.target.value })}
                           placeholder="パスワードなし"
-                          className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                          className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-all"
                         />
                       </div>
 
@@ -1522,7 +1522,7 @@ function App(): JSX.Element {
                                 <select
                                   value={config?.obsSourceName || ''}
                                   onChange={(e) => setConfig({ ...config, obsSourceName: e.target.value })}
-                                  className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-sans"
+                                  className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-all font-sans"
                                 >
                                   <option value="" disabled>ソースを選択してください</option>
                                   {obsInputs.map((input: any) => (
@@ -1537,7 +1537,7 @@ function App(): JSX.Element {
                                   value={config?.obsSourceName || ''}
                                   onChange={(e) => setConfig({ ...config, obsSourceName: e.target.value })}
                                   placeholder="キャプチャソース名を入力または接続テスト"
-                                  className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                                  className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-all"
                                 />
                               )}
                             </div>
@@ -1571,7 +1571,7 @@ function App(): JSX.Element {
                                 "px-6 rounded-xl font-bold transition-all flex items-center gap-2 border whitespace-nowrap",
                                 obsStatus
                                   ? "bg-emerald-500/10 border-emerald-500/50 text-emerald-500 cursor-default"
-                                  : "bg-blue-600 hover:bg-blue-500 text-white border-transparent shadow-lg shadow-blue-900/20"
+                                  : "bg-accent-600 hover:bg-accent-500 text-white border-transparent shadow-lg shadow-accent-900/20"
                               )}
                             >
                               {isObsConnecting ? <RefreshCw size={14} className="animate-spin" /> : <Zap size={14} />}
@@ -1591,7 +1591,7 @@ function App(): JSX.Element {
                         <button
                           disabled={!config?.obsIp || !config?.obsPort || !config?.obsSourceName}
                           onClick={() => setWizardStep(3)}
-                          className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg"
+                          className="bg-accent-600 hover:bg-accent-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg"
                         >
                           最後へ進む
                         </button>
@@ -1619,7 +1619,7 @@ function App(): JSX.Element {
                         {obsStatus && (
                           <button
                             onClick={autoSetupObsOverlay}
-                            className="bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 px-8 py-3 rounded-xl font-bold transition-all border border-blue-500/30 flex items-center gap-2 mx-auto text-sm"
+                            className="bg-accent-600/20 hover:bg-accent-600/30 text-accent-400 px-8 py-3 rounded-xl font-bold transition-all border border-accent-500/30 flex items-center gap-2 mx-auto text-sm"
                           >
                             <ExternalLink size={16} />
                             OBSにオーバーレイを自動追加する
@@ -1660,13 +1660,13 @@ function App(): JSX.Element {
           {/* Collapse Toggle Button */}
           <button
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            className="absolute -right-3 top-10 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-lg z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+            className="absolute -right-3 top-10 w-6 h-6 bg-accent-600 rounded-full flex items-center justify-center text-white shadow-lg z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
           >
             {isSidebarCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
           </button>
 
           <div className={cn("p-6 flex items-center gap-3 overflow-hidden", isSidebarCollapsed && "justify-center px-0")}>
-            <div className="min-w-[40px] w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-900/20">
+            <div className="min-w-[40px] w-10 h-10 bg-accent-600 rounded-lg flex items-center justify-center shadow-lg shadow-accent-900/20">
               <Monitor className="text-white" size={24} />
             </div>
             {!isSidebarCollapsed && (
@@ -1689,7 +1689,7 @@ function App(): JSX.Element {
                 disabled={isCheckingUpdate}
                 className={cn(
                   "w-full flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all disabled:opacity-50",
-                  updateInfo ? "bg-blue-600 text-white animate-pulse shadow-lg shadow-blue-900/40" : "bg-blue-600/20 hover:bg-blue-600/30 text-blue-400",
+                  updateInfo ? "bg-accent-600 text-white animate-pulse shadow-lg shadow-accent-900/40" : "bg-accent-600/20 hover:bg-accent-600/30 text-accent-400",
                   isSidebarCollapsed && "px-0"
                 )}
                 title={isSidebarCollapsed ? `v${appVersion} - アップデート確認` : undefined}
@@ -1722,7 +1722,7 @@ function App(): JSX.Element {
                 {activeTab === tab.id && (
                   <motion.div
                     layoutId="activeTab"
-                    className="absolute inset-0 bg-blue-600 rounded-xl shadow-lg shadow-blue-900/40 -z-10"
+                    className="absolute inset-0 bg-accent-600 rounded-xl shadow-lg shadow-accent-900/40 -z-10"
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                   />
                 )}
@@ -1760,18 +1760,18 @@ function App(): JSX.Element {
             "fixed top-6 right-6 z-[100] transition-all duration-500 transform",
             showUpdateToast && updateInfo ? "translate-x-0 opacity-100" : "translate-x-full opacity-0 pointer-events-none"
           )}>
-            <div className="bg-blue-600 text-white p-1 rounded-2xl shadow-2xl shadow-blue-900/40 flex items-center gap-4 border border-blue-400/30">
+            <div className="bg-accent-600 text-white p-1 rounded-2xl shadow-2xl shadow-accent-900/40 flex items-center gap-4 border border-accent-400/30">
               <div className="bg-white/20 p-3 rounded-xl">
                 <Download size={24} />
               </div>
               <div className="pr-4">
                 <h4 className="font-bold text-sm">アップデートがあります</h4>
-                <p className="text-xs text-blue-100 mb-2">v{appVersion} → v{updateInfo?.latestVersion}</p>
+                <p className="text-xs text-accent-100 mb-2">v{appVersion} → v{updateInfo?.latestVersion}</p>
 
                 {updateInfo?.releaseNotes && (
                   <button
                     onClick={() => setShowReleaseNotes(true)}
-                    className="text-xs bg-blue-700 hover:bg-blue-800 text-blue-100 px-2 py-0.5 rounded transition-colors mb-2 flex items-center gap-1"
+                    className="text-xs bg-accent-700 hover:bg-accent-800 text-accent-100 px-2 py-0.5 rounded transition-colors mb-2 flex items-center gap-1"
                   >
                     <FileText size={10} />
                     アップデート内容を確認
@@ -1788,7 +1788,7 @@ function App(): JSX.Element {
                     </button>
                   ) : isDownloadingUpdate ? (
                     <div className="flex items-center gap-2">
-                      <div className="w-20 h-1.5 bg-blue-700 rounded-full overflow-hidden">
+                      <div className="w-20 h-1.5 bg-accent-700 rounded-full overflow-hidden">
                         <div className="h-full bg-white transition-all duration-300" style={{ width: `${updateProgress}%` }} />
                       </div>
                       <span className="text-xs font-mono">{Math.round(updateProgress)}%</span>
@@ -1796,14 +1796,14 @@ function App(): JSX.Element {
                   ) : updateInfo?.isAutoUpdater ? (
                     <button
                       onClick={handleStartDownloadUpdate}
-                      className="bg-white text-blue-600 px-3 py-1 rounded-lg text-xs font-bold hover:bg-blue-50 transition-colors"
+                      className="bg-white text-accent-600 px-3 py-1 rounded-lg text-xs font-bold hover:bg-accent-50 transition-colors"
                     >
                       アップデート
                     </button>
                   ) : (
                     <button
                       onClick={() => window.electron.ipcRenderer.invoke('open-external', updateInfo.url)}
-                      className="min-h-[32px] bg-white text-blue-600 px-3 py-1 rounded-lg text-xs font-bold hover:bg-blue-50 transition-colors"
+                      className="min-h-[32px] bg-white text-accent-600 px-3 py-1 rounded-lg text-xs font-bold hover:bg-accent-50 transition-colors"
                     >
                       詳細
                     </button>
@@ -1838,7 +1838,7 @@ function App(): JSX.Element {
                 >
                   <div className="p-6 border-b border-slate-800 flex items-center justify-between bg-slate-800/50">
                     <div className="flex items-center gap-3">
-                      <div className="bg-blue-600/20 p-2 rounded-xl text-blue-400">
+                      <div className="bg-accent-600/20 p-2 rounded-xl text-accent-400">
                         <FileText size={20} />
                       </div>
                       <div>
@@ -1862,13 +1862,13 @@ function App(): JSX.Element {
                             .replace(/\n/g, '<br/>')
                             .replace(/### (.*)/g, '<h3 class="text-white font-bold text-lg mt-4 mb-2">$1</h3>')
                             .replace(/## (.*)/g, '<h2 class="text-white font-bold text-xl mt-6 mb-3">$1</h2>')
-                            .replace(/- (.*)/g, '<div class="flex gap-2 my-1"><span class="text-blue-400">•</span><span>$1</span></div>')
+                            .replace(/- (.*)/g, '<div class="flex gap-2 my-1"><span class="text-accent-400">•</span><span>$1</span></div>')
                         }} />
                       ) : Array.isArray(updateInfo.releaseNotes) ? (
                         <div className="space-y-6">
                           {updateInfo.releaseNotes.map((note: any, i: number) => (
                             <div key={i} className="border-b border-slate-800 pb-4 last:border-0">
-                              {note.version && <div className="text-blue-400 font-bold mb-2">v{note.version}</div>}
+                              {note.version && <div className="text-accent-400 font-bold mb-2">v{note.version}</div>}
                               <div dangerouslySetInnerHTML={{ __html: note.note }} />
                             </div>
                           ))}
@@ -1954,15 +1954,15 @@ function App(): JSX.Element {
                     </div>
 
                     <div className="bg-raised p-6 rounded-2xl border border-slate-800 shadow-xl relative overflow-hidden group">
-                      <div className="absolute top-0 left-0 w-full h-1 bg-blue-500/30" />
+                      <div className="absolute top-0 left-0 w-full h-1 bg-accent-500/30" />
                       <div className="flex items-center justify-between mb-4">
-                        <div className="p-3 bg-blue-500/10 rounded-xl group-hover:scale-110 transition-transform">
-                          <Monitor className="text-blue-500" size={24} />
+                        <div className="p-3 bg-accent-500/10 rounded-xl group-hover:scale-110 transition-transform">
+                          <Monitor className="text-accent-500" size={24} />
                         </div>
                         {config?.obsIp ? (
-                          <div className="flex items-center gap-1.5 bg-blue-500/10 px-2.5 py-1 rounded-full">
-                            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full dot-pulse-success" />
-                            <span className="text-xs font-bold text-blue-500 uppercase tracking-tight">Connected</span>
+                          <div className="flex items-center gap-1.5 bg-accent-500/10 px-2.5 py-1 rounded-full">
+                            <div className="w-1.5 h-1.5 bg-accent-500 rounded-full dot-pulse-success" />
+                            <span className="text-xs font-bold text-accent-500 uppercase tracking-tight">Connected</span>
                           </div>
                         ) : (
                           <span className="text-xs font-bold text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full uppercase tracking-tight">Disconnected</span>
@@ -2003,8 +2003,8 @@ function App(): JSX.Element {
 
                       <div className="p-6 border-b border-slate-800 flex justify-between items-center">
                         <h3 className="font-bold text-lg flex items-center gap-2">
-                          <BarChart3 size={20} className="text-blue-500" />
-                          <BarChart3 size={20} className="text-blue-500" />
+                          <BarChart3 size={20} className="text-accent-500" />
+                          <BarChart3 size={20} className="text-accent-500" />
                           現在のスコア
                         </h3>
                         <div className="flex gap-2">
@@ -2038,7 +2038,7 @@ function App(): JSX.Element {
                               </button>
                               <button
                                 onClick={() => handleSaveEditedScores()}
-                                className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1 transition-colors"
+                                className="text-sm text-accent-400 hover:text-accent-300 flex items-center gap-1 transition-colors"
                               >
                                 保存
                               </button>
@@ -2053,7 +2053,7 @@ function App(): JSX.Element {
                             <>
                               <button
                                 onClick={handleStartEdit}
-                                className="min-h-[32px] text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1 transition-colors"
+                                className="min-h-[32px] text-sm text-accent-400 hover:text-accent-300 flex items-center gap-1 transition-colors"
                               >
                                 編集
                               </button>
@@ -2131,7 +2131,7 @@ function App(): JSX.Element {
                               "w-2 h-2 mt-2 rounded-full shrink-0",
                               log.type === 'success' ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" :
                                 log.type === 'error' ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" :
-                                  "bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"
+                                  "bg-accent-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"
                             )} />
                             <div className="flex-1 min-w-0">
                               <p className="text-sm text-slate-300 break-words">{log.message}</p>
@@ -2177,7 +2177,7 @@ function App(): JSX.Element {
                           <div className="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-800/30">
                             <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Slot {i + 1}</span>
                             {slot && (
-                              <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full border border-blue-500/30">
+                              <span className="text-xs bg-accent-500/20 text-accent-400 px-2 py-0.5 rounded-full border border-accent-500/30">
                                 {new Date(slot.timestamp).toLocaleDateString()}
                               </span>
                             )}
@@ -2189,7 +2189,7 @@ function App(): JSX.Element {
                                 <div className="grid grid-cols-2 gap-2">
                                   <div className="bg-slate-900/50 p-2 rounded-lg border border-slate-800">
                                     <div className="text-xs text-slate-400 uppercase">チーム数</div>
-                                    <div className="text-sm font-bold text-blue-400">{slot.scores.length}</div>
+                                    <div className="text-sm font-bold text-accent-400">{slot.scores.length}</div>
                                   </div>
                                   <div className="bg-slate-900/50 p-2 rounded-lg border border-slate-800">
                                     <div className="text-sm font-bold text-emerald-400">
@@ -2211,7 +2211,7 @@ function App(): JSX.Element {
                                 <div className="flex gap-2">
                                   <button
                                     onClick={() => handleLoadSlot(i)}
-                                    className="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2 rounded-lg text-sm font-bold transition-colors shadow-lg shadow-blue-900/20"
+                                    className="flex-1 bg-accent-600 hover:bg-accent-500 text-white py-2 rounded-lg text-sm font-bold transition-colors shadow-lg shadow-accent-900/20"
                                   >
                                     ロード
                                   </button>
@@ -2241,7 +2241,7 @@ function App(): JSX.Element {
                             ) : (
                               <button
                                 onClick={() => handleSaveSlot(i)}
-                                className="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-blue-900/30 active:scale-95 flex items-center justify-center gap-2 group"
+                                className="w-full bg-accent-600 hover:bg-accent-500 text-white py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-accent-900/30 active:scale-95 flex items-center justify-center gap-2 group"
                               >
                                 <Save size={18} className="group-hover:rotate-12 transition-transform" />
                                 現在の状態を保存
@@ -2272,7 +2272,7 @@ function App(): JSX.Element {
                   <div className="glass-panel rounded-2xl overflow-hidden border-none">
                     <div className="p-6 border-b border-slate-800 flex justify-between items-center">
                       <h3 className="font-bold text-lg flex items-center gap-2">
-                        <Users size={20} className="text-blue-500" />
+                        <Users size={20} className="text-accent-500" />
                         マッピング一覧
                       </h3>
                       <div className="flex gap-2">
@@ -2286,7 +2286,7 @@ function App(): JSX.Element {
                             </button>
                             <button
                               onClick={handleSaveMappings}
-                              className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                              className="bg-accent-600 hover:bg-accent-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
                             >
                               <Save size={16} />
                               保存
@@ -2301,7 +2301,7 @@ function App(): JSX.Element {
                         ) : (
                           <button
                             onClick={handleStartEditMappings}
-                            className="min-h-[32px] bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                            className="min-h-[32px] bg-accent-600 hover:bg-accent-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                           >
                             編集
                           </button>
@@ -2326,7 +2326,7 @@ function App(): JSX.Element {
                                     type="text"
                                     value={mapping.name}
                                     onChange={(e) => handleMappingChange(index, 'name', e.target.value)}
-                                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-all"
                                     placeholder="プレイヤー名"
                                   />
                                 </td>
@@ -2335,7 +2335,7 @@ function App(): JSX.Element {
                                     type="text"
                                     value={mapping.team}
                                     onChange={(e) => handleMappingChange(index, 'team', e.target.value)}
-                                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-all"
                                     placeholder="チーム名"
                                   />
                                 </td>
@@ -2355,7 +2355,7 @@ function App(): JSX.Element {
                                 <tr key={index} className="group hover:bg-slate-800/30 transition-colors">
                                   <td className="py-4 pr-4 font-medium text-white">{name}</td>
                                   <td className="py-4 pr-4">
-                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-accent-500/10 text-accent-400 border border-accent-500/20">
                                       {team}
                                     </span>
                                   </td>
@@ -2399,7 +2399,7 @@ function App(): JSX.Element {
                         className={cn(
                           "px-6 py-2 rounded-lg text-sm font-bold transition-all",
                           overlayTab === tab
-                            ? "bg-blue-600 text-white shadow-lg"
+                            ? "bg-accent-600 text-white shadow-lg"
                             : "text-slate-400 hover:text-white hover:bg-slate-800"
                         )}
                       >
@@ -2428,7 +2428,7 @@ function App(): JSX.Element {
                               className="space-y-6"
                             >
                               <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                                <Layout className="text-blue-500" size={24} />
+                                <Layout className="text-accent-500" size={24} />
                                 表示設定
                               </h3>
 
@@ -2454,7 +2454,7 @@ function App(): JSX.Element {
                                   <button
                                     type="button"
                                     onClick={handleOpenOverlay}
-                                    className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors flex items-center gap-2"
+                                    className="bg-accent-600 hover:bg-accent-500 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors flex items-center gap-2"
                                   >
                                     <ExternalLink size={16} />
                                     ブラウザで開く
@@ -2499,7 +2499,7 @@ function App(): JSX.Element {
                                     setSelectedOverlayTheme(e.target.value)
                                     setIsDirty(true)
                                   }}
-                                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-sans"
+                                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-all font-sans"
                                 >
                                   <option value="default">デフォルト (Default)</option>
                                   <option value="mkw">マリオカートWii風 (MKW)</option>
@@ -2535,7 +2535,7 @@ function App(): JSX.Element {
                                         setSelectedOwnTeamStyle(e.target.value)
                                         setIsDirty(true)
                                       }}
-                                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-sans"
+                                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-all font-sans"
                                     >
                                       <option value="solid">単色</option>
                                       <option value="rainbow">虹色</option>
@@ -2568,7 +2568,7 @@ function App(): JSX.Element {
                                           name="ownTeamGradient"
                                           defaultValue={config?.overlayColors?.ownTeamGradient || 'blue'}
                                           onChange={() => setIsDirty(true)}
-                                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-sans"
+                                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-all font-sans"
                                         >
                                           <option value="blue">ブルー（青〜水色）</option>
                                           <option value="pink">ピンク（ピンク〜紫）</option>
@@ -2612,7 +2612,7 @@ function App(): JSX.Element {
                                 <div className="space-y-2 pt-2">
                                   <div className="flex justify-between">
                                     <label className="text-sm font-medium text-slate-200">アニメーション速度倍率</label>
-                                    <span className="text-sm font-bold text-blue-400">x{config?.overlayAnimations?.speed ?? 1.0}</span>
+                                    <span className="text-sm font-bold text-accent-400">x{config?.overlayAnimations?.speed ?? 1.0}</span>
                                   </div>
                                   <input
                                     type="range"
@@ -2621,7 +2621,7 @@ function App(): JSX.Element {
                                     max="2.0"
                                     step="0.1"
                                     defaultValue={config?.overlayAnimations?.speed ?? 1.0}
-                                    className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                                    className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-accent-500"
                                   />
                                   <div className="flex justify-between text-xs text-slate-400">
                                     <span>Slow (0.5x)</span>
@@ -2636,7 +2636,7 @@ function App(): JSX.Element {
                           <div className="pt-4 border-t border-slate-700/50 mt-6">
                             <button
                               type="submit"
-                              className="w-full bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-semibold transition-all shadow-lg shadow-blue-900/20 active:scale-95 flex justify-center items-center gap-2"
+                              className="w-full bg-accent-600 hover:bg-accent-500 text-white px-6 py-3 rounded-xl font-semibold transition-all shadow-lg shadow-accent-900/20 active:scale-95 flex justify-center items-center gap-2"
                             >
                               <Save size={18} />
                               設定を保存
@@ -2710,7 +2710,7 @@ function App(): JSX.Element {
                         className={cn(
                           "px-6 py-2 rounded-lg text-sm font-bold transition-all",
                           settingsTab === tab
-                            ? "bg-blue-600 text-white shadow-lg"
+                            ? "bg-accent-600 text-white shadow-lg"
                             : "text-slate-400 hover:text-white hover:bg-slate-800"
                         )}
                       >
@@ -2746,7 +2746,7 @@ function App(): JSX.Element {
                                 className={cn(
                                   "p-4 rounded-xl border transition-all flex flex-col items-center gap-2",
                                   bgStyle === 'planetarium'
-                                    ? "bg-blue-900/40 border-blue-500 text-blue-200"
+                                    ? "bg-accent-900/40 border-accent-500 text-accent-200"
                                     : "bg-slate-900/40 border-slate-700 text-slate-400 hover:bg-slate-800"
                                 )}
                               >
@@ -2792,8 +2792,8 @@ function App(): JSX.Element {
                               type="button"
                               onClick={() => setLiteMode(!liteMode)}
                               className={cn(
-                                "relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2",
-                                liteMode ? "bg-blue-600" : "bg-slate-700"
+                                "relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-accent-600 focus:ring-offset-2",
+                                liteMode ? "bg-accent-600" : "bg-slate-700"
                               )}
                             >
                               <span className="sr-only">Use setting</span>
@@ -2817,7 +2817,7 @@ function App(): JSX.Element {
                         animate={{ opacity: 1, y: 0 }}
                         className="bg-raised p-8 rounded-2xl border border-slate-800 shadow-xl space-y-6"
                       >
-                        <h3 className="text-lg font-bold flex items-center gap-2 text-blue-400">
+                        <h3 className="text-lg font-bold flex items-center gap-2 text-accent-400">
                           <Radio size={20} />
                           OBS WebSocket 設定
                         </h3>
@@ -2830,7 +2830,7 @@ function App(): JSX.Element {
                               type="text"
                               defaultValue={config?.obsIp || '127.0.0.1'}
                               placeholder="127.0.0.1"
-                              className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-mono"
+                              className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-all font-mono"
                             />
                           </div>
                           <div className="space-y-2">
@@ -2840,7 +2840,7 @@ function App(): JSX.Element {
                               type="text"
                               defaultValue={config?.obsPort || '4455'}
                               placeholder="4455"
-                              className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-mono"
+                              className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-all font-mono"
                             />
                           </div>
                           <div className="space-y-2 md:col-span-2">
@@ -2850,7 +2850,7 @@ function App(): JSX.Element {
                               type="password"
                               defaultValue={config?.obsPassword}
                               placeholder="OBS WebSocket Password"
-                              className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-mono"
+                              className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-all font-mono"
                             />
                           </div>
                         </div>
@@ -2871,7 +2871,7 @@ function App(): JSX.Element {
                                 type="text"
                                 defaultValue={config?.obsSourceName}
                                 placeholder={t('config.obsSourceNamePlaceholder')}
-                                className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                                className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-all"
                               />
                               <datalist id="obs-source-list">
                                 {obsInputs && obsInputs.map((input: any) => (
@@ -2901,7 +2901,7 @@ function App(): JSX.Element {
                           <button
                             type="button"
                             onClick={autoSetupObsOverlay}
-                            className="flex items-center justify-center gap-2 bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white py-3 rounded-xl font-bold transition-all border border-blue-500/30 active:scale-[0.98] group"
+                            className="flex items-center justify-center gap-2 bg-accent-600/10 hover:bg-accent-600 text-accent-400 hover:text-white py-3 rounded-xl font-bold transition-all border border-accent-500/30 active:scale-[0.98] group"
                           >
                             <ExternalLink size={16} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                             {t('config.obsAutoSetup')}
@@ -2930,7 +2930,7 @@ function App(): JSX.Element {
                             <label className={cn(
                               "flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all",
                               config?.analysisMode !== 'standings24'
-                                ? "bg-blue-600/10 border-blue-500/50"
+                                ? "bg-accent-600/10 border-accent-500/50"
                                 : "bg-slate-900/50 border-slate-700 hover:border-slate-600"
                             )}>
                               <input
@@ -2938,7 +2938,7 @@ function App(): JSX.Element {
                                 name="analysisMode"
                                 value="standard12"
                                 defaultChecked={config?.analysisMode !== 'standings24'}
-                                className="mt-1 accent-blue-500"
+                                className="mt-1 accent-accent-500"
                               />
                               <span>
                                 <span className="block text-sm font-bold text-white">{t('config.analysisModeStandard')}</span>
@@ -3014,7 +3014,7 @@ function App(): JSX.Element {
                                           href="https://console.groq.com/keys"
                                           target="_blank"
                                           rel="noopener noreferrer"
-                                          className="text-blue-400 hover:underline inline-flex items-center gap-1"
+                                          className="text-accent-400 hover:underline inline-flex items-center gap-1"
                                         >
                                           Groq Cloud Console <ExternalLink size={12} />
                                         </a>
@@ -3048,7 +3048,7 @@ function App(): JSX.Element {
                     <div className="flex justify-end pt-4 border-t border-slate-700/30">
                       <button
                         type="submit"
-                        className="bg-blue-600 hover:bg-blue-500 text-white px-10 py-4 rounded-xl font-bold transition-all shadow-lg shadow-blue-900/40 active:scale-95 flex items-center gap-2"
+                        className="bg-accent-600 hover:bg-accent-500 text-white px-10 py-4 rounded-xl font-bold transition-all shadow-lg shadow-accent-900/40 active:scale-95 flex items-center gap-2"
                       >
                         <Save size={20} />
                         {t('config.saveButton')}
@@ -3067,7 +3067,7 @@ function App(): JSX.Element {
                   transition={{ duration: 0.2 }}
                   className="max-w-2xl mx-auto text-center space-y-8 py-12"
                 >
-                  <div className="w-24 h-24 bg-blue-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-900/40 mx-auto mb-8">
+                  <div className="w-24 h-24 bg-accent-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-accent-900/40 mx-auto mb-8">
                     <Monitor className="text-white" size={48} />
                   </div>
                   <h2 className="text-4xl font-bold text-white">Grosoq</h2>
