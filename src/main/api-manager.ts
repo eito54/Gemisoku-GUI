@@ -226,11 +226,14 @@ export class ApiManager {
         return [imageUrl]
       }
       const { width, height } = image.getSize()
+      // 共通の縦範囲（ヘッダー/フッター等のノイズ除去用）
+      const y = Math.max(0, Math.min(height - 1, Math.floor((height * (cal.startY ?? 0)) / 100)))
+      const h = Math.max(1, Math.floor((height * Math.max(0, (cal.endY ?? 100) - (cal.startY ?? 0))) / 100))
       const out: string[] = []
       for (const r of ranges) {
         const x = Math.max(0, Math.min(width - 1, Math.floor((width * r.startPct) / 100)))
         const w = Math.max(1, Math.floor((width * Math.max(0, r.endPct - r.startPct)) / 100))
-        const cropped = image.crop({ x, y: 0, width: Math.min(w, width - x), height })
+        const cropped = image.crop({ x, y, width: Math.min(w, width - x), height: Math.min(h, height - y) })
         if (!cropped.isEmpty()) {
           out.push(`data:image/jpeg;base64,${cropped.toJPEG(90).toString('base64')}`)
         }

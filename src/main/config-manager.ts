@@ -24,6 +24,9 @@ export interface StandingsCalibration {
   colAEndX: number
   colBStartX: number
   colBEndX: number
+  /** 2列共通の縦範囲（全高に対する%） */
+  startY: number
+  endY: number
 }
 
 export interface Config {
@@ -43,7 +46,7 @@ export interface Config {
   overlayTheme: 'default' | 'mkw'
   overlayColors: OverlayColors
   overlayAnimations: OverlayAnimations
-  /** スタンド24モードの列ごとクロップ範囲（全幅に対する%）。列A=左列, 列B=右列 */
+  /** スタンド24モードの列ごとクロップ範囲（全幅/全高に対する%）。列A=左列, 列B=右列 */
   standingsCalibration: StandingsCalibration
   scoreSettings: {
     maxRaces: number
@@ -126,11 +129,13 @@ export class ConfigManager {
       },
       standingsCalibration: {
         // 既定値: 左半分(0〜50%)をほぼ全覆盖え。レイアウトによっては列Bが中央を
-        // 超えるため、校正UIでは0〜100%まで設定可能（ユーザーが実幅に合わせて調整）
+        // 超えるため、校正UIではXは0〜100%まで設定可能（ユーザーが実幅に合わせて調整）
         colAStartX: 0,
         colAEndX: 24,
         colBStartX: 25,
-        colBEndX: 50
+        colBEndX: 50,
+        startY: 0,
+        endY: 100
       },
       scoreSettings: {
         maxRaces: 12,
