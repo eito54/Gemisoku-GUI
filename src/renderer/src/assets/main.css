@@ -379,11 +379,7 @@ body.lite-mode::after {
   }
 }
 
-/* モータースポーツHUD風ディスプレイ書体（英字はChakra Petch、日本語は新ゴシックにフォールバック） */
-h2, h3 {
-  font-family: 'Chakra Petch', 'Zen Kaku Gothic New', sans-serif;
-  letter-spacing: 0.02em;
-}
+/* フォントはシステムスタックを使用（カスタム書体はユーザー好みに合わないため不採用） */
 
 /* キーボードフォーカスの可視化（マウスクリックでは表示されない） */
 :focus-visible {

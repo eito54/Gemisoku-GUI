@@ -6,10 +6,6 @@ module.exports = {
   ],
   theme: {
     extend: {
-      fontFamily: {
-        sans: ['"Zen Kaku Gothic New"', 'system-ui', 'sans-serif'],
-        display: ['"Chakra Petch"', '"Zen Kaku Gothic New"', 'sans-serif']
-      },
       colors: {
         surface: {
           DEFAULT: '#0f172a',
