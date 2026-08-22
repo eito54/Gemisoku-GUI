@@ -1144,7 +1144,7 @@ function App(): JSX.Element {
       <div className="flex items-center justify-between p-4 bg-[#0f172a] rounded-xl border border-slate-700">
         <div>
           <p className="font-medium text-slate-200">{label}</p>
-          {help && <p className="text-xs text-slate-500">{help}</p>}
+          {help && <p className="text-xs text-slate-400">{help}</p>}
         </div>
         <label className="relative inline-flex items-center cursor-pointer">
           <input
@@ -1416,7 +1416,7 @@ function App(): JSX.Element {
 
                       <div className="space-y-4">
                         <div className="space-y-2">
-                          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Groq API Key</label>
+                          <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Groq API Key</label>
                           <input
                             type="password"
                             placeholder="gsk_..."
@@ -1437,7 +1437,7 @@ function App(): JSX.Element {
                       </div>
 
                       <div className="flex justify-between pt-6">
-                        <button onClick={() => setWizardStep(0)} className="text-slate-500 hover:text-slate-300 font-medium">戻る</button>
+                        <button onClick={() => setWizardStep(0)} className="text-slate-400 hover:text-slate-300 font-medium">戻る</button>
                         <button
                           disabled={!config?.groqApiKey}
                           onClick={() => setWizardStep(2)}
@@ -1479,7 +1479,7 @@ function App(): JSX.Element {
 
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <label className="text-xs font-bold text-slate-500">IPアドレス</label>
+                          <label className="text-xs font-bold text-slate-400">IPアドレス</label>
                           <input
                             type="text"
                             value={config?.obsIp || ''}
@@ -1489,7 +1489,7 @@ function App(): JSX.Element {
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-xs font-bold text-slate-500">ポート</label>
+                          <label className="text-xs font-bold text-slate-400">ポート</label>
                           <input
                             type="number"
                             value={config?.obsPort || ''}
@@ -1503,7 +1503,7 @@ function App(): JSX.Element {
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500">WebSocket パスワード (任意)</label>
+                        <label className="text-xs font-bold text-slate-400">WebSocket パスワード (任意)</label>
                         <input
                           type="password"
                           value={config?.obsPassword || ''}
@@ -1515,7 +1515,7 @@ function App(): JSX.Element {
 
                       <div className="space-y-4">
                         <div className="space-y-2 relative">
-                          <label className="text-xs font-bold text-slate-500">キャプチャソース名</label>
+                          <label className="text-xs font-bold text-slate-400">キャプチャソース名</label>
                           <div className="flex gap-2">
                             <div className="relative flex-1">
                               {obsInputs && obsInputs.length > 0 ? (
@@ -1579,7 +1579,7 @@ function App(): JSX.Element {
                             </button>
                           </div>
                           {!obsStatus && !obsInputs.length && (
-                            <p className="text-[10px] text-slate-500 italic ml-1">
+                            <p className="text-[10px] text-slate-400 italic ml-1">
                               ※ 接続テストに成功すると、OBS内のソース一覧が自動取得されます。
                             </p>
                           )}
@@ -1587,7 +1587,7 @@ function App(): JSX.Element {
                       </div>
 
                       <div className="flex justify-between pt-6">
-                        <button onClick={() => setWizardStep(1)} className="text-slate-500 hover:text-slate-300 font-medium">戻る</button>
+                        <button onClick={() => setWizardStep(1)} className="text-slate-400 hover:text-slate-300 font-medium">戻る</button>
                         <button
                           disabled={!config?.obsIp || !config?.obsPort || !config?.obsSourceName}
                           onClick={() => setWizardStep(3)}
@@ -1680,7 +1680,7 @@ function App(): JSX.Element {
             <div className={cn("bg-slate-800/50 rounded-2xl p-3 border border-slate-700/50", isSidebarCollapsed && "p-1")}>
               {!isSidebarCollapsed && (
                 <div className="flex justify-between items-center mb-1 px-1">
-                  <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Version</p>
+                  <p className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Version</p>
                   <p className="text-[10px] font-mono text-slate-400">{appVersion}</p>
                 </div>
               )}
@@ -1874,7 +1874,7 @@ function App(): JSX.Element {
                           ))}
                         </div>
                       ) : (
-                        <p className="text-slate-500 italic">リリースノートはありません。</p>
+                        <p className="text-slate-400 italic">リリースノートはありません。</p>
                       )}
                     </div>
                   </div>
@@ -1965,7 +1965,7 @@ function App(): JSX.Element {
                             <span className="text-[10px] font-bold text-blue-500 uppercase tracking-tight">Connected</span>
                           </div>
                         ) : (
-                          <span className="text-[10px] font-bold text-slate-500 bg-slate-800 px-2.5 py-1 rounded-full uppercase tracking-tight">Disconnected</span>
+                          <span className="text-[10px] font-bold text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full uppercase tracking-tight">Disconnected</span>
                         )}
                       </div>
                       <h3 className="text-slate-400 text-sm font-medium mb-1">OBS 接続</h3>
@@ -1984,7 +1984,7 @@ function App(): JSX.Element {
                             <span className="text-[10px] font-bold text-purple-500 uppercase tracking-tight">Ready</span>
                           </div>
                         ) : (
-                          <span className="text-[10px] font-bold text-slate-500 bg-slate-800 px-2.5 py-1 rounded-full uppercase tracking-tight">Offline</span>
+                          <span className="text-[10px] font-bold text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full uppercase tracking-tight">Offline</span>
                         )}
                       </div>
                       <h3 className="text-slate-400 text-sm font-medium mb-1">Groq API</h3>
@@ -2105,7 +2105,7 @@ function App(): JSX.Element {
                                   animate={{ opacity: 1 }}
                                   key="empty"
                                 >
-                                  <td colSpan={isEditing ? 3 : 2} className="px-6 py-12 text-center text-slate-500 italic">
+                                  <td colSpan={isEditing ? 3 : 2} className="px-6 py-12 text-center text-slate-400 italic">
                                     データがありません
                                   </td>
                                 </motion.tr>
@@ -2135,11 +2135,11 @@ function App(): JSX.Element {
                             )} />
                             <div className="flex-1 min-w-0">
                               <p className="text-sm text-slate-300 break-words">{log.message}</p>
-                              <p className="text-xs text-slate-500">{log.timestamp}</p>
+                              <p className="text-xs text-slate-400">{log.timestamp}</p>
                             </div>
                           </div>
                         )) : (
-                          <p className="text-center text-slate-500 py-8 italic">ログはありません</p>
+                          <p className="text-center text-slate-400 py-8 italic">ログはありません</p>
                         )}
                       </div>
                     </div>
@@ -2175,7 +2175,7 @@ function App(): JSX.Element {
                       return (
                         <div key={i} className="glass-card rounded-2xl overflow-hidden flex flex-col border-none hover:scale-[1.02]">
                           <div className="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-800/30">
-                            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Slot {i + 1}</span>
+                            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Slot {i + 1}</span>
                             {slot && (
                               <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full border border-blue-500/30">
                                 {new Date(slot.timestamp).toLocaleDateString()}
@@ -2188,7 +2188,7 @@ function App(): JSX.Element {
                                 <h4 className="font-bold text-lg text-slate-200 truncate">{slot.name}</h4>
                                 <div className="grid grid-cols-2 gap-2">
                                   <div className="bg-slate-900/50 p-2 rounded-lg border border-slate-800">
-                                    <div className="text-[10px] text-slate-500 uppercase">チーム数</div>
+                                    <div className="text-[10px] text-slate-400 uppercase">チーム数</div>
                                     <div className="text-sm font-bold text-blue-400">{slot.scores.length}</div>
                                   </div>
                                   <div className="bg-slate-900/50 p-2 rounded-lg border border-slate-800">
@@ -2199,7 +2199,7 @@ function App(): JSX.Element {
                                 </div>
                               </div>
                             ) : (
-                              <div className="h-full flex flex-col items-center justify-center py-4 text-slate-600">
+                              <div className="h-full flex flex-col items-center justify-center py-4 text-slate-400">
                                 <Save size={32} className="mb-2 opacity-20" />
                                 <p className="text-sm italic">空のスロット</p>
                               </div>
@@ -2311,7 +2311,7 @@ function App(): JSX.Element {
                     <div className="p-6">
                       <table className="w-full">
                         <thead>
-                          <tr className="text-left text-slate-500 text-sm border-b border-slate-800">
+                          <tr className="text-left text-slate-400 text-sm border-b border-slate-800">
                             <th className="pb-4 font-medium">プレイヤー名</th>
                             <th className="pb-4 font-medium">チーム名</th>
                             {isEditingMappings && <th className="pb-4 font-medium w-16">操作</th>}
@@ -2342,7 +2342,7 @@ function App(): JSX.Element {
                                 <td className="py-4">
                                   <button
                                     onClick={() => handleRemoveMapping(index)}
-                                    className="p-2 text-slate-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                                    className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
                                   >
                                     <Trash2 size={18} />
                                   </button>
@@ -2363,7 +2363,7 @@ function App(): JSX.Element {
                               ))
                             ) : (
                               <tr>
-                                <td colSpan={2} className="py-12 text-center text-slate-500">
+                                <td colSpan={2} className="py-12 text-center text-slate-400">
                                   マッピングが設定されていません
                                 </td>
                               </tr>
@@ -2449,7 +2449,7 @@ function App(): JSX.Element {
                                 <div className="flex justify-between items-center">
                                   <div>
                                     <p className="font-bold text-slate-200">オーバーレイURL</p>
-                                    <p className="text-xs text-slate-500">OBSのブラウザソースに設定するURLです</p>
+                                    <p className="text-xs text-slate-400">OBSのブラウザソースに設定するURLです</p>
                                   </div>
                                   <button
                                     type="button"
@@ -2469,7 +2469,7 @@ function App(): JSX.Element {
                                       setIsCopied(true)
                                       setTimeout(() => setIsCopied(false), 2000)
                                     }}
-                                    className="text-slate-500 hover:text-white transition-colors"
+                                    className="text-slate-400 hover:text-white transition-colors"
                                   >
                                     {isCopied ? <CheckCircle size={16} className="text-green-500" /> : <Copy size={16} />}
                                   </button>
@@ -2504,7 +2504,7 @@ function App(): JSX.Element {
                                   <option value="default">デフォルト (Default)</option>
                                   <option value="mkw">マリオカートWii風 (MKW)</option>
                                 </select>
-                                <p className="text-xs text-slate-500">オーバーレイの全体的なデザインスタイルを変更します。</p>
+                                <p className="text-xs text-slate-400">オーバーレイの全体的なデザインスタイルを変更します。</p>
                               </div>
 
                               {/* デフォルトテーマ設定 (Common for most themes except very specific ones) */}
@@ -2523,7 +2523,7 @@ function App(): JSX.Element {
                                         onChange={() => setIsDirty(true)}
                                       />
                                     </div>
-                                    <p className="text-[10px] text-slate-500">点数が加算された時の光の色を変更します。</p>
+                                    <p className="text-[10px] text-slate-400">点数が加算された時の光の色を変更します。</p>
                                   </div>
 
                                   <div className="space-y-2 p-4 bg-[#0f172a] rounded-xl border border-slate-700">
@@ -2541,7 +2541,7 @@ function App(): JSX.Element {
                                       <option value="rainbow">虹色</option>
                                       <option value="gradient">グラデーション</option>
                                     </select>
-                                    <p className="text-[10px] text-slate-500">自チーム（または選択中）の枠線のスタイル。</p>
+                                    <p className="text-[10px] text-slate-400">自チーム（または選択中）の枠線のスタイル。</p>
                                   </div>
                                 </div>
 
@@ -2623,7 +2623,7 @@ function App(): JSX.Element {
                                     defaultValue={config?.overlayAnimations?.speed ?? 1.0}
                                     className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
                                   />
-                                  <div className="flex justify-between text-xs text-slate-500">
+                                  <div className="flex justify-between text-xs text-slate-400">
                                     <span>Slow (0.5x)</span>
                                     <span>Normal (1.0x)</span>
                                     <span>Fast (2.0x)</span>
@@ -2674,7 +2674,7 @@ function App(): JSX.Element {
                         />
                         <div className="absolute inset-0 pointer-events-none border-2 border-slate-700/50 rounded-2xl group-hover:border-slate-600/50 transition-colors"></div>
                       </div>
-                      <p className="text-center text-xs text-slate-500">
+                      <p className="text-center text-xs text-slate-400">
                         ※ プレビューは60%に縮小表示されています
                       </p>
                     </div>
@@ -2863,7 +2863,7 @@ function App(): JSX.Element {
                             </label>
                             <div className="relative">
                               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <Search size={16} className="text-slate-500" />
+                                <Search size={16} className="text-slate-400" />
                               </div>
                               <input
                                 name="obsSourceName"
@@ -2882,7 +2882,7 @@ function App(): JSX.Element {
                               </datalist>
                             </div>
                             {!obsStatus && (
-                              <p className="text-xs text-slate-500 mt-1">
+                              <p className="text-xs text-slate-400 mt-1">
                                 {t('config.obsSourceDropdownHint')}
                               </p>
                             )}
@@ -2942,7 +2942,7 @@ function App(): JSX.Element {
                               />
                               <span>
                                 <span className="block text-sm font-bold text-white">{t('config.analysisModeStandard')}</span>
-                                <span className="block text-xs text-slate-500 mt-1">{t('config.analysisModeStandardHelp')}</span>
+                                <span className="block text-xs text-slate-400 mt-1">{t('config.analysisModeStandardHelp')}</span>
                               </span>
                             </label>
                             <label className={cn(
@@ -2960,11 +2960,11 @@ function App(): JSX.Element {
                               />
                               <span>
                                 <span className="block text-sm font-bold text-white">{t('config.analysisModeStandings')}</span>
-                                <span className="block text-xs text-slate-500 mt-1">{t('config.analysisModeStandingsHelp')}</span>
+                                <span className="block text-xs text-slate-400 mt-1">{t('config.analysisModeStandingsHelp')}</span>
                               </span>
                             </label>
                           </div>
-                          <p className="text-xs text-slate-500">{t('config.analysisModeHelp')}</p>
+                          <p className="text-xs text-slate-400">{t('config.analysisModeHelp')}</p>
                         </div>
 
                         {config?.analysisMode === 'standings24' && (
@@ -2981,7 +2981,7 @@ function App(): JSX.Element {
                               placeholder={t('config.groqApiKeyPlaceholder')}
                               className="w-full bg-[#0f172a] border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all font-mono"
                             />
-                            <p className="text-xs text-slate-500 italic">
+                            <p className="text-xs text-slate-400 italic">
                               ※ 現在は爆速かつ無料で利用可能な Groq (Qwen 3.6 27B) のみを使用します。
                             </p>
                           </div>
@@ -3106,7 +3106,7 @@ function App(): JSX.Element {
                       </button>
                     </div>
                   </div>
-                  <p className="text-slate-500 pt-8">
+                  <p className="text-slate-400 pt-8">
                     {t('footer.madeWith')}
                   </p>
                 </motion.div>

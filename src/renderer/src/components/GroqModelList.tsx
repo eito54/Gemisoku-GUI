@@ -57,7 +57,7 @@ export function GroqModelList({ hasApiKey }: { hasApiKey: boolean }): JSX.Elemen
   if (!hasApiKey) {
     return (
       <div className="border border-slate-700 rounded-xl p-4 bg-slate-900/50 text-sm text-slate-400 flex items-center gap-2">
-        <AlertCircle size={16} className="text-slate-500 flex-shrink-0" />
+        <AlertCircle size={16} className="text-slate-400 flex-shrink-0" />
         {t('config.modelsNeedKey')}
       </div>
     )
@@ -92,7 +92,7 @@ export function GroqModelList({ hasApiKey }: { hasApiKey: boolean }): JSX.Elemen
       ) : (
         <ul className="divide-y divide-slate-800/60">
           {models.length === 0 && !loading && (
-            <li className="p-4 text-sm text-slate-500">{t('config.modelsEmpty')}</li>
+            <li className="p-4 text-sm text-slate-400">{t('config.modelsEmpty')}</li>
           )}
           {models.map((model) => (
             <li key={model.id} className="flex items-center gap-3 px-4 py-2.5 text-sm">
@@ -106,7 +106,7 @@ export function GroqModelList({ hasApiKey }: { hasApiKey: boolean }): JSX.Elemen
                 </span>
               ) : (
                 <span
-                  className="flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-500 border border-slate-700 whitespace-nowrap"
+                  className="flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-400 border border-slate-700 whitespace-nowrap"
                   title={t('config.modelsVisionNo')}
                 >
                   <EyeOff size={11} />
@@ -120,7 +120,7 @@ export function GroqModelList({ hasApiKey }: { hasApiKey: boolean }): JSX.Elemen
                 )}
               </span>
               {model.contextWindow && (
-                <span className="text-[10px] text-slate-500 whitespace-nowrap">
+                <span className="text-[10px] text-slate-400 whitespace-nowrap">
                   {formatContext(model.contextWindow)}
                 </span>
               )}
@@ -130,7 +130,7 @@ export function GroqModelList({ hasApiKey }: { hasApiKey: boolean }): JSX.Elemen
       )}
 
       <div className="px-4 py-2 border-t border-slate-800 bg-slate-900/80">
-        <p className="text-[10px] text-slate-600">{t('config.modelsHint')}</p>
+        <p className="text-[10px] text-slate-400">{t('config.modelsHint')}</p>
       </div>
     </div>
   )

@@ -57,7 +57,7 @@ export function WhatsNewModal({
                                         />
                                     </div>
                                 ) : (
-                                    <p className="text-slate-500 italic text-center py-4">
+                                    <p className="text-slate-400 italic text-center py-4">
                                         このバージョンの詳細なリリースノートはありません。
                                     </p>
                                 )}

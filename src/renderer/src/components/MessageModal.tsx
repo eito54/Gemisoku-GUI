@@ -71,7 +71,7 @@ export function MessageModal({
                                 className={cn(
                                     "w-full py-4 font-black rounded-xl transition-all shadow-lg active:scale-95 text-white uppercase tracking-widest text-sm",
                                     type === 'error' ? "bg-red-600 hover:bg-red-500 shadow-red-900/40" :
-                                        type === 'success' ? "bg-emerald-600 hover:bg-emerald-500 shadow-emerald-900/40" :
+                                        type === 'success' ? "bg-emerald-700 hover:bg-emerald-600 shadow-emerald-900/40" :
                                             "bg-blue-600 hover:bg-blue-500 shadow-blue-900/40"
                                 )}
                             >

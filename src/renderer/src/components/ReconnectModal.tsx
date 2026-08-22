@@ -42,7 +42,7 @@ export function ReconnectModal({
                                 {t('dc.hint')}
                             </p>
                             <div className="rounded-xl border border-slate-700 overflow-hidden mb-8">
-                                <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 px-4 py-2.5 bg-slate-900/60 text-xs font-bold uppercase tracking-wider text-slate-500">
+                                <div className="grid grid-cols-[1fr_auto_auto] gap-x-4 px-4 py-2.5 bg-slate-900/60 text-xs font-bold uppercase tracking-wider text-slate-400">
                                     <span>name</span>
                                     <span className="text-right">{t('dc.previous')}</span>
                                     <span className="text-right">{t('dc.candidate')}</span>

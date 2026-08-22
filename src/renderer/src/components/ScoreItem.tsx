@@ -83,7 +83,7 @@ export function ScoreItem({
                             index === 0 ? "bg-gradient-to-br from-yellow-400 to-yellow-600 text-white shadow-yellow-900/40" :
                                 index === 1 ? "bg-gradient-to-br from-slate-200 to-slate-400 text-slate-800 shadow-slate-900/40" :
                                     index === 2 ? "bg-gradient-to-br from-amber-600 to-amber-800 text-amber-100 shadow-amber-900/40" :
-                                        "bg-slate-800/50 text-slate-500 border border-slate-700"
+                                        "bg-slate-800/50 text-slate-400 border border-slate-700"
                         )}>
                             <div className="transform skew-x-[10deg]">
                                 {index === 0 ? <Trophy size={18} className="drop-shadow-md" /> : <span className="text-lg">{index + 1}</span>}
@@ -120,7 +120,7 @@ export function ScoreItem({
                                     {team.name || team.team}
                                 </span>
                                 {absent && (
-                                    <span className="ml-2 text-[10px] font-bold text-slate-500 border border-slate-600 rounded px-1 py-px align-middle">{absentLabel}</span>
+                                    <span className="ml-2 text-[10px] font-bold text-slate-400 border border-slate-600 rounded px-1 py-px align-middle">{absentLabel}</span>
                                 )}
                                 {isCurrentPlayer && (
                                     <span className="flex-shrink-0 text-[10px] bg-blue-500 text-white px-2 py-0.5 rounded-full font-bold shadow-lg shadow-blue-500/30">YOU</span>
@@ -129,7 +129,7 @@ export function ScoreItem({
                             {!isCurrentPlayer && !isEditing && (
                                 <button
                                     onClick={onSetCurrentPlayer}
-                                    className="text-[10px] text-slate-500 hover:text-blue-400 transition-colors w-fit flex items-center gap-1 -ml-1 px-1 py-0.5 rounded hover:bg-white/5 opacity-0 group-hover:opacity-100"
+                                    className="text-[10px] text-slate-400 hover:text-blue-400 transition-colors w-fit flex items-center gap-1 -ml-1 px-1 py-0.5 rounded hover:bg-white/5 opacity-0 group-hover:opacity-100"
                                 >
                                     <span>自分に設定</span>
                                 </button>
@@ -194,7 +194,7 @@ export function ScoreItem({
                 <td className="px-6 py-4 text-right w-10">
                     <button
                         onClick={() => onRemove(index)}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-500/20 text-slate-500 hover:text-red-500 transition-all"
+                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-500/20 text-slate-400 hover:text-red-500 transition-all"
                     >
                         <Trash2 size={16} />
                     </button>

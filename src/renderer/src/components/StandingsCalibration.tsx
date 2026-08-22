@@ -112,7 +112,7 @@ export function StandingsCalibrationPanel({ config, setConfig }: Props): JSX.Ele
         <span className="block text-sm font-medium text-purple-300">{t('config.calYLabel')}</span>
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
-            <label htmlFor="calStartY" className="block text-xs text-slate-500">{t('config.calStartY')}</label>
+            <label htmlFor="calStartY" className="block text-xs text-slate-400">{t('config.calStartY')}</label>
             <input
               id="calStartY"
               type="number"
@@ -126,7 +126,7 @@ export function StandingsCalibrationPanel({ config, setConfig }: Props): JSX.Ele
             />
           </div>
           <div className="space-y-1">
-            <label htmlFor="calEndY" className="block text-xs text-slate-500">{t('config.calEndY')}</label>
+            <label htmlFor="calEndY" className="block text-xs text-slate-400">{t('config.calEndY')}</label>
             <input
               id="calEndY"
               type="number"
@@ -147,7 +147,7 @@ export function StandingsCalibrationPanel({ config, setConfig }: Props): JSX.Ele
           <span className="block text-sm font-medium text-blue-400">{t('config.calColA')}</span>
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-1">
-              <label htmlFor="calColAStartX" className="block text-xs text-slate-500">{t('config.calStartX')}</label>
+              <label htmlFor="calColAStartX" className="block text-xs text-slate-400">{t('config.calStartX')}</label>
               <input
                 id="calColAStartX"
                 type="number"
@@ -161,7 +161,7 @@ export function StandingsCalibrationPanel({ config, setConfig }: Props): JSX.Ele
               />
             </div>
             <div className="space-y-1">
-              <label htmlFor="calColAEndX" className="block text-xs text-slate-500">{t('config.calEndX')}</label>
+              <label htmlFor="calColAEndX" className="block text-xs text-slate-400">{t('config.calEndX')}</label>
               <input
                 id="calColAEndX"
                 type="number"
@@ -180,7 +180,7 @@ export function StandingsCalibrationPanel({ config, setConfig }: Props): JSX.Ele
           <span className="block text-sm font-medium text-green-400">{t('config.calColB')}</span>
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-1">
-              <label htmlFor="calColBStartX" className="block text-xs text-slate-500">{t('config.calStartX')}</label>
+              <label htmlFor="calColBStartX" className="block text-xs text-slate-400">{t('config.calStartX')}</label>
               <input
                 id="calColBStartX"
                 type="number"
@@ -194,7 +194,7 @@ export function StandingsCalibrationPanel({ config, setConfig }: Props): JSX.Ele
               />
             </div>
             <div className="space-y-1">
-              <label htmlFor="calColBEndX" className="block text-xs text-slate-500">{t('config.calEndX')}</label>
+              <label htmlFor="calColBEndX" className="block text-xs text-slate-400">{t('config.calEndX')}</label>
               <input
                 id="calColBEndX"
                 type="number"
@@ -211,7 +211,7 @@ export function StandingsCalibrationPanel({ config, setConfig }: Props): JSX.Ele
         </div>
       </div>
 
-      <p className="text-xs text-slate-500">{t('config.calHint')}</p>
+      <p className="text-xs text-slate-400">{t('config.calHint')}</p>
     </div>
   )
 }
