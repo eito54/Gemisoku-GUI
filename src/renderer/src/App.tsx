@@ -244,7 +244,7 @@ function App(): JSX.Element {
       console.log('Update check result:', result);
 
       if (result.success === false) {
-        if (!silent) addLog(`アップデートチェックエラー: ${result.error}`, 'error')
+        if (!silent) addLog(t('log.updateCheckError', { error: result.error }), 'error')
         return
       }
 
@@ -252,29 +252,29 @@ function App(): JSX.Element {
         setUpdateInfo(result)
         setShowUpdateToast(true)
         if (!silent) {
-          const displayCurrent = result.currentVersion || '不明'
-          const displayLatest = result.latestVersion || '不明'
-          addLog(`新しいバージョン ${displayLatest} が利用可能です (現在: ${displayCurrent})`, 'info')
+          const displayCurrent = result.currentVersion || t('log.unknown')
+          const displayLatest = result.latestVersion || t('log.unknown')
+          addLog(t('log.updateAvailable', { latest: displayLatest, current: displayCurrent }), 'info')
         }
       } else {
         if (!silent) {
-          const displayCurrent = result.currentVersion || '不明'
-          addLog(`最新バージョンを使用しています (現在: ${displayCurrent})`, 'success')
+          const displayCurrent = result.currentVersion || t('log.unknown')
+          addLog(t('log.upToDate', { current: displayCurrent }), 'success')
         }
       }
     } catch (error: any) {
       console.error('handleCheckUpdate global error:', error);
       const errorMsg = error.message || JSON.stringify(error)
-      if (!silent) addLog(`アップデートチェックに失敗しました: ${errorMsg}`, 'error')
+      if (!silent) addLog(t('log.updateCheckFailed', { error: errorMsg }), 'error')
     } finally {
       if (!silent) setIsCheckingUpdate(false)
     }
-  }, [addLog])
+  }, [addLog, t])
 
   const handleStartDownloadUpdate = async () => {
     if (!window.electron || !window.electron.ipcRenderer) return
     setIsDownloadingUpdate(true)
-    addLog('アップデートのダウンロードを開始します...', 'info')
+    addLog(t('log.downloadStart'), 'info')
     await window.electron.ipcRenderer.invoke('start-download-update')
   }
 
@@ -323,7 +323,7 @@ function App(): JSX.Element {
         // @ts-ignore
         const result = await window.electron.ipcRenderer.invoke('obs-connect', config)
         if (!result.success) {
-          showGuiMessage('error', 'OBS接続エラー', result.error)
+          showGuiMessage('error', t('msgGui.obsErrorTitle'), result.error)
         } else {
           // Connected! If source name is empty, try to find a good one
           if (!config?.obsSourceName) {
@@ -353,26 +353,26 @@ function App(): JSX.Element {
       setIsDirty(true)
 
       if (!enabled) {
-        showGuiMessage('info', 'OBS設定を読み込みました', '設定を読み込みましたが、OBS側で「WebSocketサーバー」が無効になっているようです。OBSの「ツール」→「WebSocketサーバー設定」から有効にしてください。')
+        showGuiMessage('info', t('msgGui.obsLoadedTitle'), t('msgGui.obsLoadedMsg'))
       } else {
-        showGuiMessage('info', '成功', 'OBSから設定を自動取得しました。')
+        showGuiMessage('info', t('msgGui.success'), t('msgGui.obsDetected'))
       }
     } else {
-      showGuiMessage('error', 'エラー', 'OBSの設定ファイルが見つかりませんでした。')
+      showGuiMessage('error', t('msgGui.error'), t('msgGui.obsConfigNotFound'))
     }
   }
 
   const autoSetupObsOverlay = async () => {
     if (!obsStatus) {
-      showGuiMessage('info', 'OBS', 'まずOBSに接続してください')
+      showGuiMessage('info', t('msgGui.obsTitle'), t('msgGui.obsConnectFirst'))
       return
     }
     // @ts-ignore
     const result = await window.electron.ipcRenderer.invoke('obs-auto-setup')
     if (result.success) {
-      showGuiMessage('info', '成功', 'OBSにブラウザソースを追加しました')
+      showGuiMessage('info', t('msgGui.success'), t('msgGui.obsOverlayAdded'))
     } else {
-      showGuiMessage('error', 'エラー', result.error)
+      showGuiMessage('error', t('msgGui.error'), result.error)
     }
   }
 
@@ -445,7 +445,7 @@ function App(): JSX.Element {
       }
     } catch (error) {
       console.error('Failed to load config:', error)
-      addLog('設定の読み込みに失敗しました', 'error')
+      addLog(t('log.configLoadFailed'), 'error')
     }
   }, [addLog, i18n])
 
@@ -490,7 +490,7 @@ function App(): JSX.Element {
     const effectiveTotal = useTotalScore || isStandingsMode
 
     setStatus('loading')
-    addLog(isStandingsMode ? '24人スタンドを読み込み中...' : effectiveTotal ? 'チーム合計点を取得中...' : 'レース結果を取得中...', 'info')
+    addLog(isStandingsMode ? t('log.fetchingStandings') : effectiveTotal ? t('log.fetchingTotals') : t('log.fetchingRace'), 'info')
 
     try {
       // チーム合計点を取得（useTotalScore）時は、解析前にプレイヤーマッピングをリセット
@@ -508,7 +508,7 @@ function App(): JSX.Element {
 
       if (result.success) {
         setStatus('success')
-        addLog('結果の取得に成功しました', 'success')
+        addLog(t('log.fetchSuccess'), 'success')
 
         // Process results and update scores via server API
         const raceResults = result.results
@@ -688,12 +688,12 @@ function App(): JSX.Element {
         // loadPlayerMappings() // Removed as per instruction
       } else {
         setStatus('error')
-        addLog(`エラー: ${result.error}`, 'error')
-        showGuiMessage('error', 'エラー', result.error)
+        addLog(t('log.fetchError', { error: result.error }), 'error')
+        showGuiMessage('error', t('msgGui.error'), result.error)
       }
     } catch (error: any) {
       setStatus('error')
-      addLog(`通信エラー: ${error.message}`, 'error')
+      addLog(t('log.networkError', { error: error.message }), 'error')
     }
   }, [status, scores, addLog, serverPort, loadScores, loadPlayerMappings, manualCurrentTeam, config])
 
@@ -730,9 +730,9 @@ function App(): JSX.Element {
         body: JSON.stringify(finalScores)
       })
       loadScores()
-      addLog(restore ? 'dc対策: 前回値から復元しました' : '読み取った値をそのまま保存しました', restore ? 'success' : 'info')
+      addLog(restore ? t('log.dcRestored') : t('log.dcKept'), restore ? 'success' : 'info')
     } catch (error: any) {
-      addLog(`保存に失敗しました: ${error.message}`, 'error')
+      addLog(t('log.saveFailed', { error: error.message }), 'error')
     } finally {
       pendingFinalRef.current = null
       setReconnectCandidates([])
@@ -762,9 +762,9 @@ function App(): JSX.Element {
       })
       setIsEditing(false)
       loadScores()
-      addLog('スコアを更新しました', 'success')
+      addLog(t('log.scoreUpdated'), 'success')
     } catch (error) {
-      addLog('スコアの更新に失敗しました', 'error')
+      addLog(t('log.scoreUpdateFailed'), 'error')
     }
   }
 
@@ -796,7 +796,7 @@ function App(): JSX.Element {
     const name = slot ? slot.name : `スロット ${slotId + 1} (${new Date().toLocaleTimeString()})`
 
     try {
-      addLog(`スロット ${slotId + 1} に保存中...`, 'info')
+      addLog(t('log.slotSaving', { n: slotId + 1 }), 'info')
 
       const totalScores = scores.reduce((sum, team) => sum + (team.score || 0), 0)
       const calculatedRemainingRaces = Math.max(0, Math.floor((984 - totalScores) / 82))
@@ -817,13 +817,13 @@ function App(): JSX.Element {
 
       if (response.ok) {
         await fetchSlots()
-        addLog(`スロット ${slotId + 1} に「${name}」として保存しました`, 'success')
+        addLog(t('log.slotSaved', { n: slotId + 1, name }), 'success')
       } else {
-        addLog(`スロットの保存に失敗しました`, 'error')
+        addLog(t('log.slotSaveFailed'), 'error')
       }
     } catch (error: any) {
       console.error('Save slot error:', error)
-      addLog(`スロットの保存中にエラーが発生しました`, 'error')
+      addLog(t('log.slotSaveError'), 'error')
     }
   }, [slots, scores, serverPort, fetchSlots, addLog])
 
@@ -860,7 +860,7 @@ function App(): JSX.Element {
     if (!slot) return
 
     try {
-      addLog(`「${slot.name}」をロード中...`, 'info')
+      addLog(t('log.slotLoading', { name: slot.name }), 'info')
       const response = await fetch(`http://localhost:${serverPort}/api/scores`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -869,15 +869,15 @@ function App(): JSX.Element {
 
       if (response.ok) {
         loadScores()
-        addLog(`「${slot.name}」をロードしました`, 'success')
+        addLog(t('log.slotLoaded', { name: slot.name }), 'success')
         setActiveTab('dashboard')
         setShowSlotNameModal(false)
       } else {
-        addLog('ロードに失敗しました', 'error')
+        addLog(t('log.slotLoadFailed'), 'error')
       }
     } catch (error: any) {
       console.error('Failed to load slot:', error)
-      addLog(`ロード中にエラーが発生しました: ${error.message}`, 'error')
+      addLog(t('log.slotLoadError', { error: error.message }), 'error')
     }
   }
 
@@ -887,7 +887,7 @@ function App(): JSX.Element {
     if (!slot) return
 
     try {
-      addLog(`「${slot.name}」からスコアを加算中...`, 'info')
+      addLog(t('log.slotAdding', { name: slot.name }), 'info')
       const currentScoresResponse = await fetch(`http://localhost:${serverPort}/api/scores`)
       const currentData = await currentScoresResponse.json()
       const currentScores = currentData.scores || []
@@ -915,15 +915,15 @@ function App(): JSX.Element {
 
       if (response.ok) {
         loadScores()
-        addLog(`「${slot.name}」のスコアを加算しました`, 'success')
+        addLog(t('log.slotAdded', { name: slot.name }), 'success')
         setActiveTab('dashboard')
         setShowSlotNameModal(false)
       } else {
-        addLog('スコアの加算に失敗しました', 'error')
+        addLog(t('log.slotAddFailed'), 'error')
       }
     } catch (error: any) {
       console.error('Failed to add scores from slot:', error)
-      addLog(`加算中にエラーが発生しました: ${error.message}`, 'error')
+      addLog(t('log.slotAddError', { error: error.message }), 'error')
     }
   }
 
@@ -932,21 +932,21 @@ function App(): JSX.Element {
     const slotId = pendingSlotId
 
     try {
-      addLog(`スロット ${slotId + 1} を削除中...`, 'info')
+      addLog(t('log.slotDeleting', { n: slotId + 1 }), 'info')
       const response = await fetch(`http://localhost:${serverPort}/api/reopen-slots/${slotId}`, {
         method: 'DELETE'
       })
 
       if (response.ok) {
         await fetchSlots()
-        addLog(`スロット ${slotId + 1} を削除しました`, 'success')
+        addLog(t('log.slotDeleted', { n: slotId + 1 }), 'success')
         setShowSlotNameModal(false)
       } else {
-        addLog('削除に失敗しました', 'error')
+        addLog(t('log.slotDeleteFailed'), 'error')
       }
     } catch (error: any) {
       console.error('Failed to delete slot:', error)
-      addLog(`削除中にエラーが発生しました: ${error.message}`, 'error')
+      addLog(t('log.slotDeleteError', { error: error.message }), 'error')
     }
   }
 
@@ -960,10 +960,10 @@ function App(): JSX.Element {
       loadScores()
       loadPlayerMappings()
       setManualCurrentTeam(null)
-      addLog('スコアとマッピングをリセットしました', 'success')
+      addLog(t('log.resetDone'), 'success')
       setShowResetConfirmModal(false)
     } catch (error) {
-      addLog('リセットに失敗しました', 'error')
+      addLog(t('log.resetFailed'), 'error')
     }
   }
 
@@ -988,9 +988,9 @@ function App(): JSX.Element {
       })
       setIsEditingMappings(false)
       loadPlayerMappings()
-      addLog('プレイヤーマッピングを更新しました', 'success')
+      addLog(t('log.mappingUpdated'), 'success')
     } catch (error) {
-      addLog('マッピングの更新に失敗しました', 'error')
+      addLog(t('log.mappingUpdateFailed'), 'error')
     }
   }
 
@@ -1133,7 +1133,7 @@ function App(): JSX.Element {
         addLog(t('messages.configSaveError'), 'error')
       }
     } catch (error) {
-      addLog('設定の保存に失敗しました', 'error')
+      addLog(t('log.configSaveFailed'), 'error')
     }
   }
 
@@ -1264,7 +1264,7 @@ function App(): JSX.Element {
 
       window.electron.ipcRenderer.invoke('get-server-port').then((port: number) => {
         setServerPort(port)
-        addLog(`内蔵サーバーがポート ${port} で待機中です`, 'success')
+        addLog(t('log.serverListening', { port }), 'success')
       })
 
       // グローバルショートカットのリスナー
@@ -1293,14 +1293,14 @@ function App(): JSX.Element {
       const removeUpdateDownloaded = window.electron.ipcRenderer.on('update-downloaded', () => {
         setIsUpdateDownloaded(true)
         setIsDownloadingUpdate(false)
-        addLog('アップデートのダウンロードが完了しました。再起動して適用してください', 'success')
+        addLog(t('log.updateDownloaded'), 'success')
       })
 
       const removeUpdateError = window.electron.ipcRenderer.on('update-error', (_event: any, err: any) => {
         setIsDownloadingUpdate(false)
         setIsCheckingUpdate(false)
         console.error('Renderer received detailed update-error:', err)
-        addLog(`アップデートエラーが発生しました`, 'error')
+        addLog(t('log.updateError'), 'error')
       })
 
       return () => {
@@ -1620,7 +1620,7 @@ function App(): JSX.Element {
                                       }
                                     }
                                   } else {
-                                    showGuiMessage('error', '接続失敗', result.error)
+                                    showGuiMessage('error', t('msgGui.connectFailed'), result.error)
                                   }
                                 } finally {
                                   setIsObsConnecting(false)
@@ -1692,7 +1692,7 @@ function App(): JSX.Element {
                               if (result.success) {
                                 setIsDirty(false) // 重要: ウィザード終了時はdirtyを解消
                                 setShowWizard(false)
-                                addLog('初期設定が完了しました', 'success')
+                                addLog(t('log.wizardComplete'), 'success')
                               }
                             }
                           }}
@@ -2103,7 +2103,7 @@ function App(): JSX.Element {
                               const sortedRatio = [...scores].sort((a, b) => b.score - a.score);
                               const text = sortedRatio.map((s, i) => `${i + 1}. ${s.name || s.team}: ${s.score}pts`).join('\n');
                               navigator.clipboard.writeText(text);
-                              addLog('順位をクリップボードにコピーしました', 'success');
+                              addLog(t('log.rankCopied'), 'success');
                               setIsCopied(true);
                               setTimeout(() => setIsCopied(false), 2000);
                             }}
