@@ -98,7 +98,7 @@ export function GroqModelList({ hasApiKey }: { hasApiKey: boolean }): JSX.Elemen
             <li key={model.id} className="flex items-center gap-3 px-4 py-2.5 text-sm">
               {model.vision ? (
                 <span
-                  className="flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-green-500/10 text-green-400 border border-green-500/30 whitespace-nowrap"
+                  className="flex items-center gap-1 text-xs font-bold px-1.5 py-0.5 rounded-md bg-green-500/10 text-green-400 border border-green-500/30 whitespace-nowrap"
                   title={t('config.modelsVisionOk')}
                 >
                   <Eye size={11} />
@@ -106,7 +106,7 @@ export function GroqModelList({ hasApiKey }: { hasApiKey: boolean }): JSX.Elemen
                 </span>
               ) : (
                 <span
-                  className="flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-400 border border-slate-700 whitespace-nowrap"
+                  className="flex items-center gap-1 text-xs font-bold px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-400 border border-slate-700 whitespace-nowrap"
                   title={t('config.modelsVisionNo')}
                 >
                   <EyeOff size={11} />
@@ -116,11 +116,11 @@ export function GroqModelList({ hasApiKey }: { hasApiKey: boolean }): JSX.Elemen
               <span className="font-mono text-xs text-slate-300 truncate flex-1" title={model.id}>
                 {model.id}
                 {model.id === currentModel && (
-                  <span className="ml-2 text-[10px] font-bold text-blue-400">● {t('config.modelsCurrent')}</span>
+                  <span className="ml-2 text-xs font-bold text-blue-400">● {t('config.modelsCurrent')}</span>
                 )}
               </span>
               {model.contextWindow && (
-                <span className="text-[10px] text-slate-400 whitespace-nowrap">
+                <span className="text-xs text-slate-400 whitespace-nowrap">
                   {formatContext(model.contextWindow)}
                 </span>
               )}
@@ -130,7 +130,7 @@ export function GroqModelList({ hasApiKey }: { hasApiKey: boolean }): JSX.Elemen
       )}
 
       <div className="px-4 py-2 border-t border-slate-800 bg-slate-900/80">
-        <p className="text-[10px] text-slate-400">{t('config.modelsHint')}</p>
+        <p className="text-xs text-slate-400">{t('config.modelsHint')}</p>
       </div>
     </div>
   )

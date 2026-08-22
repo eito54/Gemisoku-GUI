@@ -120,16 +120,16 @@ export function ScoreItem({
                                     {team.name || team.team}
                                 </span>
                                 {absent && (
-                                    <span className="ml-2 text-[10px] font-bold text-slate-400 border border-slate-600 rounded px-1 py-px align-middle">{absentLabel}</span>
+                                    <span className="ml-2 text-xs font-bold text-slate-400 border border-slate-600 rounded px-1 py-px align-middle">{absentLabel}</span>
                                 )}
                                 {isCurrentPlayer && (
-                                    <span className="flex-shrink-0 text-[10px] bg-blue-500 text-white px-2 py-0.5 rounded-full font-bold shadow-lg shadow-blue-500/30">YOU</span>
+                                    <span className="flex-shrink-0 text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full font-bold shadow-lg shadow-blue-500/30">YOU</span>
                                 )}
                             </div>
                             {!isCurrentPlayer && !isEditing && (
                                 <button
                                     onClick={onSetCurrentPlayer}
-                                    className="text-[10px] text-slate-400 hover:text-blue-400 transition-colors w-fit flex items-center gap-1 -ml-1 px-1 py-0.5 rounded hover:bg-white/5 opacity-0 group-hover:opacity-100"
+                                    className="text-xs text-slate-400 hover:text-blue-400 transition-colors w-fit flex items-center gap-1 -ml-1 px-1 py-0.5 rounded hover:bg-white/5 opacity-0 group-hover:opacity-100"
                                 >
                                     <span>自分に設定</span>
                                 </button>

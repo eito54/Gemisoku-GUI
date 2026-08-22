@@ -1579,7 +1579,7 @@ function App(): JSX.Element {
                             </button>
                           </div>
                           {!obsStatus && !obsInputs.length && (
-                            <p className="text-[10px] text-slate-400 italic ml-1">
+                            <p className="text-xs text-slate-400 italic ml-1">
                               ※ 接続テストに成功すると、OBS内のソース一覧が自動取得されます。
                             </p>
                           )}
@@ -1680,8 +1680,8 @@ function App(): JSX.Element {
             <div className={cn("bg-slate-800/50 rounded-2xl p-3 border border-slate-700/50", isSidebarCollapsed && "p-1")}>
               {!isSidebarCollapsed && (
                 <div className="flex justify-between items-center mb-1 px-1">
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Version</p>
-                  <p className="text-[10px] font-mono text-slate-400">{appVersion}</p>
+                  <p className="text-xs text-slate-400 uppercase tracking-wider font-bold">Version</p>
+                  <p className="text-xs font-mono text-slate-400">{appVersion}</p>
                 </div>
               )}
               <button
@@ -1771,7 +1771,7 @@ function App(): JSX.Element {
                 {updateInfo?.releaseNotes && (
                   <button
                     onClick={() => setShowReleaseNotes(true)}
-                    className="text-[10px] bg-blue-700 hover:bg-blue-800 text-blue-100 px-2 py-0.5 rounded transition-colors mb-2 flex items-center gap-1"
+                    className="text-xs bg-blue-700 hover:bg-blue-800 text-blue-100 px-2 py-0.5 rounded transition-colors mb-2 flex items-center gap-1"
                   >
                     <FileText size={10} />
                     アップデート内容を確認
@@ -1791,7 +1791,7 @@ function App(): JSX.Element {
                       <div className="w-20 h-1.5 bg-blue-700 rounded-full overflow-hidden">
                         <div className="h-full bg-white transition-all duration-300" style={{ width: `${updateProgress}%` }} />
                       </div>
-                      <span className="text-[10px] font-mono">{Math.round(updateProgress)}%</span>
+                      <span className="text-xs font-mono">{Math.round(updateProgress)}%</span>
                     </div>
                   ) : updateInfo?.isAutoUpdater ? (
                     <button
@@ -1946,7 +1946,7 @@ function App(): JSX.Element {
                         </div>
                         <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 rounded-full">
                           <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full dot-pulse-success" />
-                          <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-tight">Active</span>
+                          <span className="text-xs font-bold text-emerald-500 uppercase tracking-tight">Active</span>
                         </div>
                       </div>
                       <h3 className="text-slate-400 text-sm font-medium mb-1">内蔵サーバー</h3>
@@ -1962,10 +1962,10 @@ function App(): JSX.Element {
                         {config?.obsIp ? (
                           <div className="flex items-center gap-1.5 bg-blue-500/10 px-2.5 py-1 rounded-full">
                             <div className="w-1.5 h-1.5 bg-blue-500 rounded-full dot-pulse-success" />
-                            <span className="text-[10px] font-bold text-blue-500 uppercase tracking-tight">Connected</span>
+                            <span className="text-xs font-bold text-blue-500 uppercase tracking-tight">Connected</span>
                           </div>
                         ) : (
-                          <span className="text-[10px] font-bold text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full uppercase tracking-tight">Disconnected</span>
+                          <span className="text-xs font-bold text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full uppercase tracking-tight">Disconnected</span>
                         )}
                       </div>
                       <h3 className="text-slate-400 text-sm font-medium mb-1">OBS 接続</h3>
@@ -1981,10 +1981,10 @@ function App(): JSX.Element {
                         {config?.groqApiKey ? (
                           <div className="flex items-center gap-1.5 bg-purple-500/10 px-2.5 py-1 rounded-full">
                             <div className="w-1.5 h-1.5 bg-purple-500 rounded-full dot-pulse-success" />
-                            <span className="text-[10px] font-bold text-purple-500 uppercase tracking-tight">Ready</span>
+                            <span className="text-xs font-bold text-purple-500 uppercase tracking-tight">Ready</span>
                           </div>
                         ) : (
-                          <span className="text-[10px] font-bold text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full uppercase tracking-tight">Offline</span>
+                          <span className="text-xs font-bold text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full uppercase tracking-tight">Offline</span>
                         )}
                       </div>
                       <h3 className="text-slate-400 text-sm font-medium mb-1">Groq API</h3>
@@ -2177,7 +2177,7 @@ function App(): JSX.Element {
                           <div className="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-800/30">
                             <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Slot {i + 1}</span>
                             {slot && (
-                              <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full border border-blue-500/30">
+                              <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full border border-blue-500/30">
                                 {new Date(slot.timestamp).toLocaleDateString()}
                               </span>
                             )}
@@ -2188,7 +2188,7 @@ function App(): JSX.Element {
                                 <h4 className="font-bold text-lg text-slate-200 truncate">{slot.name}</h4>
                                 <div className="grid grid-cols-2 gap-2">
                                   <div className="bg-slate-900/50 p-2 rounded-lg border border-slate-800">
-                                    <div className="text-[10px] text-slate-400 uppercase">チーム数</div>
+                                    <div className="text-xs text-slate-400 uppercase">チーム数</div>
                                     <div className="text-sm font-bold text-blue-400">{slot.scores.length}</div>
                                   </div>
                                   <div className="bg-slate-900/50 p-2 rounded-lg border border-slate-800">
@@ -2523,7 +2523,7 @@ function App(): JSX.Element {
                                         onChange={() => setIsDirty(true)}
                                       />
                                     </div>
-                                    <p className="text-[10px] text-slate-400">点数が加算された時の光の色を変更します。</p>
+                                    <p className="text-xs text-slate-400">点数が加算された時の光の色を変更します。</p>
                                   </div>
 
                                   <div className="space-y-2 p-4 bg-[#0f172a] rounded-xl border border-slate-700">
@@ -2541,7 +2541,7 @@ function App(): JSX.Element {
                                       <option value="rainbow">虹色</option>
                                       <option value="gradient">グラデーション</option>
                                     </select>
-                                    <p className="text-[10px] text-slate-400">自チーム（または選択中）の枠線のスタイル。</p>
+                                    <p className="text-xs text-slate-400">自チーム（または選択中）の枠線のスタイル。</p>
                                   </div>
                                 </div>
 
@@ -2859,7 +2859,7 @@ function App(): JSX.Element {
                           <div className="space-y-2">
                             <label className="text-sm font-medium text-slate-400 flex items-center gap-2">
                               OBSソース名 (Browser Source Name)
-                              <span className="text-[10px] text-yellow-500 border border-yellow-500/30 px-1 rounded bg-yellow-500/10">重要</span>
+                              <span className="text-xs text-yellow-500 border border-yellow-500/30 px-1 rounded bg-yellow-500/10">重要</span>
                             </label>
                             <div className="relative">
                               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -3087,7 +3087,7 @@ function App(): JSX.Element {
                         </div>
                         <div className="text-center">
                           <p className="font-bold text-sm">GitHub</p>
-                          <p className="text-[10px] text-slate-400">eito54/Grosoq</p>
+                          <p className="text-xs text-slate-400">eito54/Grosoq</p>
                         </div>
                       </button>
 
@@ -3101,7 +3101,7 @@ function App(): JSX.Element {
                         </div>
                         <div className="text-center">
                           <p className="font-bold text-sm">X (Twitter)</p>
-                          <p className="text-[10px] text-slate-400">@eiteen05</p>
+                          <p className="text-xs text-slate-400">@eiteen05</p>
                         </div>
                       </button>
                     </div>

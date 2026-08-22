@@ -37,7 +37,7 @@ export function ScanningOverlay() {
                 </div>
             </div>
 
-            <div className="absolute bottom-4 left-6 right-6 flex justify-between text-[10px] text-red-500/50 font-mono">
+            <div className="absolute bottom-4 left-6 right-6 flex justify-between text-xs text-red-500/50 font-mono">
                 <span>X-AXIS: DETECTING</span>
                 <span>Y-AXIS: SCANNING</span>
                 <span>GROQ_VISION_ACTIVE</span>

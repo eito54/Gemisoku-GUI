@@ -38,7 +38,7 @@ export function WhatsNewModal({
                             <div className="flex items-center justify-between mb-8">
                                 <div>
                                     <div className="flex items-center gap-2 mb-1">
-                                        <span className="text-[10px] font-black bg-blue-500 text-white px-2 py-0.5 rounded uppercase tracking-widest">Update</span>
+                                        <span className="text-xs font-black bg-blue-500 text-white px-2 py-0.5 rounded uppercase tracking-widest">Update</span>
                                         <span className="text-blue-400 font-mono text-xs">v{version}</span>
                                     </div>
                                     <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400 uppercase tracking-tight">What's New</h2>
