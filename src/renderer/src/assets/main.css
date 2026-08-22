@@ -316,8 +316,8 @@ body.lite-mode::after {
 
   .scan-grid {
     background-image:
-      linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
+      linear-gradient(rgba(239, 68, 68, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(239, 68, 68, 0.1) 1px, transparent 1px);
     background-size: 20px 20px;
   }
 
@@ -383,4 +383,22 @@ body.lite-mode::after {
 h2, h3 {
   font-family: 'Russo One', 'M PLUS Rounded 1c', sans-serif;
   letter-spacing: 0.01em;
+}
+
+/* キーボードフォーカスの可視化（マウスクリックでは表示されない） */
+:focus-visible {
+  outline: 2px solid #f87171;
+  outline-offset: 2px;
+}
+
+/* モーション低減設定（OSのアクセシビリティ設定）を尊重 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

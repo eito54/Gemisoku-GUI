@@ -86,6 +86,7 @@ function App(): JSX.Element {
   const [isUpdateDownloaded, setIsUpdateDownloaded] = useState(false)
   const [isDownloadingUpdate, setIsDownloadingUpdate] = useState(false)
   const [isBooting, setIsBooting] = useState(true)
+  const isBootingRef = React.useRef(true)
   const [showWizard, setShowWizard] = useState(false)
   const [obsStatus, setObsStatus] = useState(false)
   const [obsInputs, setObsInputs] = useState<any[]>([])
@@ -1160,16 +1161,23 @@ function App(): JSX.Element {
     )
   }
 
-  useEffect(() => {
-    const bootTimer = setTimeout(() => {
-      setIsBooting(false)
-      // ブート後に設定が不完全ならウィザードを表示
-      if (!config?.obsIp || !config?.obsPort || !config?.groqApiKey) {
-        setShowWizard(true)
-      }
-    }, 2500)
-    return () => clearTimeout(bootTimer)
+  const finishBoot = useCallback(() => {
+    // 一度ブートしたら再入しない（設定編集のたびにタイマー/ウィザードが
+    // 再発火する潜在バグの防止）
+    if (!isBootingRef.current) return
+    isBootingRef.current = false
+    setIsBooting(false)
+    // ブート後に設定が不完全ならウィザードを表示
+    if (!config?.obsIp || !config?.obsPort || !config?.groqApiKey) {
+      setShowWizard(true)
+    }
   }, [config])
+
+  useEffect(() => {
+    // スプラッシュ短縮（1.4秒）＋クリックで即スキップ可能
+    const bootTimer = setTimeout(finishBoot, 1400)
+    return () => clearTimeout(bootTimer)
+  }, [finishBoot])
 
   useEffect(() => {
     const checkWhatsNew = async () => {
@@ -1299,7 +1307,8 @@ function App(): JSX.Element {
             initial={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
             transition={{ duration: 0.8, ease: "easeInOut" }}
-            className="fixed inset-0 z-[999] bg-surface flex flex-col items-center justify-center pointer-events-none"
+            onClick={finishBoot}
+            className="fixed inset-0 z-[999] bg-surface flex flex-col items-center justify-center cursor-pointer"
           >
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
@@ -1314,13 +1323,13 @@ function App(): JSX.Element {
               <img
                 src={bootLogo}
                 alt="Boot Logo"
-                className="w-[500px] h-auto drop-shadow-[0_0_30px_rgba(59,130,246,0.5)]"
+                className="w-[500px] h-auto drop-shadow-[0_0_30px_rgba(239,68,68,0.45)]"
               />
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: "100%" }}
                 transition={{ duration: 2, ease: "easeInOut", delay: 0.5 }}
-                className="absolute -bottom-8 left-0 h-1 bg-gradient-to-r from-transparent via-accent-500 to-transparent rounded-full shadow-[0_0_15px_rgba(59,130,246,0.8)]"
+                className="absolute -bottom-8 left-0 h-1 bg-gradient-to-r from-transparent via-accent-500 to-transparent rounded-full shadow-[0_0_15px_rgba(239,68,68,0.8)]"
               />
             </motion.div>
             <motion.p
