@@ -1810,7 +1810,7 @@ function App(): JSX.Element {
                   )}
                   <button
                     onClick={() => setShowUpdateToast(false)}
-                    className="min-h-[32px] bg-blue-500 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-blue-400 transition-colors"
+                    className="min-h-[32px] bg-accent-600 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-accent-500 transition-colors"
                   >
                     閉じる
                   </button>
@@ -1882,7 +1882,7 @@ function App(): JSX.Element {
                   <div className="p-6 bg-slate-800/30 border-t border-slate-800 flex justify-end">
                     <button
                       onClick={() => setShowReleaseNotes(false)}
-                      className="min-h-[32px] bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-xl font-bold transition-all active:scale-95"
+                      className="min-h-[32px] bg-accent-600 hover:bg-accent-500 text-white px-6 py-2 rounded-xl font-bold transition-all active:scale-95"
                     >
                       閉じる
                     </button>
