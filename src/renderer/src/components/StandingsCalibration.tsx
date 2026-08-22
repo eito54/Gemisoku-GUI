@@ -1,4 +1,4 @@
-import { useState, type Dispatch, type JSX, type SetStateAction } from 'react'
+﻿import { useState, type Dispatch, type JSX, type SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
 
 interface StandingsCalibration {
@@ -23,9 +23,7 @@ interface Props {
 }
 
 /**
- * スタンドモード（standings24）用のデータ領域校正UI。
- * OBSキャプチャをプレビュー表示し、列A/列BのX範囲（キャプチャ全幅に対する%）を調整する。
- */
+ * 繧ｹ繧ｿ繝ｳ繝峨Δ繝ｼ繝会ｼ・tandings24・臥畑縺ｮ繝・・繧ｿ鬆伜沺譬｡豁｣UI縲・ * OBS繧ｭ繝｣繝励メ繝｣繧偵・繝ｬ繝薙Η繝ｼ陦ｨ遉ｺ縺励∝・A/蛻唯縺ｮX遽・峇・医く繝｣繝励メ繝｣蜈ｨ蟷・↓蟇ｾ縺吶ｋ%・峨ｒ隱ｿ謨ｴ縺吶ｋ縲・ */
 export function StandingsCalibrationPanel({ config, setConfig }: Props): JSX.Element {
   const { t } = useTranslation()
   const [preview, setPreview] = useState('')
@@ -44,7 +42,7 @@ export function StandingsCalibrationPanel({ config, setConfig }: Props): JSX.Ele
       ...prev,
       standingsCalibration: {
         ...mergeCalibration(prev),
-        [field]: Math.max(0, Math.min(50, v))
+        [field]: Math.max(0, Math.min(100, v))
       }
     }))
   }
@@ -85,11 +83,11 @@ export function StandingsCalibrationPanel({ config, setConfig }: Props): JSX.Ele
       {preview && (
         <div className="relative w-full overflow-hidden rounded-xl border border-slate-700" style={{ aspectRatio: '16 / 9' }}>
           <img src={preview} alt="capture preview" className="absolute inset-0 h-full w-full object-contain bg-black" />
-          {/* マスク: 範囲外を暗くする */}
+          {/* 繝槭せ繧ｯ: 遽・峇螟悶ｒ證励￥縺吶ｋ */}
           <div className="absolute inset-y-0 bg-black/70" style={{ left: '0%', width: `${cal.colAStartX}%` }} />
           <div className="absolute inset-y-0 bg-black/70" style={{ left: `${cal.colAEndX}%`, width: `${Math.max(0, cal.colBStartX - cal.colAEndX)}%` }} />
-          <div className="absolute inset-y-0 bg-black/70" style={{ left: `${cal.colBEndX}%`, width: `${Math.max(0, 50 - cal.colBEndX)}%` }} />
-          {/* 列A / 列B の枠 */}
+          <div className="absolute inset-y-0 bg-black/70" style={{ left: `${cal.colBEndX}%`, width: `${Math.max(0, 100 - cal.colBEndX)}%` }} />
+          {/* 蛻輸 / 蛻唯 縺ｮ譫 */}
           <div className="absolute inset-y-0 border-2 border-blue-400/80 pointer-events-none" style={{ left: `${cal.colAStartX}%`, width: `${Math.max(0, cal.colAEndX - cal.colAStartX)}%` }} />
           <div className="absolute inset-y-0 border-2 border-green-400/80 pointer-events-none" style={{ left: `${cal.colBStartX}%`, width: `${Math.max(0, cal.colBEndX - cal.colBStartX)}%` }} />
         </div>
@@ -105,7 +103,7 @@ export function StandingsCalibrationPanel({ config, setConfig }: Props): JSX.Ele
                 id="calColAStartX"
                 type="number"
                 min={0}
-                max={50}
+                max={100}
                 step={1}
                 name="colAStartX"
                 value={cal.colAStartX}
@@ -119,7 +117,7 @@ export function StandingsCalibrationPanel({ config, setConfig }: Props): JSX.Ele
                 id="calColAEndX"
                 type="number"
                 min={0}
-                max={50}
+                max={100}
                 step={1}
                 name="colAEndX"
                 value={cal.colAEndX}
@@ -138,7 +136,7 @@ export function StandingsCalibrationPanel({ config, setConfig }: Props): JSX.Ele
                 id="calColBStartX"
                 type="number"
                 min={0}
-                max={50}
+                max={100}
                 step={1}
                 name="colBStartX"
                 value={cal.colBStartX}
@@ -152,7 +150,7 @@ export function StandingsCalibrationPanel({ config, setConfig }: Props): JSX.Ele
                 id="calColBEndX"
                 type="number"
                 min={0}
-                max={50}
+                max={100}
                 step={1}
                 name="colBEndX"
                 value={cal.colBEndX}

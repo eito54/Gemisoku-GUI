@@ -125,7 +125,8 @@ export class ConfigManager {
         flash: true
       },
       standingsCalibration: {
-        // 既定値: 左半分(0〜50%)をほぼ全覆盖え。ユーザーが校正UIで狭める
+        // 既定値: 左半分(0〜50%)をほぼ全覆盖え。レイアウトによっては列Bが中央を
+        // 超えるため、校正UIでは0〜100%まで設定可能（ユーザーが実幅に合わせて調整）
         colAStartX: 0,
         colAEndX: 24,
         colBStartX: 25,
