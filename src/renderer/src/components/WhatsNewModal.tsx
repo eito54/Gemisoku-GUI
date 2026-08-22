@@ -28,7 +28,7 @@ export function WhatsNewModal({
                         initial={{ opacity: 0, scale: 0.9, y: 30 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 30 }}
-                        className="relative w-full max-w-lg bg-slate-900 border-2 border-blue-500/50 rounded-3xl overflow-hidden shadow-[0_0_80px_rgba(59,130,246,0.3)]"
+                        className="relative w-full max-w-lg bg-slate-900 border-2 border-blue-500/50 rounded-2xl overflow-hidden shadow-[0_0_80px_rgba(59,130,246,0.3)]"
                     >
                         {/* 装飾 */}
                         <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent animate-shimmer" />

@@ -98,7 +98,7 @@ export function GroqModelList({ hasApiKey }: { hasApiKey: boolean }): JSX.Elemen
             <li key={model.id} className="flex items-center gap-3 px-4 py-2.5 text-sm">
               {model.vision ? (
                 <span
-                  className="flex items-center gap-1 text-xs font-bold px-1.5 py-0.5 rounded-md bg-green-500/10 text-green-400 border border-green-500/30 whitespace-nowrap"
+                  className="flex items-center gap-1 text-xs font-bold px-1.5 py-0.5 rounded-lg bg-green-500/10 text-green-400 border border-green-500/30 whitespace-nowrap"
                   title={t('config.modelsVisionOk')}
                 >
                   <Eye size={11} />
@@ -106,7 +106,7 @@ export function GroqModelList({ hasApiKey }: { hasApiKey: boolean }): JSX.Elemen
                 </span>
               ) : (
                 <span
-                  className="flex items-center gap-1 text-xs font-bold px-1.5 py-0.5 rounded-md bg-slate-800 text-slate-400 border border-slate-700 whitespace-nowrap"
+                  className="flex items-center gap-1 text-xs font-bold px-1.5 py-0.5 rounded-lg bg-slate-800 text-slate-400 border border-slate-700 whitespace-nowrap"
                   title={t('config.modelsVisionNo')}
                 >
                   <EyeOff size={11} />

@@ -62,7 +62,7 @@ export function SlotModal({
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="relative w-full max-w-md bg-slate-900 border-2 border-slate-800 rounded-3xl overflow-hidden shadow-2xl"
+                        className="relative w-full max-w-md bg-slate-900 border-2 border-slate-800 rounded-2xl overflow-hidden shadow-2xl"
                     >
                         <div className="p-8">
                             <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-2">{info.title}</h3>

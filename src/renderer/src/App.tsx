@@ -1346,7 +1346,7 @@ function App(): JSX.Element {
             <motion.div
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
-              className="bg-raised w-full max-w-2xl rounded-3xl border border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+              className="bg-raised w-full max-w-2xl rounded-2xl border border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
             >
               {/* Wizard Header */}
               <div className="p-8 border-b border-slate-800 bg-slate-800/30 flex justify-between items-center">
@@ -1834,7 +1834,7 @@ function App(): JSX.Element {
                   initial={{ opacity: 0, scale: 0.95, y: 20 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                  className="relative w-full max-w-xl bg-raised border border-slate-700 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
+                  className="relative w-full max-w-xl bg-raised border border-slate-700 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
                 >
                   <div className="p-6 border-b border-slate-800 flex items-center justify-between bg-slate-800/50">
                     <div className="flex items-center gap-3">
@@ -2018,7 +2018,7 @@ function App(): JSX.Element {
                               setTimeout(() => setIsCopied(false), 2000);
                             }}
                             className={cn(
-                              "text-sm flex items-center gap-1 transition-all mr-2 px-2 py-1 rounded-md",
+                              "text-sm flex items-center gap-1 transition-all mr-2 px-2 py-1 rounded-lg",
                               isCopied
                                 ? "text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20"
                                 : "text-slate-400 hover:text-white hover:bg-slate-800"
@@ -2413,7 +2413,7 @@ function App(): JSX.Element {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                     {/* Left Column: Settings */}
                     <div className="space-y-6">
-                      <div className="glass-panel rounded-3xl p-8 border-none bg-slate-800/50">
+                      <div className="glass-panel rounded-2xl p-8 border-none bg-slate-800/50">
 
                         <form
                           onSubmit={handleSaveConfig}
@@ -3067,7 +3067,7 @@ function App(): JSX.Element {
                   transition={{ duration: 0.2 }}
                   className="max-w-2xl mx-auto text-center space-y-8 py-12"
                 >
-                  <div className="w-24 h-24 bg-blue-600 rounded-3xl flex items-center justify-center shadow-2xl shadow-blue-900/40 mx-auto mb-8">
+                  <div className="w-24 h-24 bg-blue-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-900/40 mx-auto mb-8">
                     <Monitor className="text-white" size={48} />
                   </div>
                   <h2 className="text-4xl font-bold text-white">Grosoq</h2>
