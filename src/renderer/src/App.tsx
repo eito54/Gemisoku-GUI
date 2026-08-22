@@ -45,6 +45,7 @@ import { SlotModal } from './components/SlotModal'
 import { WhatsNewModal } from './components/WhatsNewModal'
 import { ScoreItem } from './components/ScoreItem'
 import { GroqModelList } from './components/GroqModelList'
+import { StandingsCalibrationPanel } from './components/StandingsCalibration'
 import { LogEntry, SlotData } from './types'
 import { cn, calculateRaceScore } from './utils'
 import { BackgroundEffect } from './components/BackgroundEffect'
@@ -2857,6 +2858,10 @@ function App(): JSX.Element {
                           </div>
                           <p className="text-xs text-slate-500">{t('config.analysisModeHelp')}</p>
                         </div>
+
+                        {config?.analysisMode === 'standings24' && (
+                          <StandingsCalibrationPanel config={config} setConfig={setConfig} />
+                        )}
 
                         <div className="space-y-4">
                           <div className="space-y-2">
