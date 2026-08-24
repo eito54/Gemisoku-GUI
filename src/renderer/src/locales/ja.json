@@ -33,11 +33,27 @@
     "noData": "データがありません"
   },
   "modal": {
+    "cancel": "キャンセル",
+    "discardMove": "破棄して移動",
     "unsavedTitle": "未保存の変更",
     "unsavedMessage": "編集中のデータがあります。保存せずに移動しますか？変更内容は破棄されます。",
     "resetTitle": "スコアリセット",
     "resetMessage": "すべてのチームのスコアとプレイヤーマッピングをリセットします。この操作は取り消せません。よろしいですか？",
     "resetConfirm": "リセットする"
+  },
+  "score": {
+    "setSelf": "自分に設定"
+  },
+  "slot": {
+    "loadTitle": "スロットをロード",
+    "loadMessage": "このスロットのスコアを読み込みます。現在のスコアは失われます。",
+    "loadConfirm": "ロードする",
+    "addTitle": "スコアを加算",
+    "addMessage": "このスロットのスコアを現在のスコアに足します。",
+    "addConfirm": "加算する",
+    "deleteTitle": "スロットを削除",
+    "deleteMessage": "このスロットを完全に削除します。この操作は取り消せません。",
+    "deleteConfirm": "削除する"
   },
   "log": {
     "updateCheckError": "アップデートチェックエラー: {{error}}",

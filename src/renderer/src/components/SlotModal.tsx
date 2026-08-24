@@ -1,5 +1,6 @@
 import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { cn } from '../utils'
 
 export function SlotModal({
@@ -19,27 +20,29 @@ export function SlotModal({
     setName: (name: string) => void;
     slotId: number | null;
 }) {
+    const { t } = useTranslation()
+
     const getActionInfo = () => {
         switch (type) {
             case 'load':
                 return {
-                    title: 'スロットをロード',
-                    message: 'このスロットのスコアを読み込みます。現在のスコアは失われます。',
-                    confirmText: 'ロードする',
+                    title: t('slot.loadTitle'),
+                    message: t('slot.loadMessage'),
+                    confirmText: t('slot.loadConfirm'),
                     confirmClass: 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/20'
                 }
             case 'add':
                 return {
-                    title: 'スコアを加算',
-                    message: 'このスロットのスコアを現在のスコアに足します。',
-                    confirmText: '加算する',
+                    title: t('slot.addTitle'),
+                    message: t('slot.addMessage'),
+                    confirmText: t('slot.addConfirm'),
                     confirmClass: 'bg-purple-600 hover:bg-purple-500 shadow-purple-600/20'
                 }
             case 'delete':
                 return {
-                    title: 'スロットを削除',
-                    message: 'このスロットを完全に削除します。この操作は取り消せません。',
-                    confirmText: '削除する',
+                    title: t('slot.deleteTitle'),
+                    message: t('slot.deleteMessage'),
+                    confirmText: t('slot.deleteConfirm'),
                     confirmClass: 'bg-red-600 hover:bg-red-500 shadow-red-600/20'
                 }
         }
@@ -74,7 +77,7 @@ export function SlotModal({
                                     onClick={onClose}
                                     className="flex-1 px-4 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl transition-all border border-slate-700 uppercase tracking-widest text-xs"
                                 >
-                                    キャンセル
+                                    {t('modal.cancel')}
                                 </button>
                                 <button
                                     onClick={onConfirm}

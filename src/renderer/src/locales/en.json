@@ -33,11 +33,27 @@
     "noData": "No data"
   },
   "modal": {
+    "cancel": "Cancel",
+    "discardMove": "Discard & Move",
     "unsavedTitle": "Unsaved Changes",
     "unsavedMessage": "You have unsaved edits. Move without saving? Your changes will be discarded.",
     "resetTitle": "Reset Scores",
     "resetMessage": "This resets all team scores and player mappings. This cannot be undone. Are you sure?",
     "resetConfirm": "Reset"
+  },
+  "score": {
+    "setSelf": "Set as my team"
+  },
+  "slot": {
+    "loadTitle": "Load Slot",
+    "loadMessage": "Loads the scores from this slot. Current scores will be lost.",
+    "loadConfirm": "Load",
+    "addTitle": "Add Scores",
+    "addMessage": "Adds this slot's scores to the current scores.",
+    "addConfirm": "Add",
+    "deleteTitle": "Delete Slot",
+    "deleteMessage": "This permanently deletes the slot. This cannot be undone.",
+    "deleteConfirm": "Delete"
   },
   "log": {
     "updateCheckError": "Update check error: {{error}}",

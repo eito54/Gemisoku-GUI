@@ -1,6 +1,7 @@
 import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AlertCircle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export function ConfirmModal({
     isOpen,
@@ -8,8 +9,8 @@ export function ConfirmModal({
     onCancel,
     title,
     message,
-    confirmText = "破棄して移動",
-    cancelText = "キャンセル"
+    confirmText,
+    cancelText
 }: {
     isOpen: boolean;
     onConfirm: () => void;
@@ -19,6 +20,9 @@ export function ConfirmModal({
     confirmText?: string;
     cancelText?: string;
 }) {
+    const { t } = useTranslation()
+    const resolvedConfirm = confirmText ?? t('modal.discardMove')
+    const resolvedCancel = cancelText ?? t('modal.cancel')
     return (
         <AnimatePresence>
             {isOpen && (
@@ -52,13 +56,13 @@ export function ConfirmModal({
                                     onClick={onCancel}
                                     className="flex-1 px-4 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl transition-all border border-slate-700 uppercase tracking-widest text-sm"
                                 >
-                                    {cancelText}
+                                    {resolvedCancel}
                                 </button>
                                 <button
                                     onClick={onConfirm}
                                     className="flex-1 px-4 py-3 bg-red-600 hover:bg-red-500 text-white font-black rounded-xl transition-all shadow-lg shadow-red-600/20 uppercase tracking-widest text-sm"
                                 >
-                                    {confirmText}
+                                    {resolvedConfirm}
                                 </button>
                             </div>
                         </div>
