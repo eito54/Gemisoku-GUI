@@ -309,6 +309,7 @@
     "how3": "Click the \"Create API Key\" button.",
     "how4": "Name it (e.g., MK8DX), create it, and copy the code (gsk_...) into the field above."
   },
+  "overlayUi": {
     "displaySettings": "Display Settings",
     "keepScoresLabel": "Keep scores across app restarts",
     "keepScoresHelp": "When turned off, scores are reset automatically each time the app starts",

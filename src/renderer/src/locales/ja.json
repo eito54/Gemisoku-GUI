@@ -309,6 +309,7 @@
     "how3": "「Create API Key」ボタンを押します。",
     "how4": "適当な名前（例: MK8DX）を付けて作成し、表示されたコード（gsk_...）をコピーして上の入力欄に貼り付けます。"
   },
+  "overlayUi": {
     "displaySettings": "表示設定",
     "keepScoresLabel": "アプリ再起動時にスコアを保持する",
     "keepScoresHelp": "無効にすると、アプリを閉じて再度開いた時にスコアがリセットされます",
