@@ -1689,6 +1689,38 @@ function App(): JSX.Element {
                       initial={{ x: 20, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
                       exit={{ x: -20, opacity: 0 }}
+                      className="space-y-4"
+                    >
+                      <div>
+                        <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                          <Layout className="text-accent-400" size={20} />
+                          {t('wizard.calTitle')}
+                        </h3>
+                        <p className="text-slate-400 text-sm mt-1">{t('wizard.calDesc')}</p>
+                      </div>
+
+                      <StandingsCalibrationPanel config={config} setConfig={setConfig} />
+
+                      <p className="text-xs text-slate-500">{t('wizard.calNote')}</p>
+
+                      <div className="flex justify-between pt-2">
+                        <button onClick={() => setWizardStep(2)} className="text-slate-400 hover:text-slate-300 font-medium">{t('wizard.back')}</button>
+                        <button
+                          onClick={() => setWizardStep(4)}
+                          className="bg-accent-600 hover:bg-accent-500 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg"
+                        >
+                          {t('wizard.lastStep')}
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {wizardStep === 4 && (
+                    <motion.div
+                      key="step4"
+                      initial={{ x: 20, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      exit={{ x: -20, opacity: 0 }}
                       className="space-y-6 text-center py-8"
                     >
                       <div className="w-20 h-20 bg-emerald-600/20 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-emerald-500/30">
@@ -1724,6 +1756,12 @@ function App(): JSX.Element {
                           className="bg-emerald-600 hover:bg-emerald-500 text-white px-10 py-4 rounded-2xl font-black text-lg transition-all shadow-xl shadow-emerald-900/40 active:scale-95 flex items-center gap-2 mx-auto"
                         >
                           {t('wizard.getStarted')}
+                        </button>
+                        <button
+                          onClick={() => setWizardStep(3)}
+                          className="text-slate-500 hover:text-slate-300 text-sm font-medium mx-auto"
+                        >
+                          {t('wizard.back')}
                         </button>
                       </div>
                     </motion.div>
