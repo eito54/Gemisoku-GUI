@@ -1,7 +1,8 @@
 {
   "app": {
     "title": "Grosoq",
-    "subtitle": "Instant Standings for MK8DX & MK World"
+    "subtitle": "Instant Standings for MK8DX & MK World",
+    "languageToggle": "Switch Language"
   },
   "nav": {
     "reopen": "Reopen Manager",
@@ -30,7 +31,41 @@
   "dash": {
     "activityLog": "Activity Log",
     "noLogs": "No logs yet",
-    "noData": "No data"
+    "noData": "No data",
+    "currentScores": "Current Scores",
+    "thTeam": "Team",
+    "thScore": "Score",
+    "thActions": "Actions",
+    "add": "Add",
+    "save": "Save",
+    "edit": "Edit",
+    "reset": "Reset",
+    "copyRank": "Copy rank",
+    "copiedTitle": "Copied!",
+    "builtinServer": "Built-in Server",
+    "obsConnection": "OBS Connection",
+    "notSet": "Not set"
+  },
+  "reopen": {
+    "title": "Reopen Manager",
+    "desc": "Save and restore past score states",
+    "emptySlot": "Empty slot",
+    "saveState": "Save Current State",
+    "addScoreTitle": "Add to current scores"
+  },
+  "updateUi": {
+    "availableShort": "Update available!",
+    "available": "Update available",
+    "checkUpdate": "Check for Updates",
+    "checkTitleShort": "v{{v}} - Check for Updates",
+    "details": "Details",
+    "close": "Close",
+    "viewNotes": "View release notes",
+    "restartToApply": "Restart to Apply",
+    "updateButton": "Update",
+    "notesTitle": "What's New",
+    "notesSubtitle": "New features and improvements in Ver {{v}}",
+    "noNotes": "No release notes."
   },
   "modal": {
     "cancel": "Cancel",
@@ -102,7 +137,8 @@
     "slotDeleteError": "Error while deleting: {{error}}",
     "wizardComplete": "Initial setup complete",
     "rankCopied": "Rank copied to clipboard",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "slotAutoName": "Slot {{n}} ({{time}})"
   },
   "msgGui": {
     "success": "Success",

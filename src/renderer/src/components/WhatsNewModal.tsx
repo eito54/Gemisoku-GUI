@@ -14,7 +14,7 @@ export function WhatsNewModal({
     version: string;
     notes: string;
 }) {
-    const { t } = useTranslation() {
+    const { t } = useTranslation()
     return (
         <AnimatePresence>
             {isOpen && (

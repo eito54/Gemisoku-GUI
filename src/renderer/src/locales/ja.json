@@ -1,7 +1,8 @@
 {
   "app": {
     "title": "Grosoq",
-    "subtitle": "MK8DX・MKWorld即時集計"
+    "subtitle": "MK8DX・MKWorld即時集計",
+    "languageToggle": "言語切替"
   },
   "nav": {
     "reopen": "リオープンマネージャー",
@@ -30,7 +31,41 @@
   "dash": {
     "activityLog": "アクティビティログ",
     "noLogs": "ログはありません",
-    "noData": "データがありません"
+    "noData": "データがありません",
+    "currentScores": "現在のスコア",
+    "thTeam": "チーム名",
+    "thScore": "スコア",
+    "thActions": "操作",
+    "add": "追加",
+    "save": "保存",
+    "edit": "編集",
+    "reset": "リセット",
+    "copyRank": "順位をコピー",
+    "copiedTitle": "コピーしました！",
+    "builtinServer": "内蔵サーバー",
+    "obsConnection": "OBS 接続",
+    "notSet": "未設定"
+  },
+  "reopen": {
+    "title": "リオープンマネージャー",
+    "desc": "過去のスコア状態を保存・復元できます",
+    "emptySlot": "空のスロット",
+    "saveState": "現在の状態を保存",
+    "addScoreTitle": "現在のスコアに加算"
+  },
+  "updateUi": {
+    "availableShort": "アップデートがあります！",
+    "available": "アップデートがあります",
+    "checkUpdate": "アップデート確認",
+    "checkTitleShort": "v{{v}} - アップデート確認",
+    "details": "詳細",
+    "close": "閉じる",
+    "viewNotes": "アップデート内容を確認",
+    "restartToApply": "再起動して適用",
+    "updateButton": "アップデート",
+    "notesTitle": "アップデート内容",
+    "notesSubtitle": "Ver {{v}} の新機能と改善",
+    "noNotes": "リリースノートはありません。"
   },
   "modal": {
     "cancel": "キャンセル",
@@ -102,7 +137,8 @@
     "slotDeleteError": "削除中にエラーが発生しました: {{error}}",
     "wizardComplete": "初期設定が完了しました",
     "rankCopied": "順位をクリップボードにコピーしました",
-    "unknown": "不明"
+    "unknown": "不明",
+    "slotAutoName": "スロット {{n}} ({{time}})"
   },
   "msgGui": {
     "success": "成功",

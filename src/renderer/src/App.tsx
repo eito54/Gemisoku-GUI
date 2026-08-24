@@ -793,7 +793,7 @@ function App(): JSX.Element {
   // Modal trigger handlers
   const handleSaveSlot = useCallback(async (slotId: number) => {
     const slot = slots.find(s => s.slotId === slotId)
-    const name = slot ? slot.name : `スロット ${slotId + 1} (${new Date().toLocaleTimeString()})`
+    const name = slot ? slot.name : t('log.slotAutoName', { n: slotId + 1, time: new Date().toLocaleTimeString() })
 
     try {
       addLog(t('log.slotSaving', { n: slotId + 1 }), 'info')
@@ -1814,10 +1814,10 @@ function App(): JSX.Element {
                   updateInfo ? "bg-accent-600 text-white animate-pulse shadow-lg shadow-accent-900/40" : "bg-accent-600/20 hover:bg-accent-600/30 text-accent-400",
                   isSidebarCollapsed && "px-0"
                 )}
-                title={isSidebarCollapsed ? `v${appVersion} - アップデート確認` : undefined}
+                title={isSidebarCollapsed ? t('updateUi.checkTitleShort', { v: appVersion }) : undefined}
               >
                 {isCheckingUpdate ? <RefreshCw size={14} className="animate-spin" /> : <Download size={14} />}
-                {!isSidebarCollapsed && (updateInfo ? "アップデートがあります！" : "アップデート確認")}
+                {!isSidebarCollapsed && (updateInfo ? t('updateUi.availableShort') : t('updateUi.checkUpdate'))}
               </button>
             </div>
           </div>
@@ -1870,7 +1870,7 @@ function App(): JSX.Element {
               )}
             >
               <Globe size={16} />
-              {!isSidebarCollapsed && (i18n.language === 'ja' ? 'English' : '日本語')}
+              {!isSidebarCollapsed && t('app.languageToggle')}
             </button>
           </div>
         </div>
@@ -1887,7 +1887,7 @@ function App(): JSX.Element {
                 <Download size={24} />
               </div>
               <div className="pr-4">
-                <h4 className="font-bold text-sm">アップデートがあります</h4>
+                <h4 className="font-bold text-sm">{t('updateUi.available')}</h4>
                 <p className="text-xs text-accent-100 mb-2">v{appVersion} → v{updateInfo?.latestVersion}</p>
 
                 {updateInfo?.releaseNotes && (
@@ -1896,7 +1896,7 @@ function App(): JSX.Element {
                     className="text-xs bg-accent-700 hover:bg-accent-800 text-accent-100 px-2 py-0.5 rounded transition-colors mb-2 flex items-center gap-1"
                   >
                     <FileText size={10} />
-                    アップデート内容を確認
+                    {t('updateUi.viewNotes')}
                   </button>
                 )}
 
@@ -1906,7 +1906,7 @@ function App(): JSX.Element {
                       onClick={handleQuitAndInstall}
                       className="bg-emerald-500 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-emerald-400 transition-colors shadow-lg shadow-emerald-900/40"
                     >
-                      再起動して適用
+                      {t('updateUi.restartToApply')}
                     </button>
                   ) : isDownloadingUpdate ? (
                     <div className="flex items-center gap-2">
@@ -1920,21 +1920,21 @@ function App(): JSX.Element {
                       onClick={handleStartDownloadUpdate}
                       className="bg-white text-accent-600 px-3 py-1 rounded-lg text-xs font-bold hover:bg-accent-50 transition-colors"
                     >
-                      アップデート
+                      {t('updateUi.updateButton')}
                     </button>
                   ) : (
                     <button
                       onClick={() => window.electron.ipcRenderer.invoke('open-external', updateInfo.url)}
                       className="min-h-[32px] bg-white text-accent-600 px-3 py-1 rounded-lg text-xs font-bold hover:bg-accent-50 transition-colors"
                     >
-                      詳細
+                      {t('updateUi.details')}
                     </button>
                   )}
                   <button
                     onClick={() => setShowUpdateToast(false)}
                     className="min-h-[32px] bg-accent-600 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-accent-500 transition-colors"
                   >
-                    閉じる
+                    {t('updateUi.close')}
                   </button>
                 </div>
               </div>
@@ -1964,8 +1964,8 @@ function App(): JSX.Element {
                         <FileText size={20} />
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold text-white">アップデート内容</h3>
-                        <p className="text-xs text-slate-400">Ver {updateInfo.latestVersion} の新機能と改善</p>
+                        <h3 className="text-xl font-bold text-white">{t('updateUi.notesTitle')}</h3>
+                        <p className="text-xs text-slate-400">{t('updateUi.notesSubtitle', { v: updateInfo.latestVersion })}</p>
                       </div>
                     </div>
                     <button
@@ -1996,7 +1996,7 @@ function App(): JSX.Element {
                           ))}
                         </div>
                       ) : (
-                        <p className="text-slate-400 italic">リリースノートはありません。</p>
+                        <p className="text-slate-400 italic">{t('updateUi.noNotes')}</p>
                       )}
                     </div>
                   </div>
@@ -2006,7 +2006,7 @@ function App(): JSX.Element {
                       onClick={() => setShowReleaseNotes(false)}
                       className="min-h-[32px] bg-accent-600 hover:bg-accent-500 text-white px-6 py-2 rounded-xl font-bold transition-all active:scale-95"
                     >
-                      閉じる
+                      {t('updateUi.close')}
                     </button>
                   </div>
                 </motion.div>
@@ -2102,7 +2102,7 @@ function App(): JSX.Element {
                           <span className="text-xs font-bold text-emerald-500 uppercase tracking-tight">Active</span>
                         </div>
                       </div>
-                      <h3 className="text-slate-400 text-sm font-medium mb-1">内蔵サーバー</h3>
+                      <h3 className="text-slate-400 text-sm font-medium mb-1">{t('dash.builtinServer')}</h3>
                       <p className="text-2xl font-bold text-white font-mono tracking-tight">Port {serverPort}</p>
                     </div>
 
@@ -2121,8 +2121,8 @@ function App(): JSX.Element {
                           <span className="text-xs font-bold text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full uppercase tracking-tight">Disconnected</span>
                         )}
                       </div>
-                      <h3 className="text-slate-400 text-sm font-medium mb-1">OBS 接続</h3>
-                      <p className="text-2xl font-bold text-white font-mono tracking-tight">{config?.obsIp || '未設定'}</p>
+                      <h3 className="text-slate-400 text-sm font-medium mb-1">{t('dash.obsConnection')}</h3>
+                      <p className="text-2xl font-bold text-white font-mono tracking-tight">{config?.obsIp || t('dash.notSet')}</p>
                     </div>
 
                     <div className="bg-raised p-6 rounded-2xl border border-slate-800 shadow-xl relative overflow-hidden group">
@@ -2158,7 +2158,7 @@ function App(): JSX.Element {
                         <h3 className="font-bold text-lg flex items-center gap-2">
                           <BarChart3 size={20} className="text-accent-500" />
                           <BarChart3 size={20} className="text-accent-500" />
-                          現在のスコア
+                          {t('dash.currentScores')}
                         </h3>
                         <div className="flex gap-2">
                           <button
@@ -2176,7 +2176,7 @@ function App(): JSX.Element {
                                 ? "text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20"
                                 : "text-slate-400 hover:text-white hover:bg-slate-800"
                             )}
-                            title={isCopied ? "コピーしました！" : "順位をコピー"}
+                            title={isCopied ? t('dash.copiedTitle') : t('dash.copyRank')}
                           >
                             {isCopied ? <Check size={16} /> : <Clipboard size={16} />}
                             {isCopied && <span className="text-xs font-bold">Copied!</span>}
@@ -2187,13 +2187,13 @@ function App(): JSX.Element {
                                 onClick={handleAddTeam}
                                 className="text-sm text-emerald-400 hover:text-emerald-300 flex items-center gap-1 transition-colors"
                               >
-                                追加
+                                {t('dash.add')}
                               </button>
                               <button
                                 onClick={() => handleSaveEditedScores()}
                                 className="text-sm text-accent-400 hover:text-accent-300 flex items-center gap-1 transition-colors"
                               >
-                                保存
+                                {t('dash.save')}
                               </button>
                               <button
                                 onClick={() => setIsEditing(false)}
@@ -2208,14 +2208,14 @@ function App(): JSX.Element {
                                 onClick={handleStartEdit}
                                 className="min-h-[32px] text-sm text-accent-400 hover:text-accent-300 flex items-center gap-1 transition-colors"
                               >
-                                編集
+                                {t('dash.edit')}
                               </button>
                               <button
                                 onClick={handleResetScores}
                                 className="min-h-[32px] text-sm text-red-400 hover:text-red-300 flex items-center gap-1 transition-colors"
                               >
                                 <Trash2 size={14} />
-                                リセット
+                                {t('dash.reset')}
                               </button>
                             </>
                           )}
@@ -2225,9 +2225,9 @@ function App(): JSX.Element {
                         <table className="w-full text-left border-separate border-spacing-y-2">
                           <thead>
                             <tr className="text-slate-400 text-xs uppercase tracking-wider">
-                              <th className="px-6 py-3 font-semibold">チーム名</th>
-                              <th className="px-6 py-3 font-semibold text-right">スコア</th>
-                              {isEditing && <th className="px-6 py-3 font-semibold text-right">操作</th>}
+                              <th className="px-6 py-3 font-semibold">{t('dash.thTeam')}</th>
+                              <th className="px-6 py-3 font-semibold text-right">{t('dash.thScore')}</th>
+                              {isEditing && <th className="px-6 py-3 font-semibold text-right">{t('dash.thActions')}</th>}
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-800">
@@ -2311,8 +2311,8 @@ function App(): JSX.Element {
                 >
                   <div className="flex justify-between items-center">
                     <div>
-                      <h2 className="text-3xl font-bold text-white">リオープンマネージャー</h2>
-                      <p className="text-slate-400 mt-1">過去のスコア状態を保存・復元できます</p>
+                      <h2 className="text-3xl font-bold text-white">{t('reopen.title')}</h2>
+                      <p className="text-slate-400 mt-1">{t('reopen.desc')}</p>
                     </div>
                     <button
                       onClick={fetchSlots}
@@ -2354,7 +2354,7 @@ function App(): JSX.Element {
                             ) : (
                               <div className="h-full flex flex-col items-center justify-center py-4 text-slate-400">
                                 <Save size={32} className="mb-2 opacity-20" />
-                                <p className="text-sm italic">空のスロット</p>
+                                <p className="text-sm italic">{t('reopen.emptySlot')}</p>
                               </div>
                             )}
                           </div>
@@ -2370,7 +2370,7 @@ function App(): JSX.Element {
                                   </button>
                                   <button
                                     onClick={() => handleAddScoresFromSlot(i)}
-                                    title="現在のスコアに加算"
+                                    title={t('reopen.addScoreTitle')}
                                     className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-lg text-sm font-bold transition-colors shadow-lg shadow-emerald-900/20"
                                   >
                                     加点
@@ -2397,7 +2397,7 @@ function App(): JSX.Element {
                                 className="w-full bg-accent-600 hover:bg-accent-500 text-white py-3 rounded-xl text-sm font-bold transition-all shadow-lg shadow-accent-900/30 active:scale-95 flex items-center justify-center gap-2 group"
                               >
                                 <Save size={18} className="group-hover:rotate-12 transition-transform" />
-                                現在の状態を保存
+                                {t('reopen.saveState')}
                               </button>
                             )}
                           </div>
