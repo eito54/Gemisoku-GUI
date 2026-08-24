@@ -263,6 +263,7 @@
   },
   "overlaySettings": {
     "title": "オーバーレイ設定",
+    "desc": "配信画面に表示するスコアボードの外観をカスタマイズします",
     "previewTitle": "リアルタイムプレビュー",
     "playDemo": "アニメーション再生",
     "previewScaled": "※ プレビューは60%に縮小表示されています",
@@ -272,6 +273,75 @@
     "scoreEffectColorHelp": "チームスコアが増加した時の緑色フラッシュエフェクトの色を変更できます",
     "currentPlayerColor": "自チーム表示色:",
     "currentPlayerColorHelp": "自分のチームを区別するための外枠線の色を変更できます"
+  },
+  "common": {
+    "important": "重要"
+  },
+  "mappings": {
+    "desc": "特定のプレイヤー名を常に特定のチームとして扱います（OCR誤認識対策）",
+    "listHeading": "マッピング一覧",
+    "thPlayer": "プレイヤー名",
+    "phPlayer": "プレイヤー名",
+    "phTeam": "チーム名",
+    "empty": "マッピングが設定されていません"
+  },
+  "reopenUi": {
+    "teamsCount": "チーム数",
+    "load": "ロード",
+    "addScore": "加点",
+    "overwrite": "上書き"
+  },
+  "settingsSys": {
+    "appearanceTitle": "表示・パフォーマンス",
+    "bgStyle": "背景スタイル",
+    "bgPlanetarium": "プラネタリウム",
+    "liteMode": "ライトモード",
+    "liteModeDesc": "アニメーションを停止し、低スペックPCでの動作を軽量化します。",
+    "obsSection": "OBS WebSocket 設定",
+    "obsSourceLabel": "OBSソース名"
+  },
+  "settingsAi": {
+    "title": "AI 解析設定 (Groq)",
+    "qwenNote": "※ 現在は爆速かつ無料で利用可能な Groq (Qwen 3.6 27B) のみを使用します。",
+    "howToTitle": "Groq APIキーを取得する方法",
+    "how1": "にアクセスしてログインします。",
+    "how2": "Googleアカウント、またはメールアドレスでサインアップ/ログインします。",
+    "how3": "「Create API Key」ボタンを押します。",
+    "how4": "適当な名前（例: MK8DX）を付けて作成し、表示されたコード（gsk_...）をコピーして上の入力欄に貼り付けます。"
+  },
+    "displaySettings": "表示設定",
+    "keepScoresLabel": "アプリ再起動時にスコアを保持する",
+    "keepScoresHelp": "無効にすると、アプリを閉じて再度開いた時にスコアがリセットされます",
+    "remainingRacesLabel": "残りレース数を表示",
+    "remainingRacesHelp": "1位のチームの横に残りレース数を表示します",
+    "urlTitle": "オーバーレイURL",
+    "urlDesc": "OBSのブラウザソースに設定するURLです",
+    "openBrowser": "ブラウザで開く",
+    "themeColorSection": "テーマ & 配色",
+    "overlayThemeLabel": "オーバーレイテーマ",
+    "themeDefault": "デフォルト (Default)",
+    "themeMKW": "マリオカートWii風 (MKW)",
+    "themeDesc": "オーバーレイの全体的なデザインスタイルを変更します。",
+    "colorDetailSection": "詳細カラー設定",
+    "scoreEffectLabel": "スコア加算エフェクト色",
+    "scoreEffectDesc": "点数が加算された時の光の色を変更します。",
+    "ownTeamStyleLabel": "自チームの強調スタイル",
+    "styleSolid": "単色",
+    "styleRainbow": "虹色",
+    "styleGradient": "グラデーション",
+    "ownTeamStyleDesc": "自チーム（または選択中）の枠線のスタイル。",
+    "ownTeamColorLabel": "自チームの色 (単色)",
+    "gradientVariationLabel": "グラデーション・バリエーション",
+    "gradBlue": "ブルー（青〜水色）",
+    "gradPink": "ピンク（ピンク〜紫）",
+    "gradOrange": "オレンジ（オレンジ〜黄）",
+    "gradEmerald": "エメラルド（緑〜青碧）",
+    "animDetailSection": "アニメーション詳細設定",
+    "rankAnimLabel": "順位変動アニメーション",
+    "rankAnimHelp": "順位が入れ替わる際のスライドアニメーションを有効にします",
+    "flashLabel": "スコア更新時のフラッシュ",
+    "flashHelp": "スコアが加算された際、チーム枠を光らせて強調します",
+    "speedLabel": "アニメーション速度倍率"
   },
   "usage": {
     "title": "使用方法",

@@ -2199,7 +2199,7 @@ function App(): JSX.Element {
                                 onClick={() => setIsEditing(false)}
                                 className="text-sm text-slate-400 hover:text-slate-300 flex items-center gap-1 transition-colors"
                               >
-                                キャンセル
+                                {t('modal.cancel')}
                               </button>
                             </>
                           ) : (
@@ -2341,7 +2341,7 @@ function App(): JSX.Element {
                                 <h4 className="font-bold text-lg text-slate-200 truncate">{slot.name}</h4>
                                 <div className="grid grid-cols-2 gap-2">
                                   <div className="bg-slate-900/50 p-2 rounded-lg border border-slate-800">
-                                    <div className="text-xs text-slate-400 uppercase">チーム数</div>
+                                    <div className="text-xs text-slate-400 uppercase">{t('reopenUi.teamsCount')}</div>
                                     <div className="text-sm font-bold text-accent-400">{slot.scores.length}</div>
                                   </div>
                                   <div className="bg-slate-900/50 p-2 rounded-lg border border-slate-800">
@@ -2366,14 +2366,14 @@ function App(): JSX.Element {
                                     onClick={() => handleLoadSlot(i)}
                                     className="flex-1 bg-accent-600 hover:bg-accent-500 text-white py-2 rounded-lg text-sm font-bold transition-colors shadow-lg shadow-accent-900/20"
                                   >
-                                    ロード
+                                    {t('reopenUi.load')}
                                   </button>
                                   <button
                                     onClick={() => handleAddScoresFromSlot(i)}
                                     title={t('reopen.addScoreTitle')}
                                     className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-lg text-sm font-bold transition-colors shadow-lg shadow-emerald-900/20"
                                   >
-                                    加点
+                                    {t('reopenUi.addScore')}
                                   </button>
                                 </div>
                                 <div className="flex gap-2">
@@ -2381,7 +2381,7 @@ function App(): JSX.Element {
                                     onClick={() => handleSaveSlot(i)}
                                     className="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-300 py-2 rounded-lg text-sm transition-colors"
                                   >
-                                    上書き
+                                    {t('reopenUi.overwrite')}
                                   </button>
                                   <button
                                     onClick={() => handleDeleteSlot(i)}
@@ -2418,15 +2418,15 @@ function App(): JSX.Element {
                   className="space-y-8"
                 >
                   <header>
-                    <h2 className="text-3xl font-bold text-white mb-2">プレイヤーマッピング</h2>
-                    <p className="text-slate-400">特定のプレイヤー名を常に特定のチームとして扱います（OCR誤認識対策）</p>
+                    <h2 className="text-3xl font-bold text-white mb-2">{t('nav.mappings')}</h2>
+                    <p className="text-slate-400">{t('mappings.desc')}</p>
                   </header>
 
                   <div className="glass-panel rounded-2xl overflow-hidden border-none">
                     <div className="p-6 border-b border-slate-800 flex justify-between items-center">
                       <h3 className="font-bold text-lg flex items-center gap-2">
                         <Users size={20} className="text-accent-500" />
-                        マッピング一覧
+                        {t('mappings.listHeading')}
                       </h3>
                       <div className="flex gap-2">
                         {isEditingMappings ? (
@@ -2435,20 +2435,20 @@ function App(): JSX.Element {
                               onClick={handleAddMapping}
                               className="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                             >
-                              追加
+                              {t('dash.add')}
                             </button>
                             <button
                               onClick={handleSaveMappings}
                               className="bg-accent-600 hover:bg-accent-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
                             >
                               <Save size={16} />
-                              保存
+                              {t('dash.save')}
                             </button>
                             <button
                               onClick={() => setIsEditingMappings(false)}
                               className="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                             >
-                              キャンセル
+                              {t('modal.cancel')}
                             </button>
                           </>
                         ) : (
@@ -2456,7 +2456,7 @@ function App(): JSX.Element {
                             onClick={handleStartEditMappings}
                             className="min-h-[32px] bg-accent-600 hover:bg-accent-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                           >
-                            編集
+                            {t('dash.edit')}
                           </button>
                         )}
                       </div>
@@ -2465,9 +2465,9 @@ function App(): JSX.Element {
                       <table className="w-full">
                         <thead>
                           <tr className="text-left text-slate-400 text-sm border-b border-slate-800">
-                            <th className="pb-4 font-medium">プレイヤー名</th>
-                            <th className="pb-4 font-medium">チーム名</th>
-                            {isEditingMappings && <th className="pb-4 font-medium w-16">操作</th>}
+                            <th className="pb-4 font-medium">{t('mappings.thPlayer')}</th>
+                            <th className="pb-4 font-medium">{t('dash.thTeam')}</th>
+                            {isEditingMappings && <th className="pb-4 font-medium w-16">{t('dash.thActions')}</th>}
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-800">
@@ -2480,7 +2480,7 @@ function App(): JSX.Element {
                                     value={mapping.name}
                                     onChange={(e) => handleMappingChange(index, 'name', e.target.value)}
                                     className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-all"
-                                    placeholder="プレイヤー名"
+                                    placeholder={t('mappings.phPlayer')}
                                   />
                                 </td>
                                 <td className="py-4 pr-4">
@@ -2489,7 +2489,7 @@ function App(): JSX.Element {
                                     value={mapping.team}
                                     onChange={(e) => handleMappingChange(index, 'team', e.target.value)}
                                     className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-all"
-                                    placeholder="チーム名"
+                                    placeholder={t('mappings.phTeam')}
                                   />
                                 </td>
                                 <td className="py-4">
@@ -2517,7 +2517,7 @@ function App(): JSX.Element {
                             ) : (
                               <tr>
                                 <td colSpan={2} className="py-12 text-center text-slate-400">
-                                  マッピングが設定されていません
+                                  {t('mappings.empty')}
                                 </td>
                               </tr>
                             )
@@ -2539,8 +2539,8 @@ function App(): JSX.Element {
                   className="space-y-8"
                 >
                   <header>
-                    <h2 className="text-3xl font-bold text-white mb-2">オーバーレイ設定</h2>
-                    <p className="text-slate-400">配信画面に表示するスコアボードの外観をカスタマイズします</p>
+                    <h2 className="text-3xl font-bold text-white mb-2">{t('overlaySettings.title')}</h2>
+                    <p className="text-slate-400">{t('overlaySettings.desc')}</p>
                   </header>
 
                   {/* Sub-tabs Navigation */}
@@ -2582,27 +2582,27 @@ function App(): JSX.Element {
                             >
                               <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
                                 <Layout className="text-accent-500" size={24} />
-                                表示設定
+                                {t('overlayUi.displaySettings')}
                               </h3>
 
                               <Toggle
                                 name="keepScoreOnRestart"
                                 defaultChecked={config?.scoreSettings?.keepScoreOnRestart ?? true}
-                                label="アプリ再起動時にスコアを保持する"
-                                help="無効にすると、アプリを閉じて再度開いた時にスコアがリセットされます"
+                                label={t('overlayUi.keepScoresLabel')}
+                                help={t('overlayUi.keepScoresHelp')}
                               />
                               <Toggle
                                 name="showRemainingRaces"
                                 defaultChecked={config?.showRemainingRaces ?? true}
-                                label="残りレース数を表示"
-                                help="1位のチームの横に残りレース数を表示します"
+                                label={t('overlayUi.remainingRacesLabel')}
+                                help={t('overlayUi.remainingRacesHelp')}
                               />
 
                               <div className="p-4 bg-slate-900/50 rounded-xl border border-slate-700/50 flex flex-col gap-4">
                                 <div className="flex justify-between items-center">
                                   <div>
-                                    <p className="font-bold text-slate-200">オーバーレイURL</p>
-                                    <p className="text-xs text-slate-400">OBSのブラウザソースに設定するURLです</p>
+                                    <p className="font-bold text-slate-200">{t('overlayUi.urlTitle')}</p>
+                                    <p className="text-xs text-slate-400">{t('overlayUi.urlDesc')}</p>
                                   </div>
                                   <button
                                     type="button"
@@ -2610,7 +2610,7 @@ function App(): JSX.Element {
                                     className="bg-accent-600 hover:bg-accent-500 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors flex items-center gap-2"
                                   >
                                     <ExternalLink size={16} />
-                                    ブラウザで開く
+                                    {t('overlayUi.openBrowser')}
                                   </button>
                                 </div>
                                 <div className="bg-black/30 p-3 rounded-lg font-mono text-sm text-slate-300 select-all cursor-text flex justify-between items-center">
@@ -2640,11 +2640,11 @@ function App(): JSX.Element {
                             >
                               <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
                                 <Palette className="text-purple-500" size={24} />
-                                テーマ & 配色
+                                {t('overlayUi.themeColorSection')}
                               </h3>
 
                               <div className="space-y-2 p-4 bg-surface rounded-xl border border-slate-700">
-                                <label className="text-sm font-medium text-slate-200">オーバーレイテーマ</label>
+                                <label className="text-sm font-medium text-slate-200">{t('overlayUi.overlayThemeLabel')}</label>
                                 <select
                                   name="overlayTheme"
                                   defaultValue={config?.overlayTheme || 'default'}
@@ -2654,21 +2654,21 @@ function App(): JSX.Element {
                                   }}
                                   className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-all font-sans"
                                 >
-                                  <option value="default">デフォルト (Default)</option>
-                                  <option value="mkw">マリオカートWii風 (MKW)</option>
+                                  <option value="default">{t('overlayUi.themeDefault')}</option>
+                                  <option value="mkw">{t('overlayUi.themeMKW')}</option>
                                 </select>
-                                <p className="text-xs text-slate-400">オーバーレイの全体的なデザインスタイルを変更します。</p>
+                                <p className="text-xs text-slate-400">{t('overlayUi.themeDesc')}</p>
                               </div>
 
                               {/* デフォルトテーマ設定 (Common for most themes except very specific ones) */}
                               <div className="space-y-6 pt-4 border-t border-slate-700/50">
                                 <h4 className="text-sm font-bold text-slate-400 uppercase tracking-widest mt-2">
-                                  詳細カラー設定
+                                  {t('overlayUi.colorDetailSection')}
                                 </h4>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                   <div className="space-y-2 p-4 bg-surface rounded-xl border border-slate-700">
-                                    <label className="text-sm font-medium text-slate-200">スコア加算エフェクト色</label>
+                                    <label className="text-sm font-medium text-slate-200">{t('overlayUi.scoreEffectLabel')}</label>
                                     <div className="flex flex-col gap-2">
                                       <ColorPicker
                                         name="scoreEffect"
@@ -2676,11 +2676,11 @@ function App(): JSX.Element {
                                         onChange={() => setIsDirty(true)}
                                       />
                                     </div>
-                                    <p className="text-xs text-slate-400">点数が加算された時の光の色を変更します。</p>
+                                    <p className="text-xs text-slate-400">{t('overlayUi.scoreEffectDesc')}</p>
                                   </div>
 
                                   <div className="space-y-2 p-4 bg-surface rounded-xl border border-slate-700">
-                                    <label className="text-sm font-medium text-slate-200">自チームの強調スタイル</label>
+                                    <label className="text-sm font-medium text-slate-200">{t('overlayUi.ownTeamStyleLabel')}</label>
                                     <select
                                       name="ownTeamStyle"
                                       defaultValue={config?.overlayColors?.ownTeamStyle || 'rainbow'}
@@ -2690,11 +2690,11 @@ function App(): JSX.Element {
                                       }}
                                       className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-all font-sans"
                                     >
-                                      <option value="solid">単色</option>
-                                      <option value="rainbow">虹色</option>
-                                      <option value="gradient">グラデーション</option>
+                                      <option value="solid">{t('overlayUi.styleSolid')}</option>
+                                      <option value="rainbow">{t('overlayUi.styleRainbow')}</option>
+                                      <option value="gradient">{t('overlayUi.styleGradient')}</option>
                                     </select>
-                                    <p className="text-xs text-slate-400">自チーム（または選択中）の枠線のスタイル。</p>
+                                    <p className="text-xs text-slate-400">{t('overlayUi.ownTeamStyleDesc')}</p>
                                   </div>
                                 </div>
 
@@ -2706,7 +2706,7 @@ function App(): JSX.Element {
                                     className="p-4 bg-surface rounded-xl border border-slate-700 grid grid-cols-1 md:grid-cols-2 gap-6"
                                   >
                                     <div className="space-y-2">
-                                      <label className="text-sm font-medium text-slate-200">自チームの色 (単色)</label>
+                                      <label className="text-sm font-medium text-slate-200">{t('overlayUi.ownTeamColorLabel')}</label>
                                       <ColorPicker
                                         name="ownTeamColor"
                                         initialValue={config?.overlayColors?.ownTeamColor || '#fbbf24'}
@@ -2716,17 +2716,17 @@ function App(): JSX.Element {
 
                                     {selectedOwnTeamStyle === 'gradient' && (
                                       <div className="space-y-2">
-                                        <label className="text-sm font-medium text-slate-200">グラデーション・バリエーション</label>
+                                        <label className="text-sm font-medium text-slate-200">{t('overlayUi.gradientVariationLabel')}</label>
                                         <select
                                           name="ownTeamGradient"
                                           defaultValue={config?.overlayColors?.ownTeamGradient || 'blue'}
                                           onChange={() => setIsDirty(true)}
                                           className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-all font-sans"
                                         >
-                                          <option value="blue">ブルー（青〜水色）</option>
-                                          <option value="pink">ピンク（ピンク〜紫）</option>
-                                          <option value="orange">オレンジ（オレンジ〜黄）</option>
-                                          <option value="emerald">エメラルド（緑〜青碧）</option>
+                                          <option value="blue">{t('overlayUi.gradBlue')}</option>
+                                          <option value="pink">{t('overlayUi.gradPink')}</option>
+                                          <option value="orange">{t('overlayUi.gradOrange')}</option>
+                                          <option value="emerald">{t('overlayUi.gradEmerald')}</option>
                                         </select>
                                       </div>
                                     )}
@@ -2745,26 +2745,26 @@ function App(): JSX.Element {
                             >
                               <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
                                 <Zap className="text-yellow-400" size={24} />
-                                アニメーション詳細設定
+                                {t('overlayUi.animDetailSection')}
                               </h3>
 
                               <div className="space-y-6 bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
                                 <Toggle
                                   name="rankAnim"
                                   defaultChecked={config?.overlayAnimations?.rankAnim ?? true}
-                                  label="順位変動アニメーション"
-                                  help="順位が入れ替わる際のスライドアニメーションを有効にします"
+                                  label={t('overlayUi.rankAnimLabel')}
+                                  help={t('overlayUi.rankAnimHelp')}
                                 />
                                 <Toggle
                                   name="flashOnUpdate"
                                   defaultChecked={config?.overlayAnimations?.flash ?? true}
-                                  label="スコア更新時のフラッシュ"
-                                  help="スコアが加算された際、チーム枠を光らせて強調します"
+                                  label={t('overlayUi.flashLabel')}
+                                  help={t('overlayUi.flashHelp')}
                                 />
 
                                 <div className="space-y-2 pt-2">
                                   <div className="flex justify-between">
-                                    <label className="text-sm font-medium text-slate-200">アニメーション速度倍率</label>
+                                    <label className="text-sm font-medium text-slate-200">{t('overlayUi.speedLabel')}</label>
                                     <span className="text-sm font-bold text-accent-400">x{config?.overlayAnimations?.speed ?? 1.0}</span>
                                   </div>
                                   <input
@@ -2792,7 +2792,7 @@ function App(): JSX.Element {
                               className="w-full bg-accent-600 hover:bg-accent-500 text-white px-6 py-3 rounded-xl font-semibold transition-all shadow-lg shadow-accent-900/20 active:scale-95 flex justify-center items-center gap-2"
                             >
                               <Save size={18} />
-                              設定を保存
+                              {t('config.saveButton')}
                             </button>
                           </div>
                         </form>
@@ -2885,13 +2885,13 @@ function App(): JSX.Element {
                       >
                         <h3 className="text-lg font-bold flex items-center gap-2 text-purple-400">
                           <Monitor size={20} />
-                          表示・パフォーマンス (Appearance)
+                          {t('settingsSys.appearanceTitle')}
                         </h3>
 
                         <div className="space-y-6">
                           {/* Background Style */}
                           <div className="space-y-3">
-                            <label className="text-sm font-medium text-slate-400">背景スタイル (Background Style)</label>
+                            <label className="text-sm font-medium text-slate-400">{t('settingsSys.bgStyle')}</label>
                             <div className="grid grid-cols-2 gap-4">
                               <button
                                 type="button"
@@ -2906,7 +2906,7 @@ function App(): JSX.Element {
                                 <div className="w-full h-24 rounded-lg bg-gradient-to-br from-indigo-900 to-purple-900 overflow-hidden relative mb-2">
                                   <div className="absolute inset-0 opacity-50 flex items-center justify-center text-xs text-white/50">Planetarium Preview</div>
                                 </div>
-                                <span className="font-bold">プラネタリウム</span>
+                                <span className="font-bold">{t('settingsSys.bgPlanetarium')}</span>
                               </button>
 
                               <button
@@ -2935,10 +2935,10 @@ function App(): JSX.Element {
                             <div className="space-y-1">
                               <div className="font-bold text-slate-200 flex items-center gap-2">
                                 <Zap size={16} className="text-yellow-400" />
-                                ライトモード (Lite Mode)
+                                {t('settingsSys.liteMode')}
                               </div>
                               <p className="text-xs text-slate-400">
-                                アニメーションを停止し、低スペックPCでの動作を軽量化します。
+                                {t('settingsSys.liteModeDesc')}
                               </p>
                             </div>
                             <button
@@ -2972,7 +2972,7 @@ function App(): JSX.Element {
                       >
                         <h3 className="text-lg font-bold flex items-center gap-2 text-accent-400">
                           <Radio size={20} />
-                          OBS WebSocket 設定
+                          {t('settingsSys.obsSection')}
                         </h3>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -3011,8 +3011,8 @@ function App(): JSX.Element {
                         <div className="pt-4 border-t border-slate-700/50">
                           <div className="space-y-2">
                             <label className="text-sm font-medium text-slate-400 flex items-center gap-2">
-                              OBSソース名 (Browser Source Name)
-                              <span className="text-xs text-yellow-500 border border-yellow-500/30 px-1 rounded bg-yellow-500/10">重要</span>
+                              {t('settingsSys.obsSourceLabel')}
+                              <span className="text-xs text-yellow-500 border border-yellow-500/30 px-1 rounded bg-yellow-500/10">{t('common.important')}</span>
                             </label>
                             <div className="relative">
                               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -3072,7 +3072,7 @@ function App(): JSX.Element {
                       >
                         <h3 className="text-lg font-bold flex items-center gap-2 text-green-400">
                           <Zap size={20} />
-                          AI 解析設定 (Groq)
+                          {t('settingsAi.title')}
                         </h3>
 
                         <input type="hidden" name="aiProvider" value="groq" />
@@ -3135,7 +3135,7 @@ function App(): JSX.Element {
                               className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all font-mono"
                             />
                             <p className="text-xs text-slate-400 italic">
-                              ※ 現在は爆速かつ無料で利用可能な Groq (Qwen 3.6 27B) のみを使用します。
+                              {t('settingsAi.qwenNote')}
                             </p>
                           </div>
 
@@ -3145,7 +3145,7 @@ function App(): JSX.Element {
                               onClick={() => setShowGroqInstructions(!showGroqInstructions)}
                               className="w-full flex items-center justify-between p-4 bg-slate-800/50 hover:bg-slate-800 transition-colors text-sm font-medium text-slate-300"
                             >
-                              <span>Groq APIキーを取得する方法</span>
+                              <span>{t('settingsAi.howToTitle')}</span>
                               <ChevronRight
                                 size={16}
                                 className={cn("transition-transform duration-200", showGroqInstructions && "rotate-90")}
@@ -3171,20 +3171,20 @@ function App(): JSX.Element {
                                         >
                                           Groq Cloud Console <ExternalLink size={12} />
                                         </a>
-                                        にアクセスします。
+                                        {t('settingsAi.how1')}
                                       </span>
                                     </p>
                                     <p className="flex gap-2">
                                       <span className="flex-shrink-0 w-5 h-5 bg-slate-800 rounded-full flex items-center justify-center text-xs text-white">2</span>
-                                      <span className="flex-1">Googleアカウント、またはメールアドレスでサインアップ/ログインします。</span>
+                                      <span className="flex-1">{t('settingsAi.how2')}</span>
                                     </p>
                                     <p className="flex gap-2">
                                       <span className="flex-shrink-0 w-5 h-5 bg-slate-800 rounded-full flex items-center justify-center text-xs text-white">3</span>
-                                      <span className="flex-1">「Create API Key」ボタンを押します。</span>
+                                      <span className="flex-1">{t('settingsAi.how3')}</span>
                                     </p>
                                     <p className="flex gap-2">
                                       <span className="flex-shrink-0 w-5 h-5 bg-slate-800 rounded-full flex items-center justify-center text-xs text-white">4</span>
-                                      <span className="flex-1">適当な名前（例: MK8DX）を付けて作成し、表示されたコード（gsk-...）をコピーして上の入力欄に貼り付けます。</span>
+                                      <span className="flex-1">{t('settingsAi.how4')}</span>
                                     </p>
                                   </div>
                                 </motion.div>

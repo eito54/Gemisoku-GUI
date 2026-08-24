@@ -263,6 +263,7 @@
   },
   "overlaySettings": {
     "title": "Overlay Settings",
+    "desc": "Customize the scoreboard shown on your stream",
     "previewTitle": "Live Preview",
     "playDemo": "Play Demo",
     "previewScaled": "* Preview is scaled down to 60%",
@@ -272,6 +273,75 @@
     "scoreEffectColorHelp": "Customize the color of the flash effect when team scores increase",
     "currentPlayerColor": "Current Player Color:",
     "currentPlayerColorHelp": "Customize the border color to distinguish your own team"
+  },
+  "common": {
+    "important": "Important"
+  },
+  "mappings": {
+    "desc": "Treat specific player names as specific teams at all times (OCR misread protection)",
+    "listHeading": "Mapping List",
+    "thPlayer": "Player",
+    "phPlayer": "Player name",
+    "phTeam": "Team name",
+    "empty": "No mappings configured"
+  },
+  "reopenUi": {
+    "teamsCount": "Teams",
+    "load": "Load",
+    "addScore": "Add",
+    "overwrite": "Overwrite"
+  },
+  "settingsSys": {
+    "appearanceTitle": "Appearance & Performance",
+    "bgStyle": "Background Style",
+    "bgPlanetarium": "Planetarium",
+    "liteMode": "Lite Mode",
+    "liteModeDesc": "Disables animations for smoother performance on low-end PCs.",
+    "obsSection": "OBS WebSocket Settings",
+    "obsSourceLabel": "OBS Source Name"
+  },
+  "settingsAi": {
+    "title": "AI Analysis (Groq)",
+    "qwenNote": "* Currently uses Groq (Qwen 3.6 27B) — ultra-fast and free.",
+    "howToTitle": "How to get a Groq API key",
+    "how1": "Open it and log in.",
+    "how2": "Sign up / log in with a Google account or email address.",
+    "how3": "Click the \"Create API Key\" button.",
+    "how4": "Name it (e.g., MK8DX), create it, and copy the code (gsk_...) into the field above."
+  },
+    "displaySettings": "Display Settings",
+    "keepScoresLabel": "Keep scores across app restarts",
+    "keepScoresHelp": "When turned off, scores are reset automatically each time the app starts",
+    "remainingRacesLabel": "Show remaining races",
+    "remainingRacesHelp": "Shows the remaining race count next to the 1st place team",
+    "urlTitle": "Overlay URL",
+    "urlDesc": "Set this URL as the browser source in OBS",
+    "openBrowser": "Open in Browser",
+    "themeColorSection": "Theme & Colors",
+    "overlayThemeLabel": "Overlay Theme",
+    "themeDefault": "Default",
+    "themeMKW": "Mario Kart Wii Style (MKW)",
+    "themeDesc": "Changes the overall design style of the overlay.",
+    "colorDetailSection": "Detailed Color Settings",
+    "scoreEffectLabel": "Score Effect Color",
+    "scoreEffectDesc": "Changes the glow color when points are added.",
+    "ownTeamStyleLabel": "Own Team Highlight Style",
+    "styleSolid": "Solid",
+    "styleRainbow": "Rainbow",
+    "styleGradient": "Gradient",
+    "ownTeamStyleDesc": "Border style for your own (or selected) team.",
+    "ownTeamColorLabel": "Own Team Color (solid)",
+    "gradientVariationLabel": "Gradient Variation",
+    "gradBlue": "Blue (blue to cyan)",
+    "gradPink": "Pink (pink to purple)",
+    "gradOrange": "Orange (orange to yellow)",
+    "gradEmerald": "Emerald (green to teal)",
+    "animDetailSection": "Animation Settings",
+    "rankAnimLabel": "Rank Change Animation",
+    "rankAnimHelp": "Enables the slide animation when ranks change",
+    "flashLabel": "Score Update Flash",
+    "flashHelp": "Highlights the team box with a glow when points are added",
+    "speedLabel": "Animation Speed Multiplier"
   },
   "usage": {
     "title": "How to Use",
