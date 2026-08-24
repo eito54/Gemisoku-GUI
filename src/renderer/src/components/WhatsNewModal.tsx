@@ -28,11 +28,11 @@ export function WhatsNewModal({
                         initial={{ opacity: 0, scale: 0.9, y: 30 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 30 }}
-                        className="relative w-full max-w-lg bg-slate-900 border-2 border-blue-500/50 rounded-2xl overflow-hidden shadow-[0_0_80px_rgba(59,130,246,0.3)]"
+                        className="relative w-full max-w-lg bg-slate-900 border-2 border-accent-500/50 rounded-2xl overflow-hidden shadow-[0_0_80px_rgba(239,68,68,0.3)]"
                     >
                         {/* 装飾 */}
-                        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent animate-shimmer" />
-                        <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl" />
+                        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-accent-500 to-transparent animate-shimmer" />
+                        <div className="absolute -top-24 -right-24 w-48 h-48 bg-accent-500/10 rounded-full blur-3xl" />
 
                         <div className="p-8">
                             <div className="flex items-center justify-between mb-8">

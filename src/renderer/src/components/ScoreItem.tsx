@@ -72,7 +72,7 @@ export function ScoreItem({
             <td className="px-6 py-4 font-medium text-slate-200 relative">
                 {/* Current Player Indicator Bar (Inside first cell) */}
                 {isCurrentPlayer && (
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.5)]" />
                 )}
 
                 <div className="flex items-center gap-4">

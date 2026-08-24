@@ -1408,7 +1408,7 @@ function App(): JSX.Element {
               className="bg-raised w-full max-w-2xl rounded-2xl border border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
             >
               {/* Wizard Header */}
-              <div className="p-8 border-b border-slate-800 bg-slate-800/30 flex justify-between items-center">
+              <div className="p-8 border-b border-slate-800 bg-slate-800/30 flex justify-between items-center relative">
                 <div>
                   <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                     <Zap className="text-accent-400" size={24} />
@@ -1416,17 +1416,25 @@ function App(): JSX.Element {
                   </h2>
                   <p className="text-slate-400 text-sm mt-1">{t('wizard.subtitle')}</p>
                 </div>
-                <div className="flex gap-1">
-                  {[0, 1, 2, 3].map((step) => (
+                <div className="flex gap-1" aria-label={t('wizard.title')}>
+                  {[0, 1, 2, 3, 4].map((step) => (
                     <div
                       key={step}
                       className={cn(
                         "w-8 h-1.5 rounded-full transition-all duration-500",
-                        wizardStep >= step ? "bg-accent-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" : "bg-slate-700"
+                        wizardStep >= step ? "bg-accent-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" : "bg-slate-700"
                       )}
                     />
                   ))}
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setShowWizard(false)}
+                  aria-label={t('wizard.close')}
+                  className="absolute top-4 right-4 min-h-[32px] min-w-[32px] p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/60 transition-colors flex items-center justify-center"
+                >
+                  <X size={18} />
+                </button>
               </div>
 
               {/* Wizard Content */}
@@ -1483,6 +1491,7 @@ function App(): JSX.Element {
                             onChange={(e) => setConfig({ ...config, groqApiKey: e.target.value })}
                             className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-4 text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-all font-mono"
                           />
+                          <p className="text-xs text-slate-400">{t('wizard.keyHint')}</p>
                         </div>
 
                         <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-800 space-y-3">
@@ -1510,7 +1519,7 @@ function App(): JSX.Element {
 
                   {wizardStep === 2 && (
                     <motion.div
-                      key="step1.5"
+                      key="step2"
                       initial={{ x: 20, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
                       exit={{ x: -20, opacity: 0 }}
@@ -1538,8 +1547,9 @@ function App(): JSX.Element {
 
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <label className="text-xs font-bold text-slate-400">{t('wizard.ipLabel')}</label>
+                          <label htmlFor="wizObsIp" className="text-xs font-bold text-slate-400">{t('wizard.ipLabel')}</label>
                           <input
+                            id="wizObsIp"
                             type="text"
                             value={config?.obsIp || ''}
                             onChange={(e) => setConfig({ ...config, obsIp: e.target.value })}
@@ -1548,9 +1558,12 @@ function App(): JSX.Element {
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-xs font-bold text-slate-400">{t('wizard.portLabel')}</label>
+                          <label htmlFor="wizObsPort" className="text-xs font-bold text-slate-400">{t('wizard.portLabel')}</label>
                           <input
+                            id="wizObsPort"
                             type="number"
+                            min={1}
+                            max={65535}
                             value={config?.obsPort || ''}
                             onChange={(e) => {
                               const val = e.target.value === '' ? 0 : parseInt(e.target.value)
@@ -1562,8 +1575,9 @@ function App(): JSX.Element {
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-400">{t('wizard.passwordLabel')}</label>
+                        <label htmlFor="wizObsPassword" className="text-xs font-bold text-slate-400">{t('wizard.passwordLabel')}</label>
                         <input
+                          id="wizObsPassword"
                           type="password"
                           value={config?.obsPassword || ''}
                           onChange={(e) => setConfig({ ...config, obsPassword: e.target.value })}
@@ -1574,11 +1588,12 @@ function App(): JSX.Element {
 
                       <div className="space-y-4">
                         <div className="space-y-2 relative">
-                          <label className="text-xs font-bold text-slate-400">{t('wizard.sourceLabel')}</label>
+                          <label htmlFor="wizObsSource" className="text-xs font-bold text-slate-400">{t('wizard.sourceLabel')}</label>
                           <div className="flex gap-2">
                             <div className="relative flex-1">
                               {obsInputs && obsInputs.length > 0 ? (
                                 <select
+                                  id="wizObsSource"
                                   value={config?.obsSourceName || ''}
                                   onChange={(e) => setConfig({ ...config, obsSourceName: e.target.value })}
                                   className="w-full bg-surface border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-accent-500/50 transition-all font-sans"
@@ -1643,6 +1658,16 @@ function App(): JSX.Element {
                             </p>
                           )}
                         </div>
+                      </div>
+
+                      <div className="text-center pt-4">
+                        <button
+                          type="button"
+                          onClick={() => setWizardStep(3)}
+                          className="text-xs text-slate-500 hover:text-slate-300 underline underline-offset-2"
+                        >
+                          {t('wizard.skipObs')}
+                        </button>
                       </div>
 
                       <div className="flex justify-between pt-6">
@@ -2221,7 +2246,7 @@ function App(): JSX.Element {
                               "w-2 h-2 mt-2 rounded-full shrink-0",
                               log.type === 'success' ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" :
                                 log.type === 'error' ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" :
-                                  "bg-accent-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"
+                                  "bg-accent-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"
                             )} />
                             <div className="flex-1 min-w-0">
                               <p className="text-sm text-slate-300 break-words">{log.message}</p>

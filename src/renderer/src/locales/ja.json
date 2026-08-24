@@ -99,14 +99,17 @@
     "connectFailed": "接続失敗"
   },
   "wizard": {
+    "close": "閉じる",
+    "skipObs": "OBS設定はあとで完了する（スキップ）",
     "title": "初期設定ガイド",
     "subtitle": "Grosoqを使い始めるための必須設定を行います",
     "welcomeTitle": "ようこそ、Grosoqへ",
-    "welcomeDesc1": "Grosoqは、Groqの超高速なAIを使用してマリオカート8DXのレース結果を瞬時に分析するツールです。",
+    "welcomeDesc1": "Grosoqは、Groqの超高速なAIを使用してMK8DX・マリオカートワールドのレース結果を瞬時に分析するツールです。",
     "welcomeDesc2": "使い始めるために、2つの簡単な設定を行いましょう。",
     "start": "設定を開始する",
     "step1Title": "1. Groq APIキーの設定",
     "step1Desc": "解析に使用するGroqのAPIキーを入力してください。無料で取得可能です。",
+    "keyHint": "キーは「gsk_」で始まります",
     "howToGet": "取得方法:",
     "groqConsole": "Groq Console",
     "how1Suffix": "にアクセスしてログイン",
