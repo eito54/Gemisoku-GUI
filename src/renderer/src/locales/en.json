@@ -41,6 +41,9 @@
     "resetMessage": "This resets all team scores and player mappings. This cannot be undone. Are you sure?",
     "resetConfirm": "Reset"
   },
+  "whatsNew": {
+    "noNotes": "No detailed release notes for this version."
+  },
   "score": {
     "setSelf": "Set as my team"
   },

@@ -1,7 +1,7 @@
 <div align="center">
   <img src="./assets/logo.jpeg" alt="Grosoq Logo" width="120" height="120"/>
   <h1>🏎️ Grosoq</h1>
-  <p><strong>マリオカート8デラックス レース結果自動取得・分析GUIアプリケーション</strong></p>
+  <p><strong>MK8DX・MKWorld即時集計ツール</strong></p>
   
   [![GitHub](https://img.shields.io/github/license/eito54/Grosoq)](LICENSE)
   [![Electron](https://img.shields.io/badge/Electron-39-blue)](https://www.electronjs.org/)
@@ -13,12 +13,12 @@
 
 ![Grosoq Screenshot](./assets/ex.gif)
 
-**Grosoq**は、マリオカート8デラックス（MK8DX）のレース結果を自動的に取得・分析し、配信オーバーレイとして表示するデスクトップGUIアプリケーションです。
+**Grosoq**は、マリオカート8デラックス（MK8DX）・マリオカートワールド（MKWorld）のレース結果を自動的に取得・分析し、配信オーバーレイとして表示するデスクトップGUIアプリケーションです。
 OBS配信とAI画像解析を組み合わせ、簡単な操作でリアルタイムスコア表示を実現します。
 
 ## 📖 Grosoqとは
 
-**Grosoq**は、マリオカート8デラックス（MK8DX）の配信者向けに開発されたデスクトップアプリケーションです。
+**Grosoq**は、マリオカート8デラックス（MK8DX）・マリオカートワールド（MKWorld）の配信者向けに開発されたデスクトップアプリケーションです。
 レース結果画面を自動的に解析し、チーム別スコアをリアルタイムで配信オーバーレイに表示します。
 
 ### 🌟 主な特徴
@@ -67,7 +67,7 @@ OBS配信とAI画像解析を組み合わせ、簡単な操作でリアルタイ
 - **OBS Studio** (v29.0以上)
   - [公式サイト](https://obsproject.com/)からダウンロード
   - WebSocketプラグインが内蔵されているバージョンを使用
-- **マリオカート8デラックス** + **Nintendo Switch**
+- **マリオカート8デラックス / マリオカートワールド** + **Nintendo Switch（またはSwitch 2）**
 - **Groq API キー**
   - [Groq Console](https://console.groq.com/keys)で無料取得
 

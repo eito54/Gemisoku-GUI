@@ -1,6 +1,7 @@
 import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Zap, ChevronRight } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export function WhatsNewModal({
     isOpen,
@@ -13,6 +14,7 @@ export function WhatsNewModal({
     version: string;
     notes: string;
 }) {
+    const { t } = useTranslation() {
     return (
         <AnimatePresence>
             {isOpen && (
@@ -58,7 +60,7 @@ export function WhatsNewModal({
                                     </div>
                                 ) : (
                                     <p className="text-slate-400 italic text-center py-4">
-                                        このバージョンの詳細なリリースノートはありません。
+                                        {t('whatsNew.noNotes')}
                                     </p>
                                 )}
                             </div>
