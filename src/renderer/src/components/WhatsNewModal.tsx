@@ -43,7 +43,7 @@ export function WhatsNewModal({
                                     </div>
                                     <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400 uppercase tracking-tight">What's New</h2>
                                 </div>
-                                <div className="w-14 h-14 bg-blue-600/20 rounded-2xl flex items-center justify-center border border-blue-500/30">
+                                <div className="w-14 h-14 bg-accent-600/20 rounded-2xl flex items-center justify-center border border-accent-500/30">
                                     <Zap className="text-blue-500 animate-pulse" size={32} />
                                 </div>
                             </div>

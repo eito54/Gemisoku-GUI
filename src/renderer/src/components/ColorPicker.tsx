@@ -17,7 +17,7 @@ export function ColorPicker({ name, initialValue, onChange }: { name: string; in
                     setLocalColor(e.target.value)
                     if (onChange) onChange()
                 }}
-                className="w-full h-14 bg-slate-900 border-2 border-slate-700 rounded-xl cursor-pointer transition-all hover:border-blue-500 p-1"
+                className="w-full h-14 bg-slate-900 border-2 border-slate-700 rounded-xl cursor-pointer transition-all hover:border-accent-500 p-1"
             />
             <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
                 <span className="text-xs font-mono text-white/50 bg-black/40 px-2 py-1 rounded backdrop-blur-sm group-hover/color:text-white/80 transition-colors">
